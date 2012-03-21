@@ -1,0 +1,238 @@
+# encoding: utf-8
+
+require 'popen4'
+require 'colored'
+require 'logger'
+
+# Classes concerning command execution
+module CommandExec
+  # Run commands
+  class Command
+
+    attr_accessor :logfile, :options , :parameter, :error_keywords
+    attr_reader :result, :path, :working_directory
+
+    # Create a new command to execute
+    #
+    # @param [Symbol] name name of command
+    # @param [optional,Hash] opts options for the command
+    # @option opts [String] :options options for binary
+    # @option opts [String] :parameter parameter for binary
+    # @option opts [String] :error_keywords keyword indicating an error on stdout
+    # @option opts [String] :working_directory working directory where the process should run in
+    # @option opts [String] :logfile file path to log file of process
+    def initialize(name,opts={})
+
+      @name = name
+      @opts = {
+        :logger => Logger.new($stderr),
+        :options => '',
+        :parameter => '',
+        :error_keywords => [],
+        :working_directory => Dir.pwd,
+        :logfile => '',
+        :debug => false,
+      }.update opts
+
+      @logger = @opts[:logger] 
+      @options = @opts[:options]
+      @parameter = @opts[:parameter]
+      @path = resolve_cmd_name(name)
+      @error_keywords = @opts[:error_keywords]
+      @logfile = @opts[:logfile]
+
+      @working_directory = @opts[:working_directory] 
+      Dir.chdir(working_directory)
+
+    end
+
+    private
+
+    # Find utility path
+    #
+    # @param [Symbol] name Name of utility
+    # @return [Path] Returns the path to the binary of the binary
+    def resolve_cmd_name(name)
+      path=''
+      path = %x[which #{name} 2>/dev/null].chomp
+
+      if path.empty?
+        @logger.fatal("Command not found #{name}")
+        raise Exceptions::CommandNotFound 
+      end
+
+      return path
+    end
+
+    # Build string to execute command
+    #
+    # @return [String] Returns to whole command with parameters and options
+    def build_cmd_string
+      cmd = ''
+      cmd += path
+      cmd += options.empty? ? "" : " #{options}"
+      cmd += parameter.empty? ? "" : " #{parameter}"
+
+      return cmd
+    end
+
+    # Checks for errors
+    #
+    # @raise [String] 
+
+    public
+
+    # Output the textual representation of a command
+    #
+    # @return [String] command in text form
+    def to_txt
+      return build_cmd_string
+    end
+
+    # Run the program
+    #
+    def run
+
+      _stdout = ''
+      _stderr = ''
+
+      status = POpen4::popen4(build_cmd_string) do |stdout, stderr, stdin, pid|
+        _stdout = stdout.read.strip
+        _stderr = stderr.read.strip
+      end
+
+
+      error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
+      @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+
+      if @result == false
+        msg = message(
+          @result, 
+          help_output(
+            { 
+              :error_in_exec => not(status.success?), 
+              :error_in_stdout => error_in_stdout_found 
+            }, {
+              :stdout => StringIO.new(_stdout),
+              :stderr => StringIO.new(_stderr),
+              :logfile => read_logfile(logfile),
+            }
+          )
+        )
+      else
+        msg =  message(@result)
+      end
+
+      @logger.info "#{@name.to_s}: #{msg}"
+
+      return @result
+
+    end
+
+    # Read the content of the logfile
+    #
+    # @param [Path] file path to logfile
+    # @param [Integer num_of_lines the number of lines which should be read -- e.g. 30 lines = -30
+    def read_logfile(file, num_of_lines=-30)
+      content = StringIO.new
+
+      unless file.empty? 
+        begin
+          content << File.readlines(logfile)[num_of_lines..-1].join("")
+        rescue Errno::ENOENT
+          @logger.warn "Warning: logfile not found!"
+        end
+      end
+
+      return content
+    end
+
+    # Decide if a program run was successful
+    #
+    # @return [Boolean] Returns the decision
+    def run_successful?(success,error_in_stdout)
+      if success == false or error_in_stdout == true 
+        return false
+      else 
+        return true 
+      end
+    end
+
+    # Decide which output to return to the user
+    # to help him with debugging
+    #
+    # @return [Array] Returns lines of log/stdout/stderr
+    def help_output(error_indicators={},output={})
+      error_in_exec = error_indicators[:error_in_exec]
+      error_in_stdout = error_indicators[:error_in_stdout]
+
+      logfile = output[:logfile].string
+      stdout = output[:stdout].string
+      stderr = output[:stderr].string
+
+      result = []
+
+      if error_in_exec == true
+        result << '================== LOGFILE ================== '
+        result << logfile if logfile.empty? == false 
+        result << '================== STDOUT ================== '
+        result << stdout if stdout.empty? == false
+        result << '================== STDERR ================== '
+        result << stderr if stderr.empty? == false
+      elsif error_in_stdout == true
+        result << '================== STDOUT ================== '
+        result << stdout 
+      end
+
+      return result
+
+    end
+
+    # Find error in stdout
+    # 
+    # @return [Boolean] Returns true if it finds an error
+    def error_in_string_found? (keywords=[], string )
+      return false if keywords.empty? or not keywords.is_a? Array 
+      return false if string.nil? or not string.is_a? String
+
+      error_found = false
+      keywords.each do |word|
+        if string.include? word
+          error_found = true
+          break
+        end
+      end
+
+      return error_found
+
+    end
+
+    # Generate the message which is return to the user
+    # 
+    # @param [Boolean] run_successful true if a positive message should be returned
+    # @param [Array] msg Message which should be returned
+    def message(run_successful, *msg)
+
+      message = []
+      if run_successful
+        message << 'OK'.green.bold
+      else
+        message << 'FAILED'.red.bold
+        message.concat msg.flatten
+      end
+
+      return message.join("\n")
+    end
+
+    # Constructur to initiate a new command and run it later
+    #
+    # @see #initialize
+    def Command.execute(name,opts={})
+      command = new(name,opts)
+      command.run
+
+      return command
+    end
+
+  end
+end
