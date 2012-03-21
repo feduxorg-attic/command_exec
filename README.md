@@ -3,7 +3,7 @@ command-exec(1) -- execute shell commands with ease
 
 ## Description
 
-This gem brings bells and whistles to command execution via POpen4.
+This gem brings command execution via POpen4 with all the bells and whistles.
 
 ## Usage
 
