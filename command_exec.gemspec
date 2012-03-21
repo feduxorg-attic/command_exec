@@ -1,17 +1,15 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "ruby-command_exec/version"
+require "command_exec/version"
 
 Gem::Specification.new do |s|
-  s.name        = "ruby-command_exec"
-  s.version     = Ruby::CommandExec::VERSION
+  s.name        = "command_exec"
+  s.version     = CommandExec::VERSION
   s.authors     = ["Max Meyer"]
   s.email       = ["dev@fedux.org"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
-
-  s.rubyforge_project = "ruby-command_exec"
+  s.summary     = %q{Helper gem to exectue arbitrary shell commands}
+  s.description = %q{This adds bells and whistles to ease shell command execution}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
