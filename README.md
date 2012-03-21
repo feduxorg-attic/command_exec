@@ -41,10 +41,13 @@ to suppress that output, but it's on the roadmap.
 
 ### Successfull 
 
+```
 <timestamp> command: OK
+```
 
 ### Failed with STDERR set
 
+```
 <timestamp> command: FAILED
 ================== LOGFILE ==================
 [...]
@@ -52,11 +55,14 @@ to suppress that output, but it's on the roadmap.
 [...]
 ================== STDERR ==================
 [...]
+```
 
 ### Failed with string in STDOUT indicating an error
 
+```
 <timestamp> command: FAILED
 ================== STDOUT ==================
+```
 
 ## Dependencies
 
