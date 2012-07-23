@@ -80,7 +80,7 @@ module CommandExec
         raise Exceptions::CommandNotFound 
       end
 
-      return path
+      path
     end
 
     # Build string to execute command
@@ -92,7 +92,7 @@ module CommandExec
       cmd += options.empty? ? "" : " #{options}"
       cmd += parameter.empty? ? "" : " #{parameter}"
 
-      return cmd
+      cmd
     end
 
     public
@@ -141,7 +141,7 @@ module CommandExec
 
       @logger.info "#{@name.to_s}: #{msg}"
 
-      return @result
+      @result
     end
 
     # Read the content of the logfile
@@ -159,7 +159,7 @@ module CommandExec
         end
       end
 
-      return content
+      content
     end
 
     # Decide if a program run was successful
@@ -199,8 +199,7 @@ module CommandExec
         result << stdout 
       end
 
-      return result
-
+      result
     end
 
     # Find error in stdout
@@ -218,8 +217,7 @@ module CommandExec
         end
       end
 
-      return error_found
-
+      error_found
     end
 
     # Generate the message which is return to the user
@@ -236,7 +234,7 @@ module CommandExec
         message.concat msg.flatten
       end
 
-      return message.join("\n")
+      message.join("\n")
     end
 
     # Constructur to initiate a new command and run it later
@@ -246,7 +244,7 @@ module CommandExec
       command = new(name,opts)
       command.run
 
-      return command
+      command
     end
 
   end
