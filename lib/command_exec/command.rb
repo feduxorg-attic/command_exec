@@ -1,9 +1,5 @@
 # encoding: utf-8
 
-require 'popen4'
-require 'colored'
-require 'logger'
-
 # Classes concerning command execution
 module CommandExec
   # Run commands
@@ -31,7 +27,7 @@ module CommandExec
         :error_keywords => [],
         :working_directory => Dir.pwd,
         :logfile => '',
-        :debug => false,
+        :log_level => :info,
       }.update opts
 
       @logger = @opts[:logger] 
@@ -41,12 +37,35 @@ module CommandExec
       @error_keywords = @opts[:error_keywords]
       @logfile = @opts[:logfile]
 
+      configure_logging
+
       @working_directory = @opts[:working_directory] 
       Dir.chdir(working_directory)
 
     end
 
     private
+
+    def configure_logging
+      case @opts[:log_level]
+      when :debug
+        @logger.level = Logger::DEBUG
+      when :error
+        @logger.level = Logger::ERROR
+      when :fatal
+        @logger.level = Logger::FATAL
+      when :info
+        @logger.level = Logger::INFO
+      when :unknown
+        @logger.level = Logger::UNKNOWN
+      when :warn
+        @logger.level = Logger::WARN
+      when :silent
+        @logger.instance_variable_set(:@logdev, nil)
+      else
+        log_level = Logger::INFO
+      end
+    end
 
     # Find utility path
     #
@@ -61,7 +80,7 @@ module CommandExec
         raise Exceptions::CommandNotFound 
       end
 
-      return path
+      path
     end
 
     # Build string to execute command
@@ -73,20 +92,17 @@ module CommandExec
       cmd += options.empty? ? "" : " #{options}"
       cmd += parameter.empty? ? "" : " #{parameter}"
 
-      return cmd
+      cmd
     end
-
-    # Checks for errors
-    #
-    # @raise [String] 
 
     public
 
     # Output the textual representation of a command
+    # public alias for build_cmd_string
     #
     # @return [String] command in text form
-    def to_txt
-      return build_cmd_string
+    def to_txt 
+      build_cmd_string
     end
 
     # Run the program
@@ -125,8 +141,7 @@ module CommandExec
 
       @logger.info "#{@name.to_s}: #{msg}"
 
-      return @result
-
+      @result
     end
 
     # Read the content of the logfile
@@ -144,7 +159,7 @@ module CommandExec
         end
       end
 
-      return content
+      content
     end
 
     # Decide if a program run was successful
@@ -184,8 +199,7 @@ module CommandExec
         result << stdout 
       end
 
-      return result
-
+      result
     end
 
     # Find error in stdout
@@ -203,8 +217,7 @@ module CommandExec
         end
       end
 
-      return error_found
-
+      error_found
     end
 
     # Generate the message which is return to the user
@@ -221,7 +234,7 @@ module CommandExec
         message.concat msg.flatten
       end
 
-      return message.join("\n")
+      message.join("\n")
     end
 
     # Constructur to initiate a new command and run it later
@@ -231,7 +244,7 @@ module CommandExec
       command = new(name,opts)
       command.run
 
-      return command
+      command
     end
 
   end

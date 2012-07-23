@@ -1,24 +1,23 @@
-source "https://rubygems.org"
+source :rubygems
 
-# Specify your gem's dependencies in ruby-pdflatex.gemspec
+# Specify your gem's dependencies in workplace-letter_generator.gemspec
 gemspec
 
-group :development do
-  gem 'cucumber'
-  gem 'fakefs'
-  gem 'fuubar'
-  gem 'github-markup'
-  gem 'guard'
-  gem 'guard-cucumber'
-  gem 'guard-rspec'
-  gem 'guard-yard'
-  gem 'libnotify'
-  gem 'pry'
-  gem 'rb-inotify'
-  gem 'rb-readline'
-  gem 'redcarpet' , '~>1.17.2'
+group :test do
+  gem 'rake'
   gem 'rspec'
+  gem 'tmrb'
   gem 'simplecov'
-  gem 'terminal_multiplexer'
+  gem 'aruba'
+  gem 'fuubar'
+end
+
+group :documentation do
   gem 'yard'
+  gem 'redcarpet'
+  gem 'github-markup'
+end
+
+group :development do
+  gem 'tmrb'
 end
