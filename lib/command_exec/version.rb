@@ -1,3 +1,3 @@
-module CommandExec
-  VERSION='0.1.0'
-end
+module DataUri
+       VERSION = '0.1.1'
+   end
