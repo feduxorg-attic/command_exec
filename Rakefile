@@ -1,6 +1,7 @@
 #!/usr/bin/env rake
 require 'bundler/gem_tasks'
 require 'yard'
+require 'rubygems/package_task'
 
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', 'README.md', 'LICENCE.md']
