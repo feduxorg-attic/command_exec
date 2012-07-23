@@ -2,6 +2,7 @@
 require 'bundler/gem_tasks'
 require 'yard'
 require 'rubygems/package_task'
+require 'active_support/core_ext/string/strip'
 
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', 'README.md', 'LICENCE.md']
@@ -46,4 +47,9 @@ namespace :version do
     end
 
   end
+
+  task :restore do
+    sh "git checkout #{version_file}"
+  end
+
 end
