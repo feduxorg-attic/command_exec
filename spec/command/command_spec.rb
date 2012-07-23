@@ -1,11 +1,10 @@
 require 'spec_helper'
 
 describe Command do
-  let(:logger) {Logger.new('/dev/null')}
+  let(:logger) {Logger.new(StringIO.new)}
   #let(:logger) {Logger.new($stdout)}
-  let(:debug) {false}
-  #let(:debug) {true}
-  let(:command) { Command.new(:echo , :debug=>debug, :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
+  let(:log_level) {:info}
+  let(:command) { Command.new(:echo , :log_level => :silent, :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
 
 
   it "has a path" do
@@ -30,7 +29,7 @@ describe Command do
   end
 
   it "can be used to construct a command string, which can be executed" do
-    command = Command.new(:pdflatex, :debug => debug, :logger => logger, :parameter => "index.tex blub.tex", :options => "-a -b")
+    command = Command.new(:pdflatex, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-a -b")
     command.send(:build_cmd_string).should == "/usr/bin/pdflatex -a -b index.tex blub.tex"
   end
 
@@ -44,17 +43,17 @@ describe Command do
   end
 
   it "execute existing programs" do
-    command = Command.execute(:echo, :debug => debug, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b")
+    command = Command.execute(:echo, :log_level => :silent, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b")
     command.result.should == true
   end
   
   it "does not execute non-existing programs" do
-    command = Command.execute(:grep, :debug => debug, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b")
+    command = Command.execute(:grep, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b")
     command.result.should == false
   end
 
   it "checks if errors have happend during execution" do
-    lambda { Command.new(:echo1, :debug => debug, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b") }.should raise_error CommandNotFound
+    lambda { Command.new(:echo1, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b") }.should raise_error CommandNotFound
   end
 
   it "decides which output should be returned to the user" do
@@ -94,6 +93,32 @@ describe Command do
     command.send(:message, true, 'Hello_world').should == "\e[1m\e[32mOK\e[0m\e[0m"
     command.send(:message, true ).should == "\e[1m\e[32mOK\e[0m\e[0m"
   end
+
+  it "is very verbose and returns a lot of output" do
+    bucket = StringIO.new
+    logger = Logger.new(bucket)
+    Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :debug)
+
+    bucket.string.should =~ /OK/
+  end
+
+  it "is silent and returns no output" do
+    bucket = StringIO.new
+    logger = Logger.new(bucket)
+    Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :silent)
+
+    bucket.string.should == ""
+  end
+
+  # not completed
+  #it "use a log file if given" do
+  #  application_log_file = Tempfile.new('command_exec_test') 
+  #  application_log_file.write "ERROR"
+
+  #  binding.pry
+  #  Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :silent, :logfile => application_log_file, :error_keywords => %W[ERROR])
+
+  #end
 
 
 

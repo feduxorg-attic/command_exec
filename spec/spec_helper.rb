@@ -4,6 +4,8 @@ $LOAD_PATH << File.expand_path('../lib' , File.dirname(__FILE__))
 require 'pry'
 require 'stringio'
 
+require 'tempfile'
+
 require 'simplecov'
 SimpleCov.start
 
