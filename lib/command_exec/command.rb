@@ -1,9 +1,5 @@
 # encoding: utf-8
 
-require 'popen4'
-require 'colored'
-require 'logger'
-
 # Classes concerning command execution
 module CommandExec
   # Run commands
@@ -31,7 +27,7 @@ module CommandExec
         :error_keywords => [],
         :working_directory => Dir.pwd,
         :logfile => '',
-        :debug => false,
+        :log_level => :info,
       }.update opts
 
       @logger = @opts[:logger] 
@@ -41,12 +37,35 @@ module CommandExec
       @error_keywords = @opts[:error_keywords]
       @logfile = @opts[:logfile]
 
+      configure_logging
+
       @working_directory = @opts[:working_directory] 
       Dir.chdir(working_directory)
 
     end
 
     private
+
+    def configure_logging
+      case @opts[:log_level]
+      when :debug
+        @logger.level = Logger::DEBUG
+      when :error
+        @logger.level = Logger::ERROR
+      when :fatal
+        @logger.level = Logger::FATAL
+      when :info
+        @logger.level = Logger::INFO
+      when :unknown
+        @logger.level = Logger::UNKNOWN
+      when :warn
+        @logger.level = Logger::WARN
+      when :silent
+        @logger.instance_variable_set(:@logdev, nil)
+      else
+        log_level = Logger::INFO
+      end
+    end
 
     # Find utility path
     #
@@ -76,17 +95,14 @@ module CommandExec
       return cmd
     end
 
-    # Checks for errors
-    #
-    # @raise [String] 
-
     public
 
     # Output the textual representation of a command
+    # public alias for build_cmd_string
     #
     # @return [String] command in text form
-    def to_txt
-      return build_cmd_string
+    def to_txt 
+      build_cmd_string
     end
 
     # Run the program
@@ -126,7 +142,6 @@ module CommandExec
       @logger.info "#{@name.to_s}: #{msg}"
 
       return @result
-
     end
 
     # Read the content of the logfile
