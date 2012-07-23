@@ -50,3 +50,4 @@ tmp/
 *.pdf
 !doc/*/*.pdf
 *.pid
+doc/yard

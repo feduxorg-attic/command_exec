@@ -2,6 +2,7 @@
 require 'bundler/gem_tasks'
 require 'yard'
 require 'rubygems/package_task'
+require 'active_support/core_ext/string/strip'
 
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', 'README.md', 'LICENCE.md']
@@ -22,9 +23,13 @@ namespace :version do
 
     new_version = ENV['VERSION']
 
-    version_string = %Q{ module DataUri
-        VERSION = '#{new_version}'
-    end}
+    raw_module_name = File.open(version_file, "r").readlines.grep(/module/).first
+    module_name = raw_module_name.chomp.match(/module\s+(\S+)/) {$1}
+
+    version_string = %Q{#main #{module_name}
+module #{module_name}
+  VERSION = '#{new_version}'
+end}
 
     File.open(version_file, "w") do |f|
       f.write version_string.strip_heredoc
@@ -46,4 +51,9 @@ namespace :version do
     end
 
   end
+
+  task :restore do
+    sh "git checkout #{version_file}"
+  end
+
 end
