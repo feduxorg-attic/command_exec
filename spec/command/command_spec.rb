@@ -110,6 +110,16 @@ describe Command do
     bucket.string.should == ""
   end
 
+  # not completed
+  #it "use a log file if given" do
+  #  application_log_file = Tempfile.new('command_exec_test') 
+  #  application_log_file.write "ERROR"
+
+  #  binding.pry
+  #  Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :silent, :logfile => application_log_file, :error_keywords => %W[ERROR])
+
+  #end
+
 
 
 end
