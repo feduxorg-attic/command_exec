@@ -147,7 +147,7 @@ module CommandExec
     # Read the content of the logfile
     #
     # @param [Path] file path to logfile
-    # @param [Integer num_of_lines the number of lines which should be read -- e.g. 30 lines = -30
+    # @param [Integer] num_of_lines the number of lines which should be read -- e.g. 30 lines = -30
     def read_logfile(file, num_of_lines=-30)
       content = StringIO.new
 
