@@ -4,7 +4,7 @@ require 'tmrb'
 
 tmux = TmRb::Multiplexer.new
 #creates an empty window
-tmux.new_session
+tmux.new_session(session_name: 'command_exec')
 
 tmux.new_window(:name => 'code', :command => "zsh -c 'vim -p lib/**/*.rb'")
 tmux.new_window(:name => 'spec', :command => "zsh -c 'vim -p spec/**/*.rb'")
