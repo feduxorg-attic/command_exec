@@ -17,6 +17,8 @@ module CommandExec
     # @option opts [String] :error_keywords keyword indicating an error on stdout
     # @option opts [String] :working_directory working directory where the process should run in
     # @option opts [String] :logfile file path to log file of process
+    # @option opts [String] :log_level level of information in output
+    # @option opts [String] :search_paths Paths where to look for executable
     def initialize(name,opts={})
 
       @name = name
@@ -28,12 +30,14 @@ module CommandExec
         :working_directory => Dir.pwd,
         :logfile => '',
         :log_level => :info,
+        :search_paths => ENV['PATH'].split(':'),
       }.update opts
+
 
       @logger = @opts[:logger] 
       @options = @opts[:options]
       @parameter = @opts[:parameter]
-      @path = resolve_cmd_name(name)
+      @path = resolve_cmd_name(name, @opts[:search_paths])
       @error_keywords = @opts[:error_keywords]
       @logfile = @opts[:logfile]
 
@@ -71,16 +75,28 @@ module CommandExec
     #
     # @param [Symbol] name Name of utility
     # @return [Path] Returns the path to the binary of the binary
-    def resolve_cmd_name(name)
-      path=''
-      path = %x[which #{name} 2>/dev/null].chomp
+    def resolve_cmd_name(cmd_name, search_paths=["/bin","/usr/bin"])
+      cmd_name = cmd_name.to_s
+      file_found = false
 
-      if path.empty?
-        @logger.fatal("Command not found #{name}")
-        raise Exceptions::CommandNotFound 
+      if (cmd_name =~ /\A\//) or (cmd_name.scan(/\A(?:\w+|\.)\/\w+/).count > 0)
+        if File.exists? cmd_name 
+          cmd_path = File.expand_path(cmd_name)
+          file_found = true
+        end
+      else
+        cmd_path = search_paths.map{ |path| File.join(path, cmd_name) }.find {|path| File.exists? path }
+        if File.exists? cmd_path 
+          file_found = true
+        end
       end
 
-      path
+      if file_found == false
+        @logger.fatal("Command not found #{cmd_name}")
+        raise Exceptions::CommandNotFound 
+      end
+      
+      cmd_path
     end
 
     # Build string to execute command

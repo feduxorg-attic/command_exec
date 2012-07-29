@@ -21,4 +21,6 @@ end
 group :development do
   gem 'tmrb'
   gem 'activesupport'
+  gem 'debugger'
+  gem 'pry'
 end

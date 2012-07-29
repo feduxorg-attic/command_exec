@@ -119,7 +119,17 @@ describe Command do
   #  Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :silent, :logfile => application_log_file, :error_keywords => %W[ERROR])
 
   #end
+  
+  it "resolves path name" do
+    command.send(:resolve_cmd_name, "true").should == "/bin/true"
+    command.send(:resolve_cmd_name, "/bin/true").should == "/bin/true"
+    command.send(:resolve_cmd_name, "./true").should == "/home/d/work/projects/ruby-command_exec/spec/command/echo_test"
+    command.send(:resolve_cmd_name, "echo").should == "/bin/echo"
+    command.send(:resolve_cmd_name, "echo_test", [File.join('test_data', File.dirname(__FILE__))]).should == "/home/d/work/projects/ruby-command_exec/spec/command/echo_test"
+    lambda{command.send(:resolve_cmd_name, "abc")}.should raise_error Exceptions::CommandNotFound 
 
+    command.send(:resolve_cmd_name, "test_data/true").should == "/home/d/work/projects/ruby-command_exec/spec/command/echo_test"
+  end
 
 
 end
