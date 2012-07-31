@@ -75,17 +75,16 @@ module CommandExec
     # @param [Symbol] name Name of utility
     # @return [Path] Returns the path to the binary of the binary
     def resolve_cmd_name(cmd_name, search_paths=["/bin","/usr/bin"])
-      cmd_name = cmd_name.to_s
       file_found = false
 
-      if cmd_name =~ /\A\// or cmd_name =~ /\A(?:\w+|\.\.?)\/\w+/
-        if File.exists? cmd_name 
-          cmd_path = File.expand_path(cmd_name)
+      if cmd_name.kind_of? Symbol
+        cmd_path = search_paths.map{ |path| File.join(path, cmd_name.to_s) }.find {|path| File.exists? path } || ""
+        if File.exists? cmd_path 
           file_found = true
         end
       else
-        cmd_path = search_paths.map{ |path| File.join(path, cmd_name) }.find {|path| File.exists? path } || ""
-        if File.exists? cmd_path 
+        if File.exists? cmd_name
+          cmd_path = File.expand_path(cmd_name)
           file_found = true
         end
       end
