@@ -6,7 +6,6 @@ describe Command do
   let(:log_level) {:info}
   let(:command) { Command.new(:echo , :log_level => :silent, :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
 
-
   it "has a path" do
     command.path.should == '/bin/echo'
   end
@@ -21,7 +20,10 @@ describe Command do
 
   it "offers the possibility to change the working directory of the process" do
     command.working_directory.should == '/tmp'
-    Dir.pwd.should == '/tmp'
+
+    Dir.pwd.should == File.expand_path('../..', File.dirname(__FILE__))
+    lambda { command.run }
+    Dir.pwd.should == File.expand_path('../..', File.dirname(__FILE__))
   end
 
   it "has special keywords indicating errors in stdout" do
