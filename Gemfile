@@ -23,4 +23,5 @@ group :development do
   gem 'activesupport'
   gem 'debugger'
   gem 'pry'
+  gem 'pry-doc'
 end
