@@ -85,7 +85,7 @@ module CommandExec
           file_found = true
         end
       else
-        cmd_path = search_paths.map{ |path| File.join(path, cmd_name) }.find {|path| File.exists? path }
+        cmd_path = search_paths.map{ |path| File.join(path, cmd_name) }.find {|path| File.exists? path } || ""
         if File.exists? cmd_path 
           file_found = true
         end
