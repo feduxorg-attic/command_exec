@@ -113,14 +113,17 @@ describe Command do
   end
 
   # not completed
-  #it "use a log file if given" do
-  #  application_log_file = Tempfile.new('command_exec_test') 
-  #  application_log_file.write "ERROR"
+  it "use a log file if given" do
+    application_log_file = create_tmp_file_with('command_exec_test', 'TEXT IN LOG') 
 
-  #  binding.pry
-  #  Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :silent, :logfile => application_log_file, :error_keywords => %W[ERROR])
+    Dir.chdir File.expand_path('test_data', File.dirname(__FILE__)) do
+      output = capture_stdout do
+        Command.new('logger_test' , :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :logfile => application_log_file ).run
+      end
+      expect(output['TEXT IN LOG']).to_not be(nil)
+    end
 
-  #end
+  end
   
   it "resolves path name" do
     command.send(:resolve_cmd_name, :true).should == "/bin/true"
