@@ -78,7 +78,7 @@ module CommandExec
       cmd_name = cmd_name.to_s
       file_found = false
 
-      if (cmd_name =~ /\A\//) or (cmd_name.scan(/\A(?:\w+|\.)\/\w+/).count > 0)
+      if cmd_name =~ /\A\// or cmd_name =~ /\A(?:\w+|\.\.?)\/\w+/
         if File.exists? cmd_name 
           cmd_path = File.expand_path(cmd_name)
           file_found = true
@@ -92,7 +92,7 @@ module CommandExec
 
       if file_found == false
         @logger.fatal("Command not found #{cmd_name}")
-        raise Exceptions::CommandNotFound 
+        raise Exceptions::CommandNotFound , "Command not found: #{cmd_name}"
       end
       
       cmd_path
