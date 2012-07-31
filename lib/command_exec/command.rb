@@ -41,7 +41,7 @@ module CommandExec
       @error_keywords = @opts[:error_keywords]
       @logfile = @opts[:logfile]
 
-      configure_logging
+      configure_logging @opts[:log_level]
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -49,8 +49,8 @@ module CommandExec
 
     private
 
-    def configure_logging
-      case @opts[:log_level]
+    def configure_logging(log_level)
+      case log_level
       when :debug
         @logger.level = Logger::DEBUG
       when :error
@@ -66,7 +66,7 @@ module CommandExec
       when :silent
         @logger.instance_variable_set(:@logdev, nil)
       else
-        log_level = Logger::INFO
+        @logger.level = Logger::INFO
       end
     end
 
