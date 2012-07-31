@@ -44,8 +44,7 @@ module CommandExec
       configure_logging
 
       @working_directory = @opts[:working_directory] 
-      Dir.chdir(working_directory)
-
+      @result = nil
     end
 
     private
@@ -124,38 +123,39 @@ module CommandExec
     # Run the program
     #
     def run
+      Dir.chdir(@working_directory) do
+        _stdout = ''
+        _stderr = ''
 
-      _stdout = ''
-      _stderr = ''
-
-      status = POpen4::popen4(build_cmd_string) do |stdout, stderr, stdin, pid|
-        _stdout = stdout.read.strip
-        _stderr = stderr.read.strip
-      end
+        status = POpen4::popen4(build_cmd_string) do |stdout, stderr, stdin, pid|
+          _stdout = stdout.read.strip
+          _stderr = stderr.read.strip
+        end
 
 
-      error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
-      @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+        error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
+        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
 
-      if @result == false
-        msg = message(
-          @result, 
-          help_output(
-            { 
-              :error_in_exec => not(status.success?), 
-              :error_in_stdout => error_in_stdout_found 
-            }, {
-              :stdout => StringIO.new(_stdout),
-              :stderr => StringIO.new(_stderr),
-              :logfile => read_logfile(logfile),
-            }
+        if @result == false
+          msg = message(
+            @result, 
+            help_output(
+              { 
+                :error_in_exec => not(status.success?), 
+                :error_in_stdout => error_in_stdout_found 
+              }, {
+                :stdout => StringIO.new(_stdout),
+                :stderr => StringIO.new(_stderr),
+                :logfile => read_logfile(logfile),
+              }
+            )
           )
-        )
-      else
-        msg =  message(@result)
-      end
+        else
+          msg =  message(@result)
+        end
 
-      @logger.info "#{@name.to_s}: #{msg}"
+        @logger.info "#{@name.to_s}: #{msg}"
+      end
 
       @result
     end
