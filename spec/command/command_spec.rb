@@ -125,12 +125,22 @@ describe Command do
   it "resolves path name" do
     command.send(:resolve_cmd_name, "true").should == "/bin/true"
     command.send(:resolve_cmd_name, "/bin/true").should == "/bin/true"
-    command.send(:resolve_cmd_name, "./true").should == "/home/d/work/projects/ruby-command_exec/spec/command/echo_test"
-    command.send(:resolve_cmd_name, "echo").should == "/bin/echo"
-    command.send(:resolve_cmd_name, "echo_test", [File.join('test_data', File.dirname(__FILE__))]).should == "/home/d/work/projects/ruby-command_exec/spec/command/echo_test"
-    lambda{command.send(:resolve_cmd_name, "abc")}.should raise_error Exceptions::CommandNotFound 
 
-    command.send(:resolve_cmd_name, "test_data/true").should == "/home/d/work/projects/ruby-command_exec/spec/command/echo_test"
+    Dir.chdir File.expand_path('test_data', File.dirname(__FILE__)) do
+      command.send(:resolve_cmd_name, "./true_test").should == "/home/d/work/projects/ruby-command_exec/spec/command/test_data/true_test"
+    end
+
+    Dir.chdir '/tmp/' do
+      command.send(:resolve_cmd_name, "../bin/true").should == "/bin/true"
+    end
+
+    command.send(:resolve_cmd_name, "echo").should == "/bin/echo"
+    command.send(:resolve_cmd_name, "echo_test", [File.join(File.dirname(__FILE__), 'test_data' )]).should == "/home/d/work/projects/ruby-command_exec/spec/command/test_data/echo_test"
+    lambda{command.send(:resolve_cmd_name, "abc")}.should raise_error Exceptions::CommandNotFound 
+    
+    Dir.chdir('spec/command') do
+      command.send(:resolve_cmd_name, "test_data/true_test").should == "/home/d/work/projects/ruby-command_exec/spec/command/test_data/true_test"
+    end
   end
 
 
