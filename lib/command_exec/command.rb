@@ -134,7 +134,9 @@ module CommandExec
         error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
         @result = run_successful?( status.success? ,  error_in_stdout_found ) 
 
-        unless log_file.blank?
+        if log_file.blank?
+          content_of_log_file = StringIO.new
+        else
           begin
             content_of_log_file = read_log_file(File.open(log_file, "r"))
           rescue Errno::ENOENT
@@ -198,7 +200,9 @@ module CommandExec
       error_in_exec = error_indicators[:error_in_exec]
       error_in_stdout = error_indicators[:error_in_stdout]
 
-      log_file = output[:log_file].string
+      unless output[:log_file].blank?
+        log_file = output[:log_file].string
+      end
       stdout = output[:stdout].string
       stderr = output[:stderr].string
 
@@ -206,14 +210,32 @@ module CommandExec
 
       if error_in_exec == true
         result << '================== LOGFILE ================== '
-        result << log_file if log_file.empty? == false 
+        if log_file.blank? 
+          result << 'nothing'
+        else
+          result << log_file 
+        end
+
         result << '================== STDOUT ================== '
-        result << stdout if stdout.empty? == false
+        if stdout.blank? 
+          result << 'nothing'
+        else
+          result << stdout 
+        end
+
         result << '================== STDERR ================== '
-        result << stderr if stderr.empty? == false
+        if stderr.blank? 
+          result << 'nothing'
+        else
+          result << stderr 
+        end
       elsif error_in_stdout == true
         result << '================== STDOUT ================== '
-        result << stdout 
+        if stdout.blank? 
+          result << 'nothing'
+        else
+          result << stdout 
+        end
       end
 
       result
