@@ -5,7 +5,7 @@ module CommandExec
   # Run commands
   class Command
 
-    attr_accessor :logfile, :options , :parameter, :error_keywords
+    attr_accessor :log_file, :options , :parameter, :error_keywords
     attr_reader :result, :path, :working_directory
 
     # Create a new command to execute
@@ -16,7 +16,7 @@ module CommandExec
     # @option opts [String] :parameter parameter for binary
     # @option opts [String] :error_keywords keyword indicating an error on stdout
     # @option opts [String] :working_directory working directory where the process should run in
-    # @option opts [String] :logfile file path to log file of process
+    # @option opts [String] :log_file file path to log file of process
     # @option opts [String] :log_level level of information in output
     # @option opts [String] :search_paths Paths where to look for executable
     def initialize(name,opts={})
@@ -28,7 +28,7 @@ module CommandExec
         :parameter => '',
         :error_keywords => [],
         :working_directory => Dir.pwd,
-        :logfile => '',
+        :log_file => '',
         :log_level => :info,
         :search_paths => ENV['PATH'].split(':'),
       }.update opts
@@ -39,7 +39,7 @@ module CommandExec
       @parameter = @opts[:parameter]
       @path = resolve_cmd_name(name, @opts[:search_paths])
       @error_keywords = @opts[:error_keywords]
-      @logfile = @opts[:logfile]
+      @log_file = @opts[:log_file]
 
       configure_logging @opts[:log_level]
 
@@ -131,9 +131,18 @@ module CommandExec
           _stderr = stderr.read.strip
         end
 
-
         error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
         @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+
+        unless log_file.blank?
+          begin
+            content_of_log_file = read_log_file(File.open(log_file, "r"))
+          rescue Errno::ENOENT
+            @logger.warn "Logfile #{log_file} not found!"
+          rescue Exception => e
+            @logger.fatal "An error happen while reading log_file #{log_file}!"
+          end
+        end
 
         if @result == false
           msg = message(
@@ -145,7 +154,7 @@ module CommandExec
               }, {
                 :stdout => StringIO.new(_stdout),
                 :stderr => StringIO.new(_stderr),
-                :logfile => read_logfile(logfile),
+                :log_file => content_of_log_file
               }
             )
           )
@@ -159,20 +168,13 @@ module CommandExec
       @result
     end
 
-    # Read the content of the logfile
+    # Read the content of the log_file
     #
-    # @param [Path] file path to logfile
+    # @param [Path] file path to log_file
     # @param [Integer] num_of_lines the number of lines which should be read -- e.g. 30 lines = -30
-    def read_logfile(file, num_of_lines=-30)
+    def read_log_file(file, num_of_lines=-30)
       content = StringIO.new
-
-      unless file.empty? 
-        begin
-          content << File.readlines(logfile)[num_of_lines..-1].join("")
-        rescue Errno::ENOENT
-          @logger.warn "Warning: logfile not found!"
-        end
-      end
+      content << file.readlines[num_of_lines..-1].join("")
 
       content
     end
@@ -196,7 +198,7 @@ module CommandExec
       error_in_exec = error_indicators[:error_in_exec]
       error_in_stdout = error_indicators[:error_in_stdout]
 
-      logfile = output[:logfile].string
+      log_file = output[:log_file].string
       stdout = output[:stdout].string
       stderr = output[:stderr].string
 
@@ -204,7 +206,7 @@ module CommandExec
 
       if error_in_exec == true
         result << '================== LOGFILE ================== '
-        result << logfile if logfile.empty? == false 
+        result << log_file if log_file.empty? == false 
         result << '================== STDOUT ================== '
         result << stdout if stdout.empty? == false
         result << '================== STDERR ================== '

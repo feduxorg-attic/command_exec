@@ -59,8 +59,8 @@ describe Command do
   end
 
   it "decides which output should be returned to the user" do
-    logfile = StringIO.new
-    logfile << 'Error in ... found'
+    log_file = StringIO.new
+    log_file << 'Error in ... found'
 
     stderr = StringIO.new
     stderr << 'Error found'
@@ -68,18 +68,18 @@ describe Command do
     stdout = StringIO.new
     stdout << 'Error found'
 
-    #result = command.send(:help_logger)({ :error_in_exec => true , :error_in_stdout => false} , { :logfile => logfile, :stderr => stderr , :stdout => stdout })
-    result = command.send(:help_output, { :error_in_exec => true , :error_in_stdout => false} , { :logfile => logfile, :stderr => stderr , :stdout => stdout })
+    #result = command.send(:help_logger)({ :error_in_exec => true , :error_in_stdout => false} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
+    result = command.send(:help_output, { :error_in_exec => true , :error_in_stdout => false} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
     result.should == ["================== LOGFILE ================== ", "Error in ... found", "================== STDOUT ================== ", "Error found", "================== STDERR ================== ", "Error found"]
 
-    result = command.send(:help_output, { :error_in_exec => false , :error_in_stdout => true} , { :logfile => logfile, :stderr => stderr , :stdout => stdout })
+    result = command.send(:help_output, { :error_in_exec => false , :error_in_stdout => true} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
     result.should == ["================== STDOUT ================== ", "Error found"]
 
-    result = command.send(:help_output, { :error_in_exec => true , :error_in_stdout => true} , { :logfile => logfile, :stderr => stderr , :stdout => stdout })
+    result = command.send(:help_output, { :error_in_exec => true , :error_in_stdout => true} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
     result.should == ["================== LOGFILE ================== ", "Error in ... found", "================== STDOUT ================== ", "Error found", "================== STDERR ================== ", "Error found"]
 
 
-    result = command.send(:help_output, { :error_in_exec => false , :error_in_stdout => false} , { :logfile => logfile, :stderr => stderr , :stdout => stdout })
+    result = command.send(:help_output, { :error_in_exec => false , :error_in_stdout => false} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
     result.should == []
 
   end
@@ -118,7 +118,7 @@ describe Command do
 
     Dir.chdir File.expand_path('test_data', File.dirname(__FILE__)) do
       output = capture_stdout do
-        Command.new('logger_test' , :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :logfile => application_log_file ).run
+        Command.new('logger_test' , :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_file => application_log_file ).run
       end
       expect(output['TEXT IN LOG']).to_not be(nil)
     end
