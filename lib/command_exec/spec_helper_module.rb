@@ -19,9 +19,8 @@ module CommandExec
     def create_tmp_file_with(base_name, content)
       file = Tempfile.new(base_name)
       file.write(content)
-      file.rewind
-
-      file
+      file.close
+      file.path
     end
   end
 end

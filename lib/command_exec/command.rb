@@ -33,15 +33,16 @@ module CommandExec
         :search_paths => ENV['PATH'].split(':'),
       }.update opts
 
-
       @logger = @opts[:logger] 
+      configure_logging 
+
+      @logger.debug @opts
+
       @options = @opts[:options]
       @path = resolve_path @name, @opts[:search_paths]
       @parameter = @opts[:parameter]
       @error_keywords = @opts[:error_keywords]
       @log_file = @opts[:log_file]
-
-      configure_logging 
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -85,8 +86,8 @@ module CommandExec
       end
 
       unless file?
-        @logger.fatal("Command '#{@name}' not executable.")
-        raise Exceptions::CommandNotExecutable , "Command '#{@name}' not executable."
+        @logger.fatal("Command '#{@name}' not a file.")
+        raise Exceptions::CommandIsNotAFile, "Command '#{@name}' not a file."
       end
     end
 
@@ -109,6 +110,10 @@ module CommandExec
       else
         @logger.level = Logger::INFO
       end
+
+      @logger.debug "Logger configured with log level #{@logger.level}"
+
+      nil
     end
 
     # Build string to execute command
@@ -119,6 +124,8 @@ module CommandExec
       cmd += path
       cmd += options.empty? ? "" : " #{options}"
       cmd += parameter.empty? ? "" : " #{parameter}"
+
+      @logger.debug cmd
 
       cmd
     end
@@ -163,19 +170,26 @@ module CommandExec
           _stdout = stdout.read.strip
           _stderr = stderr.read.strip
         end
+        @logger.debug "Command exited with #{status}"
 
         error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
-        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+        @logger.debug "Errors found in stdout" if error_in_stdout_found
 
-        if log_file.blank?
+        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+        @logger.debug "Result of command run #{@result}"
+
+        binding.pry
+
+        if @log_file.blank?
           content_of_log_file = StringIO.new
         else
           begin
-            content_of_log_file = read_log_file(File.open(log_file, "r"))
+            content_of_log_file = read_log_file(File.open(@log_file, "r"))
+            @logger.debug "Content of logfile \"#{truncate(content_of_log_file)}\" "
           rescue Errno::ENOENT
-            @logger.warn "Logfile #{log_file} not found!"
+            @logger.warn "Logfile #{@log_file} not found!"
           rescue Exception => e
-            @logger.fatal "An error happen while reading log_file #{log_file}!"
+            @logger.warn "An error happen while reading log_file #{@log_file}!"
           end
         end
 
