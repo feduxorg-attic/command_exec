@@ -6,7 +6,7 @@ describe Command do
   let(:log_level) {:info}
   let(:command) { Command.new(:echo , :log_level => :silent, :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
 
-  context "has a path" do
+  context "command path" do
     test_dir = File.expand_path('test_data', File.dirname(__FILE__))
 
     it "supports relative paths" do
@@ -38,34 +38,52 @@ describe Command do
 
   end
 
-  it "checks if exec is executable" do
-    command = Command.new('/bin/true')
-    expect(command.executable?).to eq(true)
+  context "checks" do
 
-    command = Command.new('/etc/passwd')
-    expect(command.executable?).to eq(false)
-  end
+    it "checks if exec is executable" do
+      command = Command.new('/bin/true')
+      expect(command.executable?).to eq(true)
 
-  it "checks if exec exists" do
-    command = Command.new('/usr/bin/true')
-    expect(command.exists?).to eq(false)
+      command = Command.new('/etc/passwd')
+      expect(command.executable?).to eq(false)
+    end
 
-    command = Command.new('/bin/true')
-    expect(command.exists?).to eq(true)
-  end
+    it "checks if exec exists" do
+      command = Command.new('/bin/true')
+      expect(command.exists?).to eq(true)
 
-  it "checks if exec is valid (exists, executable, type = file)" do
-    #does not exist
-    command = Command.new('/usr/bin/true')
-    expect(command.valid?).to eq(false)
+      command = Command.new('/usr/bin/true')
+      expect(command.exists?).to eq(false)
+    end
 
-    #is a directory not a file
-    command = Command.new('/tmp')
-    expect(command.valid?).to eq(false)
+    it "checks if exec is valid (exists, executable, type = file)" do
+      #does not exist
+      command = Command.new('/usr/bin/true')
+      expect(command.valid?).to eq(false)
 
-    #exists and is executable and is a file
-    command = Command.new('/bin/true')
-    expect(command.valid?).to eq(true)
+      #is a directory not a file
+      command = Command.new('/tmp')
+      expect(command.valid?).to eq(false)
+
+      #exists and is executable and is a file
+      command = Command.new('/bin/true')
+      expect(command.valid?).to eq(true)
+    end
+
+    it "raises an error if command is not executable" do
+      command = Command.new('/etc/passwd')
+      expect{command.send(:check_path)}.to raise_error CommandNotExecutable
+    end
+
+    it "raises an error if command does not exist" do
+      command = Command.new('/usr/bin/true')
+      expect{command.send(:check_path)}.to raise_error CommandNotFound
+    end
+
+    it "raises an error if command is not a file" do
+      command = Command.new('/tmp')
+      expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
+    end
   end
 
   it "has parameter" do
@@ -172,7 +190,7 @@ describe Command do
     logger = Logger.new(bucket)
     Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :debug)
 
-    expect(bucket.string['OK']).to eq('OK')
+    expect(bucket.string['OK']).to_not eq(nil)
   end
 
   it "is silent and returns no output" do
@@ -183,6 +201,7 @@ describe Command do
     expect(bucket.string).to eq("")
   end
 
+
   # not completed
   it "use a log file if given" do
     application_log_file = create_tmp_file_with('command_exec_test', 'TEXT IN LOG') 
@@ -191,7 +210,7 @@ describe Command do
       output = capture_stdout do
         Command.new('logger_test' , :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_file => application_log_file ).run
       end
-      expect(output['TEXT IN LOG']).to_not be(nil)
+      expect(output['TEXT IN LOG']).to_not eq(nil)
     end
 
   end

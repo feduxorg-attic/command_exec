@@ -2,6 +2,7 @@
 $LOAD_PATH << File.expand_path('../lib' , File.dirname(__FILE__))
 
 require 'pry'
+require 'debugger'
 require 'stringio'
 
 require 'tempfile'
