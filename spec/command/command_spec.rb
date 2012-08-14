@@ -185,34 +185,46 @@ describe Command do
     expect(command.send(:message, true )).to eq("\e[1m\e[32mOK\e[0m\e[0m")
   end
 
-  it "is very verbose and returns a lot of output" do
-    bucket = StringIO.new
-    logger = Logger.new(bucket)
-    Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :debug)
+  context "logging" do
 
-    expect(bucket.string['OK']).to_not eq(nil)
-  end
+    it "outputs only warnings when told to output those" do
+      bucket = StringIO.new
+      logger = Logger.new(bucket)
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_file => '/tmp/i_do_not_exist.log', :log_level => :warning)
 
-  it "is silent and returns no output" do
-    bucket = StringIO.new
-    logger = Logger.new(bucket)
-    Command.execute(:echo, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_level => :silent)
-
-    expect(bucket.string).to eq("")
-  end
-
-
-  # not completed
-  it "use a log file if given" do
-    application_log_file = create_tmp_file_with('command_exec_test', 'TEXT IN LOG') 
-
-    Dir.chdir File.expand_path('test_data', File.dirname(__FILE__)) do
-      output = capture_stdout do
-        Command.new('logger_test' , :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b" , :log_file => application_log_file ).run
-      end
-      expect(output['TEXT IN LOG']).to_not eq(nil)
+      expect(bucket.string['WARN']).to_not eq(nil)
     end
 
+    it "is very verbose and returns a lot of output" do
+      bucket = StringIO.new
+      logger = Logger.new(bucket)
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :debug)
+
+      expect(bucket.string['DEBUG']).to_not eq(nil)
+    end
+
+    it "is silent and returns no output" do
+      bucket = StringIO.new
+      logger = Logger.new(bucket)
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :silent)
+
+      expect(bucket.string).to eq("")
+    end
+
+    # not completed
+    it "use a log file if given" do
+      application_log_file = create_tmp_file_with('command_exec_test', 'TEXT IN LOG') 
+
+      Dir.chdir File.expand_path('test_data', File.dirname(__FILE__)) do
+        output = capture_stdout do
+          Command.new('logger_test' , :logger => logger , :log_file => application_log_file ).run
+        end
+
+        expect(output['TEXT IN LOG']).to_not eq(nil)
+      end
+
+    end
   end
+
   
 end
