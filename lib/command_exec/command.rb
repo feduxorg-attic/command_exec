@@ -36,12 +36,12 @@ module CommandExec
 
       @logger = @opts[:logger] 
       @options = @opts[:options]
+      @path = resolve_path @name, @opts[:search_paths]
       @parameter = @opts[:parameter]
-      @path = resolve_cmd_name(name, @opts[:search_paths])
       @error_keywords = @opts[:error_keywords]
       @log_file = @opts[:log_file]
 
-      configure_logging @opts[:log_level]
+      configure_logging 
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -49,8 +49,49 @@ module CommandExec
 
     private
 
-    def configure_logging(log_level)
-      case log_level
+    # Find path to cmd
+    #
+    # @param [String] name 
+    # Name of command. It accepts :cmd, 'cmd', 'rel_path/cmd' or
+    # '/fq_path/to/cmd'. When :cmd is used it searches 'search_paths' for the
+    # executable. Whenn 'cmd' is used it looks for cmd in local dir. The same
+    # happens when 'rel_path/cmd' is used. A full qualified path
+    # '/fq_path/to/cmd' at is used as normal.
+    # 
+    # @param [Array] search_paths
+    # Where to look for executables
+    #
+    # @return [String] fully qualified path to command
+    #
+    def resolve_path(name,search_paths=['/bin', '/usr/bin'])
+      if name.kind_of? Symbol
+        path = search_paths.map{ |p| File.join(p, name.to_s) }.find {|p| File.exists? p } || ""
+      else
+        path = File.expand_path(name)
+      end
+
+      path
+    end
+    
+    def check_path
+      unless exists?
+        @logger.fatal("Command '#{@name}' not found.")
+        raise Exceptions::CommandNotFound , "Command '#{@name}' not found."
+      end
+
+      unless executable?
+        @logger.fatal("Command '#{@name}' not executable.")
+        raise Exceptions::CommandNotExecutable , "Command '#{@name}' not executable."
+      end
+
+      unless file?
+        @logger.fatal("Command '#{@name}' not executable.")
+        raise Exceptions::CommandNotExecutable , "Command '#{@name}' not executable."
+      end
+    end
+
+    def configure_logging
+      case @opts[:log_level]
       when :debug
         @logger.level = Logger::DEBUG
       when :error
@@ -70,33 +111,6 @@ module CommandExec
       end
     end
 
-    # Find utility path
-    #
-    # @param [Symbol] name Name of utility
-    # @return [Path] Returns the path to the binary of the binary
-    def resolve_cmd_name(cmd_name, search_paths=["/bin","/usr/bin"])
-      file_found = false
-
-      if cmd_name.kind_of? Symbol
-        cmd_path = search_paths.map{ |path| File.join(path, cmd_name.to_s) }.find {|path| File.exists? path } || ""
-        if File.exists? cmd_path 
-          file_found = true
-        end
-      else
-        if File.exists? cmd_name
-          cmd_path = File.expand_path(cmd_name)
-          file_found = true
-        end
-      end
-
-      if file_found == false
-        @logger.fatal("Command not found #{cmd_name}")
-        raise Exceptions::CommandNotFound , "Command not found: #{cmd_name}"
-      end
-      
-      cmd_path
-    end
-
     # Build string to execute command
     #
     # @return [String] Returns to whole command with parameters and options
@@ -111,6 +125,22 @@ module CommandExec
 
     public
 
+    def valid?
+      exists? and executable? and file?
+    end
+
+    def exists?
+      File.exists? @path
+    end
+
+    def executable?
+      File.executable? @path
+    end
+
+    def file?
+      File.file? @path
+    end
+
     # Output the textual representation of a command
     # public alias for build_cmd_string
     #
@@ -122,6 +152,9 @@ module CommandExec
     # Run the program
     #
     def run
+
+      check_path
+
       Dir.chdir(@working_directory) do
         _stdout = ''
         _stderr = ''

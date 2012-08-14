@@ -6,8 +6,63 @@ describe Command do
   let(:log_level) {:info}
   let(:command) { Command.new(:echo , :log_level => :silent, :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
 
-  it "has a path" do
-    command.path.should == '/bin/echo'
+  context "has a path" do
+    test_dir = File.expand_path('test_data', File.dirname(__FILE__))
+
+    it "supports relative paths" do
+      Dir.chdir('spec/command') do
+        command = Command.new('test_data/true_test')
+        expect(command.path).to eq(File.join(test_dir, 'true_test'))
+      end
+
+      Dir.chdir test_dir do
+        command = Command.new('./true_test')
+        expect(command.path).to eq(File.join(test_dir, 'true_test'))
+      end
+
+      Dir.chdir '/tmp/' do
+        command = Command.new('../bin/true')
+        expect(command.path).to eq('/bin/true')
+      end
+    end
+
+    it 'searches $PATH to find the command' do 
+      command = Command.new(:true)
+      expect(command.path).to eq("/bin/true")
+    end
+
+    it 'offers an option to change $PATH for the command execution' do
+      command = Command.new(:echo_test, search_paths: [test_dir])
+      expect(command.path).to eq(File.join(test_dir, 'echo_test'))
+    end
+
+  end
+
+  it "checks if exec is executable" do
+    command = Command.new('/bin/true')
+    expect(command.executable?).to eq(true)
+  end
+
+  it "checks if exec exists" do
+    command = Command.new('/usr/bin/true')
+    expect(command.exists?).to eq(false)
+
+    command = Command.new('/bin/true')
+    expect(command.exists?).to eq(true)
+  end
+
+  it "checks if exec is valid (exists, executable, type = file)" do
+    #does not exist
+    command = Command.new('/usr/bin/true')
+    expect(command.valid?).to eq(false)
+
+    #is a directory not a file
+    command = Command.new('/tmp')
+    expect(command.valid?).to eq(false)
+
+    #exists and is executable and is a file
+    command = Command.new('/bin/true')
+    expect(command.valid?).to eq(true)
   end
 
   it "has parameter" do
@@ -55,7 +110,8 @@ describe Command do
   end
 
   it "checks if errors have happend during execution" do
-    lambda { Command.new(:echo1, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b") }.should raise_error CommandNotFound
+    command = Command.new(:echo1, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b")
+    expect { command.run }.to raise_error CommandNotFound
   end
 
   it "decides which output should be returned to the user" do
@@ -126,23 +182,5 @@ describe Command do
   end
   
   it "resolves path name" do
-    command.send(:resolve_cmd_name, :true).should == "/bin/true"
-    command.send(:resolve_cmd_name, "/bin/true").should == "/bin/true"
-
-    Dir.chdir File.expand_path('test_data', File.dirname(__FILE__)) do
-      command.send(:resolve_cmd_name, "./true_test").should == "/home/d/work/projects/ruby-command_exec/spec/command/test_data/true_test"
-    end
-
-    Dir.chdir '/tmp/' do
-      command.send(:resolve_cmd_name, "../bin/true").should == "/bin/true"
-    end
-
-    command.send(:resolve_cmd_name, :echo).should == "/bin/echo"
-    command.send(:resolve_cmd_name, :echo_test, [File.join(File.dirname(__FILE__), 'test_data' )]).should == "/home/d/work/projects/ruby-command_exec/spec/command/test_data/echo_test"
-    lambda{command.send(:resolve_cmd_name, "abc")}.should raise_error Exceptions::CommandNotFound 
-    
-    Dir.chdir('spec/command') do
-      command.send(:resolve_cmd_name, "test_data/true_test").should == "/home/d/work/projects/ruby-command_exec/spec/command/test_data/true_test"
-    end
   end
 end
