@@ -119,20 +119,6 @@ module CommandExec
       nil
     end
 
-    # Build string to execute command
-    #
-    # @return [String] Returns to whole command with parameters and options
-    def build_cmd_string
-      cmd = ''
-      cmd += path
-      cmd += options.empty? ? "" : " #{options}"
-      cmd += parameter.empty? ? "" : " #{parameter}"
-
-      @logger.debug cmd
-
-      cmd
-    end
-
     public
 
     def valid?
@@ -152,11 +138,17 @@ module CommandExec
     end
 
     # Output the textual representation of a command
-    # public alias for build_cmd_string
     #
     # @return [String] command in text form
-    def to_txt 
-      build_cmd_string
+    def to_s
+      cmd = ''
+      cmd += @path
+      cmd += @options.blank? ? "" : " #{@options}"
+      cmd += @parameter.blank? ? "" : " #{@parameter}"
+
+      @logger.debug cmd
+
+      cmd
     end
 
     # Run the program
@@ -169,7 +161,7 @@ module CommandExec
         _stdout = ''
         _stderr = ''
 
-        status = POpen4::popen4(build_cmd_string) do |stdout, stderr, stdin, pid|
+        status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
           _stdout = stdout.read.strip
           _stderr = stderr.read.strip
         end
