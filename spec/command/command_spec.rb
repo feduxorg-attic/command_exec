@@ -249,7 +249,6 @@ describe Command do
       expect(bucket.string).to eq("")
     end
 
-    # not completed
     it "use a log file if given" do
       application_log_file = create_tmp_file_with('command_exec_test', 'TEXT IN LOG') 
 
