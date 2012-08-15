@@ -5,7 +5,7 @@ module CommandExec
   # Run commands
   class Command
 
-    attr_accessor :logfile, :options , :parameter, :error_keywords
+    attr_accessor :log_file, :options , :parameter, :error_keywords
     attr_reader :result, :path, :working_directory
 
     # Create a new command to execute
@@ -16,7 +16,9 @@ module CommandExec
     # @option opts [String] :parameter parameter for binary
     # @option opts [String] :error_keywords keyword indicating an error on stdout
     # @option opts [String] :working_directory working directory where the process should run in
-    # @option opts [String] :logfile file path to log file of process
+    # @option opts [String] :log_file file path to log file of process
+    # @option opts [String] :log_level level of information in output
+    # @option opts [String] :search_paths Paths where to look for executable
     def initialize(name,opts={})
 
       @name = name
@@ -26,25 +28,71 @@ module CommandExec
         :parameter => '',
         :error_keywords => [],
         :working_directory => Dir.pwd,
-        :logfile => '',
+        :log_file => '',
         :log_level => :info,
+        :search_paths => ENV['PATH'].split(':'),
       }.update opts
 
       @logger = @opts[:logger] 
-      @options = @opts[:options]
-      @parameter = @opts[:parameter]
-      @path = resolve_cmd_name(name)
-      @error_keywords = @opts[:error_keywords]
-      @logfile = @opts[:logfile]
+      configure_logging 
 
-      configure_logging
+      @logger.debug @opts
+
+      @options = @opts[:options]
+      @path = resolve_path @name, @opts[:search_paths]
+      @parameter = @opts[:parameter]
+      @error_keywords = @opts[:error_keywords]
+      @log_file = @opts[:log_file]
 
       @working_directory = @opts[:working_directory] 
-      Dir.chdir(working_directory)
-
+      @result = nil
     end
 
     private
+
+    # Find path to cmd
+    #
+    # @param [String] name 
+    # Name of command. It accepts :cmd, 'cmd', 'rel_path/cmd' or
+    # '/fq_path/to/cmd'. When :cmd is used it searches 'search_paths' for the
+    # executable. Whenn 'cmd' is used it looks for cmd in local dir. The same
+    # happens when 'rel_path/cmd' is used. A full qualified path
+    # '/fq_path/to/cmd' at is used as normal.
+    # 
+    # @param [Array] search_paths
+    # Where to look for executables
+    #
+    # @return [String] fully qualified path to command
+    #
+    def resolve_path(name,*search_paths)
+      search_paths ||= ['/bin', '/usr/bin']
+      search_paths = search_paths.flatten
+
+      if name.kind_of? Symbol
+        path = search_paths.map{ |p| File.join(p, name.to_s) }.find {|p| File.exists? p } || ""
+      else
+        path = File.expand_path(name)
+      end
+
+      path
+    end
+    
+    def check_path
+      unless exists?
+        @logger.fatal("Command '#{@name}' not found.")
+        raise Exceptions::CommandNotFound , "Command '#{@name}' not found."
+      end
+
+      unless executable?
+        @logger.fatal("Command '#{@name}' not executable.")
+        raise Exceptions::CommandNotExecutable , "Command '#{@name}' not executable."
+      end
+
+      unless file?
+        @logger.fatal("Command '#{@name}' not a file.")
+        raise Exceptions::CommandIsNotAFile, "Command '#{@name}' not a file."
+      end
+    end
 
     def configure_logging
       case @opts[:log_level]
@@ -63,103 +111,106 @@ module CommandExec
       when :silent
         @logger.instance_variable_set(:@logdev, nil)
       else
-        log_level = Logger::INFO
-      end
-    end
-
-    # Find utility path
-    #
-    # @param [Symbol] name Name of utility
-    # @return [Path] Returns the path to the binary of the binary
-    def resolve_cmd_name(name)
-      path=''
-      path = %x[which #{name} 2>/dev/null].chomp
-
-      if path.empty?
-        @logger.fatal("Command not found #{name}")
-        raise Exceptions::CommandNotFound 
+        @logger.level = Logger::INFO
       end
 
-      path
-    end
+      @logger.debug "Logger configured with log level #{@logger.level}"
 
-    # Build string to execute command
-    #
-    # @return [String] Returns to whole command with parameters and options
-    def build_cmd_string
-      cmd = ''
-      cmd += path
-      cmd += options.empty? ? "" : " #{options}"
-      cmd += parameter.empty? ? "" : " #{parameter}"
-
-      cmd
+      nil
     end
 
     public
 
+    def valid?
+      exists? and executable? and file?
+    end
+
+    def exists?
+      File.exists? @path
+    end
+
+    def executable?
+      File.executable? @path
+    end
+
+    def file?
+      File.file? @path
+    end
+
     # Output the textual representation of a command
-    # public alias for build_cmd_string
     #
     # @return [String] command in text form
-    def to_txt 
-      build_cmd_string
+    def to_s
+      cmd = ''
+      cmd += @path
+      cmd += @options.blank? ? "" : " #{@options}"
+      cmd += @parameter.blank? ? "" : " #{@parameter}"
+
+      @logger.debug cmd
+
+      cmd
     end
 
     # Run the program
     #
     def run
 
-      _stdout = ''
-      _stderr = ''
+      check_path
 
-      status = POpen4::popen4(build_cmd_string) do |stdout, stderr, stdin, pid|
-        _stdout = stdout.read.strip
-        _stderr = stderr.read.strip
-      end
+      Dir.chdir(@working_directory) do
+        _stdout = ''
+        _stderr = ''
 
+        status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
+          _stdout = stdout.read.strip
+          _stderr = stderr.read.strip
+        end
+        @logger.debug "Command exited with #{status}"
 
-      error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
-      @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+        error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
+        @logger.debug "Errors found in stdout" if error_in_stdout_found
 
-      if @result == false
-        msg = message(
-          @result, 
-          help_output(
-            { 
-              :error_in_exec => not(status.success?), 
-              :error_in_stdout => error_in_stdout_found 
-            }, {
-              :stdout => StringIO.new(_stdout),
-              :stderr => StringIO.new(_stderr),
-              :logfile => read_logfile(logfile),
-            }
+        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+        @logger.debug "Result of command run #{@result}"
+
+        if @result == false
+          msg = message(
+            @result, 
+            help_output(
+                :stdout => StringIO.new(_stdout),
+                :stderr => StringIO.new(_stderr),
+                :log_file => read_log(@log_file)
+            )
           )
-        )
-      else
-        msg =  message(@result)
-      end
+        else
+          msg =  message(@result)
+        end
 
-      @logger.info "#{@name.to_s}: #{msg}"
+        @logger.info "#{@name.to_s}: #{msg}"
+      end
 
       @result
     end
 
-    # Read the content of the logfile
+    # Read the content of the log_file
     #
-    # @param [Path] file path to logfile
-    # @param [Integer] num_of_lines the number of lines which should be read -- e.g. 30 lines = -30
-    def read_logfile(file, num_of_lines=-30)
-      content = StringIO.new
+    # @param [Path] filename path to log_file
+    # @return [IO] handle for io
+    def read_log(filename)
+      return StringIO.new if filename.blank?
 
-      unless file.empty? 
-        begin
-          content << File.readlines(logfile)[num_of_lines..-1].join("")
-        rescue Errno::ENOENT
-          @logger.warn "Warning: logfile not found!"
-        end
+      begin
+        file = File.open(log_file)
+        @logger.debug "read logfile \"#{file}\" "
+      rescue Errno::ENOENT
+        file = StringIO.new
+        @logger.warn "Logfile #{@log_file} not found!"
+      rescue Exception => e
+        file = StringIO.new
+        @logger.warn "An error happen while reading log_file #{@log_file}: #{e.message}"
       end
 
-      content
+      file
     end
 
     # Decide if a program run was successful
@@ -177,26 +228,36 @@ module CommandExec
     # to help him with debugging
     #
     # @return [Array] Returns lines of log/stdout/stderr
-    def help_output(error_indicators={},output={})
-      error_in_exec = error_indicators[:error_in_exec]
-      error_in_stdout = error_indicators[:error_in_stdout]
-
-      logfile = output[:logfile].string
-      stdout = output[:stdout].string
-      stderr = output[:stderr].string
+    def help_output(h={})
+      handles = {
+        log_file: StringIO.new,
+        stdout: StringIO.new,
+        stderr: StringIO.new
+      }.merge h
 
       result = []
+      { log_file:  { 
+          io_handle: handles[:log_file],
+          header: '================== LOGFILE ==================',
+          number_of_lines: 30
+        },
+        stdout: {
+          io_handle: handles[:stdout],
+          header: '================== STDOUT  ==================',
+          number_of_lines: nil
+        },
+        stderr: {
+          io_handle: handles[:stderr],
+          header: '================== STDERR  ==================',
+          number_of_lines: nil
+        }
+      }.each do |io,options|
+        tmp = options[:io_handle].readlines(options[:number_of_lines])
 
-      if error_in_exec == true
-        result << '================== LOGFILE ================== '
-        result << logfile if logfile.empty? == false 
-        result << '================== STDOUT ================== '
-        result << stdout if stdout.empty? == false
-        result << '================== STDERR ================== '
-        result << stderr if stderr.empty? == false
-      elsif error_in_stdout == true
-        result << '================== STDOUT ================== '
-        result << stdout 
+        if tmp.size > 0
+          result << options[:header]
+          result += tmp
+        end
       end
 
       result
@@ -224,17 +285,17 @@ module CommandExec
     # 
     # @param [Boolean] run_successful true if a positive message should be returned
     # @param [Array] msg Message which should be returned
-    def message(run_successful, *msg)
+    def message(run_successful, *output)
 
-      message = []
+      msg = []
       if run_successful
-        message << 'OK'.green.bold
+        msg << 'OK'.green.bold
       else
-        message << 'FAILED'.red.bold
-        message.concat msg.flatten
+        msg << 'FAILED'.red.bold
+        msg += output.flatten
       end
 
-      message.join("\n")
+      msg.join("\n")
     end
 
     # Constructur to initiate a new command and run it later

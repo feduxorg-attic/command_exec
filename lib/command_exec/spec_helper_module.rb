@@ -15,5 +15,12 @@ module CommandExec
     ensure
       $stdout = previous_stdout
     end
+
+    def create_tmp_file_with(base_name, content)
+      file = Tempfile.new(base_name)
+      file.write(content)
+      file.close
+      file.path
+    end
   end
 end

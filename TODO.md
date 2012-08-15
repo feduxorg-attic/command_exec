@@ -1,5 +1,4 @@
 * Check if attr_accessor or attr_reader is better in command.rb
-
 * alias run_successful? to success?
 * refactor lib interface
 ```ruby
@@ -17,4 +16,4 @@
 require 'json'
 raise ExecuteCommandFailed , JSON.dump status 
 ```
-* 
+* Add tests for search command
