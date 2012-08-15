@@ -4,7 +4,7 @@ describe Command do
   let(:logger) {Logger.new(StringIO.new)}
   #let(:logger) {Logger.new($stdout)}
   let(:log_level) {:info}
-  let(:command) { Command.new(:echo , :log_level => :silent, :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
+  let(:command) { Command.new(:echo , :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
 
   context "command path" do
     test_dir = File.expand_path('test_data', File.dirname(__FILE__))
@@ -71,23 +71,24 @@ describe Command do
     end
 
     it "raises an error if command is not executable" do
-      command = Command.new('/etc/passwd')
+      command = Command.new('/etc/passwd', log_level: :silent)
       expect{command.send(:check_path)}.to raise_error CommandNotExecutable
     end
 
     it "raises an error if command does not exist" do
-      command = Command.new('/usr/bin/true')
+      command = Command.new('/usr/bin/true', log_level: :silent)
       expect{command.send(:check_path)}.to raise_error CommandNotFound
     end
 
     it "raises an error if command is not a file" do
-      command = Command.new('/tmp')
+      command = Command.new('/tmp', log_level: :silent)
       expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
     end
   end
 
   it "has parameter" do
-    expect(command.parameter).to eq('hello world')
+    command = Command.new(:true, :parameter=>'parameter')
+    expect(command.parameter).to eq('parameter')
   end
 
   it "has options" do
