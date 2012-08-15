@@ -285,17 +285,17 @@ module CommandExec
     # 
     # @param [Boolean] run_successful true if a positive message should be returned
     # @param [Array] msg Message which should be returned
-    def message(run_successful, *msg)
+    def message(run_successful, *output)
 
-      message = []
+      msg = []
       if run_successful
-        message << 'OK'.green.bold
+        msg << 'OK'.green.bold
       else
-        message << 'FAILED'.red.bold
-        message.concat msg.flatten
+        msg << 'FAILED'.red.bold
+        msg += output.flatten
       end
 
-      message.join("\n")
+      msg.join("\n")
     end
 
     # Constructur to initiate a new command and run it later

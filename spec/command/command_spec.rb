@@ -212,9 +212,9 @@ describe Command do
   end
 
   it "output a message" do
-    expect(command.send(:message, false, 'Hello_world')).to eq( "\e[1m\e[31mFAILED\e[0m\e[0m\nHello_world" )
-    expect(command.send(:message, true, 'Hello_world')).to eq("\e[1m\e[32mOK\e[0m\e[0m")
-    expect(command.send(:message, true )).to eq("\e[1m\e[32mOK\e[0m\e[0m")
+    expect(command.send(:message, false, 'Hello_world')).to eq( "\e[1m\e[1;31mFAILED\e[0m\e[0m\nHello_world" )
+    expect(command.send(:message, true, 'Hello_world')).to eq("\e[1m\e[1;32mOK\e[0m\e[0m")
+    expect(command.send(:message, true )).to eq("\e[1m\e[1;32mOK\e[0m\e[0m")
   end
 
   context "logging" do
