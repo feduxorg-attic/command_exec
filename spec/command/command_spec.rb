@@ -259,9 +259,16 @@ describe Command do
                             :logger => logger ,
                             :log_file => application_log_file ,
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
-
-
     end
+
+  end
+
+  context "error handling" do
+    it "considers status for error handling" do
+      command = Command.new(:false, :error_detection_on => [:status])
+      expect(command.result).to eq(false)
+    end
+    #command = Command.new(:true, :error_detection_on => [:stdout,:stderr,:status,:log_file])
   end
 
 end

@@ -155,31 +155,31 @@ module CommandExec
     #
     def run
 
+      process = Process.new(:logger => @logger)
+      process.log_file=@log_file
+
       check_path
 
       Dir.chdir(@working_directory) do
-        _stdout = ''
-        _stderr = ''
-
-        status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
-          _stdout = stdout.read.strip
-          _stderr = stderr.read.strip
+        process.return_code = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
+          process.stdout = stdout.clone
+          process.stderr = stderr.clone
         end
-        @logger.debug "Command exited with #{status}"
+        @logger.debug "Command exited with #{process.return_code}"
 
-        error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
+        error_in_stdout_found = error_in_string_found?(error_keywords,process.stdout.read.strip)
         @logger.debug "Errors found in stdout" if error_in_stdout_found
 
-        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+        @result = run_successful?( process.return_code.success? ,  error_in_stdout_found ) 
         @logger.debug "Result of command run #{@result}"
 
         if @result == false
           msg = message(
             @result, 
             help_output(
-                :stdout => StringIO.new(_stdout),
-                :stderr => StringIO.new(_stderr),
-                :log_file => read_log(@log_file)
+                :stdout => process.stdout,
+                :stderr => process.stderr,
+                :log_file => process.log_file,
             )
           )
         else
@@ -192,26 +192,6 @@ module CommandExec
       @result
     end
 
-    # Read the content of the log_file
-    #
-    # @param [Path] filename path to log_file
-    # @return [IO] handle for io
-    def read_log(filename)
-      return StringIO.new if filename.blank?
-
-      begin
-        file = File.open(log_file)
-        @logger.debug "read logfile \"#{file}\" "
-      rescue Errno::ENOENT
-        file = StringIO.new
-        @logger.warn "Logfile #{@log_file} not found!"
-      rescue Exception => e
-        file = StringIO.new
-        @logger.warn "An error happen while reading log_file #{@log_file}: #{e.message}"
-      end
-
-      file
-    end
 
     # Decide if a program run was successful
     #
