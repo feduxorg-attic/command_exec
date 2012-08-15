@@ -64,7 +64,10 @@ module CommandExec
     #
     # @return [String] fully qualified path to command
     #
-    def resolve_path(name,search_paths=['/bin', '/usr/bin'])
+    def resolve_path(name,*search_paths)
+      search_paths ||= ['/bin', '/usr/bin']
+      search_paths = search_paths.flatten
+
       if name.kind_of? Symbol
         path = search_paths.map{ |p| File.join(p, name.to_s) }.find {|p| File.exists? p } || ""
       else
