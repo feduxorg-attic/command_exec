@@ -108,69 +108,101 @@ describe Command do
   end
 
   it "can be used to construct a command string, which can be executed" do
-    command = Command.new(:pdflatex, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-a -b")
-    expect(command.send(:build_cmd_string)).to eq("/usr/bin/pdflatex -a -b index.tex blub.tex")
+    command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
+    expect(command.send(:to_s)).to eq("/bin/true -a -b index.tex blub.tex")
   end
 
   it "runs programms" do
+    command = Command.new(:echo, :parameter => "output", :log_level => :silent )
     command.run
     expect(command.result).to eq(true)
   end
 
   it "returns the textual rep of a command" do
-    expect(command.to_txt).to eq('/bin/echo hello world')
+    expect(command.to_s).to eq('/bin/echo hello world')
   end
 
   it "execute existing programs" do
-    command = Command.execute(:echo, :log_level => :silent, :logger => logger ,:parameter => "index.tex blub.tex", :options => "-- -a -b")
+    command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b", :log_level => :silent  )
     expect(command.result).to eq(true)
   end
-  
-  it "does not execute non-existing programs" do
-    command = Command.execute(:grep, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b")
-    expect(command.result).to eq(false)
-  end
 
-  it "checks if errors have happend during execution" do
-    command = Command.new(:echo1, :log_level => :silent, :logger => logger, :parameter => "index.tex blub.tex", :options => "-- -a -b")
-    expect { command.run }.to raise_error CommandNotFound
-  end
+  context 'output' do
 
-  it "decides which output should be returned to the user" do
-    log_file = StringIO.new
-    log_file << 'Error in ... found'
+    it "outputs nothing when empty" do
+      log_file = StringIO.new
+      stderr = StringIO.new
+      stdout = StringIO.new
 
-    stderr = StringIO.new
-    stderr << 'Error found'
+      result = command.send(:help_output,  { :log_file => log_file, :stderr => stderr , :stdout => stdout })
+      expect(result).to eq( [] )
 
-    stdout = StringIO.new
-    stdout << 'Error found'
+      result = command.send(:help_output,  {})
+      expect(result).to eq( [] )
 
-    #result = command.send(:help_logger)({ :error_in_exec => true , :error_in_stdout => false} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
-    result = command.send(:help_output, { :error_in_exec => true , :error_in_stdout => false} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
-    expect(result).to eq( ["================== LOGFILE ================== ", 
-                          "Error in ... found", 
-                          "================== STDOUT ================== ",
-                          "Error found", 
-                          "================== STDERR ================== ", 
-                          "Error found"] )
+      result = command.send(:help_output )
+      expect(result).to eq( [] )
+    end
 
-    result = command.send(:help_output, { :error_in_exec => false , :error_in_stdout => true} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
-    expect(result).to eq(["================== STDOUT ================== ", 
-                          "Error found"] )
+    it "outputs everything when all handles are defined" do
+      log_file = StringIO.new( 'Error found' )
+      stderr = StringIO.new('Error found')
+      stdout = StringIO.new('Error found')
 
-    result = command.send(:help_output, { :error_in_exec => true , :error_in_stdout => true} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
-    expect(result).to eq(["================== LOGFILE ================== ",
-                      "Error in ... found",
-                      "================== STDOUT ================== ",
-                      "Error found",
-                      "================== STDERR ================== ",
-                      "Error found"])
+      result = command.send(:help_output,  { :log_file => log_file, :stderr => stderr , :stdout => stdout })
+      expect(result).to eq( ["================== LOGFILE ==================", 
+                             "Error found", 
+                             "================== STDOUT  ==================",
+                             "Error found", 
+                             "================== STDERR  ==================", 
+                             "Error found"] )
+    end
+
+    it "outputs stdout when defined" do
+      log_file = StringIO.new
+      stderr = StringIO.new
+      stdout = StringIO.new('Error found')
+
+    #  result = command.send(:help_output,  { :log_file => log_file, :stderr => stderr, :stdout => stdout })
+    #  expect(result).to eq(["================== STDOUT  ==================", 
+    #                        "Error found"] )
+
+      
+      stdout.rewind
+      result = command.send(:help_output,  {:stdout => stdout })
+      expect(result).to eq(["================== STDOUT  ==================", 
+                            "Error found"] )
+    end
+
+    it "outputs log_file when defined" do
+      log_file = StringIO.new('Error found')
+      stderr = StringIO.new
+      stdout = StringIO.new
+
+      result = command.send(:help_output,  { :log_file => log_file, :stderr => stderr , :stdout => stdout })
+      expect(result).to eq(["================== LOGFILE ==================",
+                            "Error found" ])
+
+      log_file.rewind
+      result = command.send(:help_output,  { :log_file => log_file })
+      expect(result).to eq(["================== LOGFILE ==================",
+                            "Error found" ])
+    end
 
 
-    result = command.send(:help_output, { :error_in_exec => false , :error_in_stdout => false} , { :log_file => log_file, :stderr => stderr , :stdout => stdout })
-    expect(result).to eq([])
+    it "outputs stderr when defined" do
+      log_file = StringIO.new
+      stderr = StringIO.new('Error found')
+      stdout = StringIO.new
 
+      result = command.send(:help_output,  { :log_file => log_file, :stderr => stderr , :stdout => stdout })
+      expect(result).to eq( [ "================== STDERR  ==================", 
+                              "Error found"] )
+      stderr.rewind
+      result = command.send(:help_output,  { :stderr => stderr })
+      expect(result).to eq( [ "================== STDERR  ==================", 
+                              "Error found"] )
+    end
   end
 
   it "finds errors in stdout" do
@@ -190,7 +222,12 @@ describe Command do
     it "outputs only warnings when told to output those" do
       bucket = StringIO.new
       logger = Logger.new(bucket)
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_file => '/tmp/i_do_not_exist.log', :log_level => :warning)
+
+      command = Command.new(:logger_test ,
+                            :logger => logger ,
+                            :log_level => :warning,
+                            :log_file => '/tmp/i_do_not_exist.log',
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
 
       expect(bucket.string['WARN']).to_not eq(nil)
     end
@@ -215,16 +252,16 @@ describe Command do
     it "use a log file if given" do
       application_log_file = create_tmp_file_with('command_exec_test', 'TEXT IN LOG') 
 
-      Dir.chdir File.expand_path('test_data', File.dirname(__FILE__)) do
-        output = capture_stdout do
-          Command.new('logger_test' , :logger => logger , :log_file => application_log_file ).run
-        end
+      bucket = StringIO.new
+      logger = Logger.new(bucket)
 
-        expect(output['TEXT IN LOG']).to_not eq(nil)
-      end
+      command = Command.new(:logger_test ,
+                            :logger => logger ,
+                            :log_file => application_log_file ,
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
+
 
     end
   end
 
-  
 end

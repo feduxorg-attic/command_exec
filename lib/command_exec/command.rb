@@ -173,33 +173,13 @@ module CommandExec
         @result = run_successful?( status.success? ,  error_in_stdout_found ) 
         @logger.debug "Result of command run #{@result}"
 
-        binding.pry
-
-        if @log_file.blank?
-          content_of_log_file = StringIO.new
-        else
-          begin
-            content_of_log_file = read_log_file(File.open(@log_file, "r"))
-            @logger.debug "Content of logfile \"#{truncate(content_of_log_file)}\" "
-          rescue Errno::ENOENT
-            @logger.warn "Logfile #{@log_file} not found!"
-          rescue Exception => e
-            @logger.warn "An error happen while reading log_file #{@log_file}!"
-          end
-        end
-
         if @result == false
           msg = message(
             @result, 
             help_output(
-              { 
-                :error_in_exec => not(status.success?), 
-                :error_in_stdout => error_in_stdout_found 
-              }, {
                 :stdout => StringIO.new(_stdout),
                 :stderr => StringIO.new(_stderr),
-                :log_file => content_of_log_file
-              }
+                :log_file => read_log(@log_file)
             )
           )
         else
@@ -214,13 +194,23 @@ module CommandExec
 
     # Read the content of the log_file
     #
-    # @param [Path] file path to log_file
-    # @param [Integer] num_of_lines the number of lines which should be read -- e.g. 30 lines = -30
-    def read_log_file(file, num_of_lines=-30)
-      content = StringIO.new
-      content << file.readlines[num_of_lines..-1].join("")
+    # @param [Path] filename path to log_file
+    # @return [IO] handle for io
+    def read_log(filename)
+      return StringIO.new if filename.blank?
 
-      content
+      begin
+        file = File.open(log_file)
+        @logger.debug "read logfile \"#{file}\" "
+      rescue Errno::ENOENT
+        file = StringIO.new
+        @logger.warn "Logfile #{@log_file} not found!"
+      rescue Exception => e
+        file = StringIO.new
+        @logger.warn "An error happen while reading log_file #{@log_file}: #{e.message}"
+      end
+
+      file
     end
 
     # Decide if a program run was successful
@@ -238,45 +228,35 @@ module CommandExec
     # to help him with debugging
     #
     # @return [Array] Returns lines of log/stdout/stderr
-    def help_output(error_indicators={},output={})
-      error_in_exec = error_indicators[:error_in_exec]
-      error_in_stdout = error_indicators[:error_in_stdout]
-
-      unless output[:log_file].blank?
-        log_file = output[:log_file].string
-      end
-      stdout = output[:stdout].string
-      stderr = output[:stderr].string
+    def help_output(h={})
+      handles = {
+        log_file: StringIO.new,
+        stdout: StringIO.new,
+        stderr: StringIO.new
+      }.merge h
 
       result = []
+      { log_file:  { 
+          io_handle: handles[:log_file],
+          header: '================== LOGFILE ==================',
+          number_of_lines: 30
+        },
+        stdout: {
+          io_handle: handles[:stdout],
+          header: '================== STDOUT  ==================',
+          number_of_lines: nil
+        },
+        stderr: {
+          io_handle: handles[:stderr],
+          header: '================== STDERR  ==================',
+          number_of_lines: nil
+        }
+      }.each do |io,options|
+        tmp = options[:io_handle].readlines(options[:number_of_lines])
 
-      if error_in_exec == true
-        result << '================== LOGFILE ================== '
-        if log_file.blank? 
-          result << 'nothing'
-        else
-          result << log_file 
-        end
-
-        result << '================== STDOUT ================== '
-        if stdout.blank? 
-          result << 'nothing'
-        else
-          result << stdout 
-        end
-
-        result << '================== STDERR ================== '
-        if stderr.blank? 
-          result << 'nothing'
-        else
-          result << stderr 
-        end
-      elsif error_in_stdout == true
-        result << '================== STDOUT ================== '
-        if stdout.blank? 
-          result << 'nothing'
-        else
-          result << stdout 
+        if tmp.size > 0
+          result << options[:header]
+          result += tmp
         end
       end
 
