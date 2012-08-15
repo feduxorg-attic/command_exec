@@ -24,4 +24,5 @@ group :development do
   gem 'debugger'
   gem 'pry'
   gem 'pry-doc'
+  gem 'awesome_print'
 end
