@@ -161,16 +161,17 @@ module CommandExec
       check_path
 
       Dir.chdir(@working_directory) do
-        process.return_code = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
+        status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
           process.stdout = stdout.clone
           process.stderr = stderr.clone
         end
+        #process.return_code = status.exitstatus
         @logger.debug "Command exited with #{process.return_code}"
 
         error_in_stdout_found = error_in_string_found?(error_keywords,process.stdout.read.strip)
         @logger.debug "Errors found in stdout" if error_in_stdout_found
 
-        @result = run_successful?( process.return_code.success? ,  error_in_stdout_found ) 
+        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
         @logger.debug "Result of command run #{@result}"
 
         if @result == false
