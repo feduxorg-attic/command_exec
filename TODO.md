@@ -17,3 +17,6 @@ require 'json'
 raise ExecuteCommandFailed , JSON.dump status 
 ```
 * Add tests for search command
+* Add support for formatters of output
+* Refactor POpen4 -> Open3
+* Refactor working directory -> use Open3 option
