@@ -264,8 +264,23 @@ describe Command do
   end
 
   context "error handling" do
-    it "considers status for error handling" do
-      command = Command.new(:false, :error_detection_on => [:status])
+    it "considers status for error handling (default 0)" do
+      command = Command.new(:exit_status_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '1',
+                            :error_detection_on => [:return_code], 
+                           )
+      command.run
+      expect(command.result).to eq(false)
+    end
+
+    it "considers status for error handling (single value)" do
+      command = Command.new(:exit_status_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '1',
+                            :error_detection_on => [:return_code], 
+                            :error_indicators => { :allowed_return_code => [0] })
+      command.run
       expect(command.result).to eq(false)
     end
     #command = Command.new(:true, :error_detection_on => [:stdout,:stderr,:status,:log_file])

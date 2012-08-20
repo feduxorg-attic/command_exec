@@ -1,7 +1,7 @@
 module CommandExec
   class Process
-    attr_accessor :status, :return_code, :executable, :stdout, :stderr
-    attr_reader :log_file
+    attr_accessor :return_code, :executable, :stdout, :stderr
+    attr_reader :log_file, :status
 
     def initialize(options={})
       @options = {
@@ -12,26 +12,28 @@ module CommandExec
     end
 
     def log_file=(filename)
-      return StringIO.new if filename.blank?
-
-      begin
-        @log_file = File.open(@filename)
-        @logger.debug "read logfile \"#{file}\" "
-      rescue Errno::ENOENT
-        @log_file = StringIO.new
-        @logger.warn "Logfile #{@filename} not found!"
-      rescue Exception => e
-        @log_file = StringIO.new
-        @logger.warn "An error happen while reading log_file #{@filename}: #{e.message}"
+      if filename.blank?
+        @log_file = StringIO.new 
+      else
+        begin
+          @log_file = File.open(@filename)
+          @logger.debug "read logfile \"#{file}\" "
+        rescue Errno::ENOENT
+          @log_file = StringIO.new
+          @logger.warn "Logfile #{@filename} not found!"
+        rescue Exception => e
+          @log_file = StringIO.new
+          @logger.warn "An error happen while reading log_file #{@filename}: #{e.message}"
+        end
       end
 
       @log_file
     end
 
-    # Read the content of the log_file
-    #
-    # @param [Path] filename path to log_file
-    # @return [IO] handle for io
+    def status=(val)
+      @status = :failed if val == :failed
+    end
+
   end
 end
 

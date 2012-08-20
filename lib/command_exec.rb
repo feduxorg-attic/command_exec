@@ -11,5 +11,6 @@ require 'command_exec/process'
 
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/string/filters'
+require 'active_support/core_ext/hash/deep_merge'
 
 module CommandExec; end

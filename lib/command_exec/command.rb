@@ -26,12 +26,18 @@ module CommandExec
         :logger => Logger.new($stderr),
         :options => '',
         :parameter => '',
+        :error_detection_on => [:return_code],
+        :error_indicators => {
+          :allowed_return_code => [0],
+          :forbidden_return_code => []
+        },
+        :on_error_do => :return_process_information,
         :error_keywords => [],
         :working_directory => Dir.pwd,
         :log_file => '',
         :log_level => :info,
         :search_paths => ENV['PATH'].split(':'),
-      }.update opts
+      }.deep_merge opts
 
       @logger = @opts[:logger] 
       configure_logging 
@@ -41,8 +47,12 @@ module CommandExec
       @options = @opts[:options]
       @path = resolve_path @name, @opts[:search_paths]
       @parameter = @opts[:parameter]
-      @error_keywords = @opts[:error_keywords]
       @log_file = @opts[:log_file]
+
+      @error_detection_on = @opts[:error_detection_on]
+      @error_indicators = @opts[:error_indicators]
+      @on_error_do = @opts[:on_error_do]
+      @error_keywords = @opts[:error_keywords]
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -165,13 +175,17 @@ module CommandExec
           process.stdout = stdout.clone
           process.stderr = stderr.clone
         end
+
+        process.return_code = status.exitstatus
+        process.status = :failed unless @error_indicators[:allowed_return_code].include? process.return_code
+
         #process.return_code = status.exitstatus
-        @logger.debug "Command exited with #{process.return_code}"
+      #  @logger.debug "Command exited with #{process.return_code}"
 
         error_in_stdout_found = error_in_string_found?(error_keywords,process.stdout.read.strip)
-        @logger.debug "Errors found in stdout" if error_in_stdout_found
+      #  @logger.debug "Errors found in stdout" if error_in_stdout_found
 
-        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
+        @result = run_successful?( process.status ,  error_in_stdout_found ) 
         @logger.debug "Result of command run #{@result}"
 
         if @result == false
@@ -198,7 +212,7 @@ module CommandExec
     #
     # @return [Boolean] Returns the decision
     def run_successful?(success,error_in_stdout)
-      if success == false or error_in_stdout == true 
+      if success == :failed or error_in_stdout == true 
         return false
       else 
         return true 
