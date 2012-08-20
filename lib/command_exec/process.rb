@@ -1,33 +1,41 @@
 module CommandExec
   class Process
     attr_accessor :return_code, :executable, :stdout, :stderr
-    attr_reader :log_file, :status
+    attr_reader :status
 
     def initialize(options={})
       @options = {
-        :logger => Logger.new($stderr)
+        :logger => Logger.new($stderr),
+        :stderr => [],
+        :stdout => [],
       }.merge options
 
       @logger = @options[:logger]
+      @stderr = @options[:stderr]
+      @stout = @options[:stdout]
     end
 
-    def log_file=(filename)
-      if filename.blank?
-        @log_file = StringIO.new 
+    def log_file(filename)
+      if @log_file
+        return @log_file
       else
-        begin
-          @log_file = File.open(@filename)
-          @logger.debug "read logfile \"#{file}\" "
-        rescue Errno::ENOENT
-          @log_file = StringIO.new
-          @logger.warn "Logfile #{@filename} not found!"
-        rescue Exception => e
-          @log_file = StringIO.new
-          @logger.warn "An error happen while reading log_file #{@filename}: #{e.message}"
+        if filename.blank?
+          file = StringIO.new 
+        else
+          begin
+            file = File.open(filename)
+            @logger.debug "read logfile \"#{file}\" "
+          rescue Errno::ENOENT
+            file = StringIO.new
+            @logger.warn "Logfile #{filename} not found!"
+          rescue Exception => e
+            file = StringIO.new
+            @logger.warn "An error happen while reading log_file #{filename}: #{e.message}"
+          end
         end
-      end
 
-      @log_file
+        return @log_file = file.readlines
+      end
     end
 
     def status=(val)

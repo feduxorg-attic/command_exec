@@ -166,14 +166,14 @@ module CommandExec
     def run
 
       process = Process.new(:logger => @logger)
-      process.log_file=@log_file
+      process.log_file(@log_file)
 
       check_path
 
       Dir.chdir(@working_directory) do
         status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
-          process.stdout = stdout.clone
-          process.stderr = stderr.clone
+          process.stdout = stdout.read.strip
+          process.stderr = stderr.read.strip
         end
 
         process.return_code = status.exitstatus
@@ -228,9 +228,9 @@ module CommandExec
     # @return [Array] Returns lines of log/stdout/stderr
     def help_output(h={})
       handles = {
-        log_file: StringIO.new,
-        stdout: StringIO.new,
-        stderr: StringIO.new
+        log_file: [],
+        stdout: [],
+        stderr: [],
       }.merge h
 
       result = []
@@ -250,7 +250,7 @@ module CommandExec
           number_of_lines: nil
         }
       }.each do |io,options|
-        tmp = options[:io_handle].readlines(options[:number_of_lines])
+        tmp = options[:io_handle][-1,options[:number_of_lines]]
 
         if tmp.size > 0
           result << options[:header]
