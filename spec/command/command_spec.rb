@@ -274,7 +274,7 @@ describe Command do
       expect(command.result).to eq(false)
     end
 
-    it "considers status for error handling (single value)" do
+    it "considers status for error handling (single value as array)" do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
@@ -283,6 +283,40 @@ describe Command do
       command.run
       expect(command.result).to eq(false)
     end
+
+    it "considers status for error handling (single value as symbol)" do
+      command = Command.new(:exit_status_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '1',
+                            :log_level => :silent,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [0] })
+      command.run
+      expect(command.result).to eq(false)
+    end
+
+    it "considers status for error handling (single value)" do
+      command = Command.new(:exit_status_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '0',
+                            :log_level => :silent,
+                            :error_detection_on => [:return_code], 
+                            :error_indicators => { :allowed_return_code => [0,2] })
+      command.run
+      expect(command.result).to eq(true)
+
+      command = Command.new(:exit_status_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '2',
+                            :log_level => :silent,
+                            :error_detection_on => [:return_code], 
+                            :error_indicators => { :allowed_return_code => [0,2] })
+      command.run
+      expect(command.result).to eq(true)
+    end
+
+
+
     #command = Command.new(:true, :error_detection_on => [:stdout,:stderr,:status,:log_file])
   end
 

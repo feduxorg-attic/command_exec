@@ -49,7 +49,7 @@ module CommandExec
       @parameter = @opts[:parameter]
       @log_file = @opts[:log_file]
 
-      @error_detection_on = @opts[:error_detection_on]
+      *@error_detection_on = @opts[:error_detection_on]
       @error_indicators = @opts[:error_indicators]
       @on_error_do = @opts[:on_error_do]
       @error_keywords = @opts[:error_keywords]
@@ -177,7 +177,10 @@ module CommandExec
         end
 
         process.return_code = status.exitstatus
-        process.status = :failed unless @error_indicators[:allowed_return_code].include? process.return_code
+
+        if @error_detection_on.include?(:return_code)
+          process.status = :failed unless @error_indicators[:allowed_return_code].include? process.return_code
+        end
 
         #process.return_code = status.exitstatus
       #  @logger.debug "Command exited with #{process.return_code}"
