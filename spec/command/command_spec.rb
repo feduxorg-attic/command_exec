@@ -116,7 +116,7 @@ describe Command do
   it "runs programms" do
     command = Command.new(:echo, :parameter => "output", :log_level => :silent )
     command.run
-    expect(command.result).to eq(true)
+    expect(command.result.status).to eq(:success)
   end
 
   it "returns the textual rep of a command" do
@@ -125,7 +125,7 @@ describe Command do
 
   it "execute existing programs" do
     command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b", :log_level => :silent  )
-    expect(command.result).to eq(true)
+    expect(command.result.status).to eq(:success)
   end
 
   context 'output' do
@@ -268,20 +268,22 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
+                            :log_level => :silent,
                             :error_detection_on => [:return_code], 
                            )
       command.run
-      expect(command.result).to eq(false)
+      expect(command.result.status).to eq(:failed)
     end
 
     it "considers status for error handling (single value as array)" do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
+                            :log_level => :silent,
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0] })
       command.run
-      expect(command.result).to eq(false)
+      expect(command.result.status).to eq(:failed)
     end
 
     it "considers status for error handling (single value as symbol)" do
@@ -292,7 +294,7 @@ describe Command do
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [0] })
       command.run
-      expect(command.result).to eq(false)
+      expect(command.result.status).to eq(:failed)
     end
 
     it "considers status for error handling (single value)" do
@@ -303,7 +305,7 @@ describe Command do
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0,2] })
       command.run
-      expect(command.result).to eq(true)
+      expect(command.result.status).to eq(:success)
 
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
@@ -312,9 +314,19 @@ describe Command do
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0,2] })
       command.run
-      expect(command.result).to eq(true)
+      expect(command.result.status).to eq(:success)
     end
 
+    it "considers stderr for error handling" do
+      command = Command.new(:stderr_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '1',
+                            :log_level => :silent,
+                            :error_detection_on => :stderr, 
+                            :error_indicators => { :forbidden_word_in_stderr => %{error} })
+      command.run
+      expect(command.result.status).to eq(:failed)
+    end
 
 
     #command = Command.new(:true, :error_detection_on => [:stdout,:stderr,:status,:log_file])

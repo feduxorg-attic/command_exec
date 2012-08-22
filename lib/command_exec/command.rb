@@ -29,7 +29,9 @@ module CommandExec
         :error_detection_on => [:return_code],
         :error_indicators => {
           :allowed_return_code => [0],
-          :forbidden_return_code => []
+          :forbidden_return_code => [],
+          :allowed_word_in_stderr => [],
+          :forbidden_word_in_stderr => [],
         },
         :on_error_do => :return_process_information,
         :error_keywords => [],
@@ -174,70 +176,43 @@ module CommandExec
 
       Dir.chdir(@working_directory) do
         status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
-          process.stdout = stdout.read.strip
-          process.stderr = stderr.read.strip
+          process.stdout = stdout.readlines
+          process.stderr = stderr.readlines
         end
 
         process.return_code = status.exitstatus
 
         if @error_detection_on.include?(:return_code)
-          process.status = :failed unless @error_indicators[:allowed_return_code].include? process.return_code
+          unless @error_indicators[:allowed_return_code].include? process.return_code
+            process.status = :failed 
+            process.output << formatter.return_code(process.return_code)
+          end
         end
 
-        #process.return_code = status.exitstatus
-      #  @logger.debug "Command exited with #{process.return_code}"
-
-        error_in_stdout_found = error_in_string_found?(error_keywords,process.stdout.read.strip)
-      #  @logger.debug "Errors found in stdout" if error_in_stdout_found
-
-        @result = run_successful?( process.status ,  error_in_stdout_found ) 
-        @logger.debug "Result of command run #{@result}"
-
-        if @result == false
-          msg = message(
-            @result, 
-            help_output(
-                :stdout => process.stdout,
-                :stderr => process.stderr,
-                :log_file => process.log_file,
-            )
-          )
-        else
-          msg =  message(@result)
+        if @error_detection_on.include?(:stderr) and not process.status == :failed
+          if error_in_string_found?( @error_indicators[:forbidden_word_in_stderr], process.stderr)
+            process.status = :failed 
+            process.output << formatter.stderr(process.stderr)
+          end
         end
 
-        @logger.info "#{@name.to_s}: #{msg}"
-      end
-
-      @result
-    end
-
-
-    # Decide if a program run was successful
-    #
-    # @return [Boolean] Returns the decision
-    def run_successful?(success,error_in_stdout)
-      if success == :failed or error_in_stdout == true 
-        return false
-      else 
-        return true 
-      end
-    end
+        @logger.debug "Result of command run #{process.status}"
+        process.output << formatter.status(process.status)
 
       end
 
-      result
+      @result = process
     end
 
     # Find error in stdout
     # 
     # @return [Boolean] Returns true if it finds an error
-    def error_in_string_found? (keywords=[], string )
-      return false if keywords.empty? or not keywords.is_a? Array 
-      return false if string.nil? or not string.is_a? String
+    def error_in_string_found?(*keywords, string )
+      return false if keywords.blank? 
+      return false if string.blank?
 
       error_found = false
-      keywords.each do |word|
+      keywords.flatten.each do |word|
         if string.include? word
           error_found = true
           break

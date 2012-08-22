@@ -1,6 +1,6 @@
 module CommandExec
   class Process
-    attr_accessor :return_code, :executable, :stdout, :stderr
+    attr_accessor :return_code, :executable, :stdout, :stderr, :output
     attr_reader :status
 
     def initialize(options={})
@@ -8,14 +8,18 @@ module CommandExec
         :logger => Logger.new($stderr),
         :stderr => [],
         :stdout => [],
+        :output => [],
+        :status => :success,
       }.merge options
 
       @logger = @options[:logger]
       @stderr = @options[:stderr]
       @stout = @options[:stdout]
+      @status = @options[:status]
+      @output = @options[:output]
     end
 
-    def log_file(filename)
+    def log_file(filename=nil)
       if @log_file
         return @log_file
       else
@@ -39,7 +43,7 @@ module CommandExec
     end
 
     def status=(val)
-      @status = :failed if val == :failed
+      @status = val unless @status == :failed
     end
 
   end
