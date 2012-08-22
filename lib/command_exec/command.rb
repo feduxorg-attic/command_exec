@@ -163,7 +163,9 @@ module CommandExec
 
     # Run the program
     #
-    def run
+    def run(formatter=Formatter::PlainText.new)
+
+      formatter.logger = @logger
 
       process = Process.new(:logger => @logger)
       process.log_file(@log_file)
@@ -222,40 +224,6 @@ module CommandExec
       end
     end
 
-    # Decide which output to return to the user
-    # to help him with debugging
-    #
-    # @return [Array] Returns lines of log/stdout/stderr
-    def help_output(h={})
-      handles = {
-        log_file: [],
-        stdout: [],
-        stderr: [],
-      }.merge h
-
-      result = []
-      { log_file:  { 
-          io_handle: handles[:log_file],
-          header: '================== LOGFILE ==================',
-          number_of_lines: 30
-        },
-        stdout: {
-          io_handle: handles[:stdout],
-          header: '================== STDOUT  ==================',
-          number_of_lines: nil
-        },
-        stderr: {
-          io_handle: handles[:stderr],
-          header: '================== STDERR  ==================',
-          number_of_lines: nil
-        }
-      }.each do |io,options|
-        tmp = options[:io_handle][-1,options[:number_of_lines]]
-
-        if tmp.size > 0
-          result << options[:header]
-          result += tmp
-        end
       end
 
       result
@@ -277,23 +245,6 @@ module CommandExec
       end
 
       error_found
-    end
-
-    # Generate the message which is return to the user
-    # 
-    # @param [Boolean] run_successful true if a positive message should be returned
-    # @param [Array] msg Message which should be returned
-    def message(run_successful, *output)
-
-      msg = []
-      if run_successful
-        msg << 'OK'.green.bold
-      else
-        msg << 'FAILED'.red.bold
-        msg += output.flatten
-      end
-
-      msg.join("\n")
     end
 
     # Constructur to initiate a new command and run it later
