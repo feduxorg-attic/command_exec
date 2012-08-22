@@ -12,15 +12,13 @@ module CommandExec
             return_code: '======= RETURN CODE =======',
             log_file:    '======= LOG FILE    =======',
             stderr:      '======= STDERR      =======',
-            stdout:      '======= STDERR      =======',
+            stdout:      '======= STDOUT      =======',
           color_set: :success,
           }
         }.deep_merge options
 
         @header = @options[:header]
         @color_set = @options[:success]
-
-        @output = []
 
         @log_file = []
         @return_code = []
@@ -54,14 +52,18 @@ module CommandExec
       end
 
       def status(value)
-        if value == :success
-          @status << 'OK'.green.bold
+        if value.to_s == 'success'
+          @status[1] = 'OK'.green.bold
         else
-          @status << 'FAILED'.green.bold
+          @status[1] = 'FAILED'.green.bold
         end
+
+        @status
       end
 
       def output(*order)
+        out = []
+
         avail_order = {
           :status => @status,
           :return_code => @return_code,
@@ -71,11 +73,11 @@ module CommandExec
         }
         order = [:status,:return_code,:stderr,:stdout,:log_file] if order.blank?
 
-        order.each do |var|
-          @output += avail_order[var]
+        order.flatten.each do |var|
+          out += avail_order[var]
         end
 
-        @output.flatten
+        out.flatten
       end
     end
   end
