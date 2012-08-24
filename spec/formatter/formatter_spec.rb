@@ -1,24 +1,30 @@
 require 'spec_helper'
 
 describe Formatter::PlainText do
-  it "formats headers" do
+  it "formats headers (plain)" do
     formatter = Formatter::PlainText.new
-    expect(formatter.format_header(:status)).to eq("===== STATUS =====")
+    expect(formatter.format_header(:reason_for_failure)).to eq("===== REASON FOR FAILURE =====")
+    expect(formatter.format_header(:status)).to eq("=====       STATUS       =====")
   end
 
   it "formats headers and modifies prefix" do
     formatter = Formatter::PlainText.new
-    expect(formatter.format_header(:status, prefix: '-' * 5 )).to eq("----- STATUS =====")
+    expect(formatter.format_header(:status, prefix: '-' * 5 )).to eq("-----       STATUS       =====")
   end
 
   it "formats headers and modifies suffix" do
     formatter = Formatter::PlainText.new
-    expect(formatter.format_header(:status, suffix: '-' * 5 )).to eq("===== STATUS -----")
+    expect(formatter.format_header(:status, suffix: '-' * 5 )).to eq("=====       STATUS       -----")
   end
 
   it "formats headers and modifies suffix/prefix" do
     formatter = Formatter::PlainText.new
-    expect(formatter.format_header(:status, prefix: '#' * 5, suffix: '-' * 5 )).to eq("##### STATUS -----")
+    expect(formatter.format_header(:status, prefix: '#' * 5, suffix: '-' * 5 )).to eq("#####       STATUS       -----")
+  end
+
+  it "leaves out nil prefix/suffix" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.format_header(:status, prefix: nil , suffix: nil)).to eq("      STATUS      ")
   end
 
   it "finds the longest header names' length" do
@@ -66,12 +72,12 @@ describe Formatter::PlainText do
 
   it "outputs stderr with header" do
     formatter = Formatter::PlainText.new
-    expect(formatter.stderr("output of stderr")).to eq(["======= STDERR      =======", "output of stderr"])
+    expect(formatter.stderr("output of stderr")).to eq(["output of stderr"])
   end
 
   it "supports arrays as well" do
     formatter = Formatter::PlainText.new
-    expect(formatter.stderr(["output of stderr"])).to eq(["======= STDERR      =======", "output of stderr"])
+    expect(formatter.stderr(["output of stderr"])).to eq(["output of stderr"])
   end
 
   it "outputs multiple values if called multiple times (but only with one header)" do
@@ -79,44 +85,48 @@ describe Formatter::PlainText do
     2.times do
       formatter.stderr(["output of stderr"])
     end
-    expect(formatter.output(:stderr)).to eq(["======= STDERR      =======", "output of stderr", "output of stderr"])
+    expect(formatter.output(:stderr)).to eq(["=====       STDERR       =====", "output of stderr", "output of stderr"])
   end
 
   it "outputs stdout" do
     formatter = Formatter::PlainText.new
-    expect(formatter.stdout("output of stdout")).to eq(["======= STDOUT      =======", "output of stdout"])
+    expect(formatter.stdout("output of stdout")).to eq(["output of stdout"])
   end
 
   it "outputs log file" do
     formatter = Formatter::PlainText.new
-    expect(formatter.log_file("output of log file")).to eq(["======= LOG FILE    =======", "output of log file"])
+    expect(formatter.log_file("output of log file")).to eq(["output of log file"])
   end
 
   it "outputs return code" do
     formatter = Formatter::PlainText.new
-    expect(formatter.return_code("output of return code")).to eq(["======= RETURN CODE =======", "output of return code"])
+    expect(formatter.return_code("output of return code")).to eq(["output of return code"])
   end
 
   it "outputs status" do
     formatter = Formatter::PlainText.new
-    expect(formatter.status(:failed)).to eq(["======= STATUS      =======", "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
+    expect(formatter.status(:failed)).to eq([ "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
+    expect(formatter.status(:success)).to eq(["\e[1m\e[1;32mOK\e[0m\e[0m"])
+    expect(formatter.status(:unknown)).to eq([ "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
   end
 
   it "outputs status as single value (no data is appended)" do
     formatter = Formatter::PlainText.new
-    expect(formatter.status(:failed)).to eq(["======= STATUS      =======", "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
-    expect(formatter.status(:success)).to eq(["======= STATUS      =======", "\e[1m\e[1;32mOK\e[0m\e[0m"])
+    formatter.status(:success)
+    formatter.status(:failed)
+    expect(formatter.output(:status)).to eq(["=====       STATUS       =====", "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
   end
 
   it "supports status as string as well" do
     formatter = Formatter::PlainText.new
-    expect(formatter.status('failed')).to eq(["======= STATUS      =======", "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
-    expect(formatter.status('success')).to eq(["======= STATUS      =======", "\e[1m\e[1;32mOK\e[0m\e[0m"])
+    expect(formatter.status('failed')).to eq(["\e[1m\e[1;32mFAILED\e[0m\e[0m"])
+    expect(formatter.status('success')).to eq([ "\e[1m\e[1;32mOK\e[0m\e[0m"])
   end
 
   it "supports blank headers" do
-    formatter = Formatter::PlainText.new(header: { return_code: "" })
-    expect(formatter.return_code("output of return code")).to eq(["" , "output of return code"])
+    formatter = Formatter::PlainText.new(headers: { names: { return_code: "" }})
+    formatter.return_code("output of return code")
+    expect(formatter.output(:return_code)).to eq(["" , "output of return code"])
   end
 
   it "suppresses headers if nil" do
@@ -131,34 +141,37 @@ describe Formatter::PlainText do
     formatter.log_file("output of log file")
     formatter.return_code("output of return code")
     formatter.status(:failed)
+    formatter.reason_for_failure('great an error occured')
 
-    expect(formatter.output(:stderr)).to eq(["======= STDERR      =======", "output of stderr" ])
-    expect(formatter.output).to eq([
-                                    "======= STATUS      =======",
-                                    "\e[1m\e[1;32mFAILED\e[0m\e[0m",
-                                    "======= RETURN CODE =======",
-                                    "output of return code",
-                                    "======= STDERR      =======",
+    expect(formatter.output(:stderr)).to eq([
+                                    "=====       STDERR       =====",
                                     "output of stderr",
-                                    "======= STDOUT      =======",
+                                    ])
+    expect(formatter.output).to eq([
+                                    "=====       STATUS       =====",
+                                    "\e[1m\e[1;32mFAILED\e[0m\e[0m",
+                                    "=====    RETURN CODE     =====",
+                                    "output of return code",
+                                    "=====       STDERR       =====",
+                                    "output of stderr",
+                                    "=====       STDOUT       =====",
                                     "output of stdout",
-                                    "======= LOG FILE    =======",
-                                    "output of log file"
+                                    "=====      LOG FILE      =====",
+                                    "output of log file",
+                                    "===== REASON FOR FAILURE =====",
+                                    'great an error occured'
                                     ])
     expect(formatter.output(:stdout,:stderr)).to eq([
-                                    "======= STDOUT      =======",
+                                    "=====       STDOUT       =====",
                                     "output of stdout",
-                                    "======= STDERR      =======",
+                                    "=====       STDERR       =====",
                                     "output of stderr",
                                     ])
   end
 
   it "accepts a reason for a failure" do
     formatter = Formatter::PlainText.new
-    expect(formatter.reason_for_failure('error in stdout found')).to eq([
-                                                                          "======= REASON FOR FAILURE =======", 
-                                                                          "error in stdout found",
-                                                                       ])
+    expect(formatter.reason_for_failure('error in stdout found')).to eq([ "error in stdout found" ])
   end
 
   it "output only wanted values (given as array)" do
@@ -170,10 +183,10 @@ describe Formatter::PlainText do
     formatter.status(:failed)
 
     expect(formatter.output([:stdout,:stderr])).to eq([
-                                    "======= STDOUT      =======",
+                                    "=====       STDOUT       =====",
                                     "output of stdout",
-                                    "======= STDERR      =======",
-                                    "output of stderr",
+                                    "=====       STDERR       =====",
+                                    "output of stderr"
                                     ])
   end
 end

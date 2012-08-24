@@ -54,10 +54,13 @@ module CommandExec
       end
 
       def status(value)
-        if value.to_s == 'success'
-          @status[1] = 'OK'.green.bold
+        case value.to_s
+        when 'success'
+          @status[0] = 'OK'.green.bold
+        when 'failed'
+          @status[0] = 'FAILED'.green.bold
         else
-          @status[1] = 'FAILED'.green.bold
+          @status[0] = 'FAILED'.green.bold
         end
 
         @status
@@ -98,7 +101,16 @@ module CommandExec
       end
 
       def format_header(header,options={})
-       "#{options[:prefix]} #{halign(options[:names][header], max_header_length, :center)} #{options[:suffix]}"
+        opts = @headers_options.deep_merge options
+
+        output=""
+        unless opts[:names][header] == ""
+          output += "#{opts[:prefix]} " unless opts[:prefix].blank?
+          output += halign(opts[:names][header], max_header_length, opts[:halign])
+          output += " #{opts[:suffix]}" unless opts[:suffix].blank?
+        end
+
+        output
       end
 
       def output(*order)
