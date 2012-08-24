@@ -25,12 +25,7 @@ module CommandExec
         @stderr = []
         @stdout = []
         @status = []
-
-        @log_file << @header[:log_file] unless @header[:log_file].nil?
-        @return_code << @header[:return_code] unless @header[:return_code].nil?
-        @stderr << @header[:stderr] unless @header[:stderr].nil?
-        @stdout << @header[:stdout] unless @header[:stdout].nil?
-        @status << @header[:status] unless @header[:status].nil?
+        @reason_for_failure = []
 
         @logger = Logger.new($stdout)
       end
@@ -61,6 +56,10 @@ module CommandExec
         @status
       end
 
+      def reason_for_failure(value)
+        @reason_for_failure << value.to_s
+      end
+
       def output(*order)
         out = []
 
@@ -70,8 +69,9 @@ module CommandExec
           :stderr => @stderr,
           :stdout => @stdout,
           :log_file => @log_file,
+          :reason_for_failure => @reason_for_failure,
         }
-        order = [:status,:return_code,:stderr,:stdout,:log_file] if order.blank?
+        order = [:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure] if order.blank?
 
         order.flatten.each do |var|
           out += avail_order[var]

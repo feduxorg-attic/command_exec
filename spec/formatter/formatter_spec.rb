@@ -90,6 +90,14 @@ describe Formatter::PlainText do
                                     ])
   end
 
+  it "accepts a reason for a failure" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.reason_for_failure('error in stdout found')).to eq([
+                                                                          "======= REASON FOR FAILURE =======", 
+                                                                          "error in stdout found",
+                                                                       ])
+  end
+
   it "output only wanted values (given as array)" do
     formatter = Formatter::PlainText.new
     formatter.stderr(["output of stderr"])

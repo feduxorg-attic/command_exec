@@ -20,3 +20,4 @@ raise ExecuteCommandFailed , JSON.dump status
 * Add support for formatters of output
 * Refactor POpen4 -> Open3
 * Refactor working directory -> use Open3 option
+* Add reason for failure: :stdin, :stdout, :exitstatus, ...

@@ -1,6 +1,6 @@
 module CommandExec
   class Process
-    attr_accessor :return_code, :executable, :stdout, :stderr, :output
+    attr_accessor :return_code, :executable, :stdout, :stderr, :output, :reason_for_failure
     attr_reader :status
 
     def initialize(options={})
@@ -17,6 +17,7 @@ module CommandExec
       @stout = @options[:stdout]
       @status = @options[:status]
       @output = @options[:output]
+      @reason_for_failure = :none
     end
 
     def log_file(filename=nil)
