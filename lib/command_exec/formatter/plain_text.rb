@@ -7,17 +7,24 @@ module CommandExec
 
       def initialize(options={})
         @options = {
-          header: {
-            status:      '======= STATUS      =======',
-            return_code: '======= RETURN CODE =======',
-            log_file:    '======= LOG FILE    =======',
-            stderr:      '======= STDERR      =======',
-            stdout:      '======= STDOUT      =======',
+          headers: {
+            names: {
+              status:      'STATUS',
+              return_code: 'RETURN CODE',
+              log_file:    'LOG FILE',
+              stderr:      'STDERR',
+              stdout:      'STDOUT',
+              reason_for_failure: 'REASON FOR FAILURE',
+            },
+            prefix: '=' * 5,
+            suffix: '=' * 5,
+            halign: :center,
+            show: true,
+          },
           color_set: :success,
-          }
         }.deep_merge options
 
-        @header = @options[:header]
+        @headers_options = @options[:headers]
         @color_set = @options[:success]
 
         @log_file = []
@@ -60,6 +67,28 @@ module CommandExec
         @reason_for_failure << value.to_s
       end
 
+      def max_header_length
+        @max_header_length ||= @headers_options[:names].values.inject(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
+      end
+
+      def halign(name, max_length, orientation)
+        case orientation
+        when :center
+          halign_center(name,max_length)
+        else
+          halign_center(name,max_length)
+        end
+      end
+
+      def halign_center(name, max_length)
+        num_whitespace = ( max_length - name.length ) / 2.0
+        name = ' ' * num_whitespace.floor + name + ' ' * num_whitespace.ceil
+      end
+
+      def format_header(header,options={})
+       "#{options[:prefix]} #{halign(options[:names][header], max_header_length, :center)} #{options[:suffix]}"
+      end
+
       def output(*order)
         out = []
 
@@ -74,7 +103,8 @@ module CommandExec
         order = [:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure] if order.blank?
 
         order.flatten.each do |var|
-          out += avail_order[var]
+          out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_order.has_key?(var)
+          out += avail_order[var] if avail_order.has_key?(var)
         end
 
         out.flatten

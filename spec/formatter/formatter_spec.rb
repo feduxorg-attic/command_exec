@@ -1,6 +1,43 @@
 require 'spec_helper'
 
 describe Formatter::PlainText do
+  it "formats headers" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.format_header(:status)).to eq("===== STATUS =====")
+  end
+
+  it "formats headers and modifies prefix" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.format_header(:status, prefix: '-' * 5 )).to eq("----- STATUS =====")
+  end
+
+  it "formats headers and modifies suffix" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.format_header(:status, suffix: '-' * 5 )).to eq("===== STATUS -----")
+  end
+
+  it "formats headers and modifies suffix/prefix" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.format_header(:status, prefix: '#' * 5, suffix: '-' * 5 )).to eq("##### STATUS -----")
+  end
+
+  it "finds the longest header names' length" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.max_header_length).to eq(18)
+  end
+
+  it "centers header names" do
+    formatter = Formatter::PlainText.new
+    expect(formatter.halign_center( '012' , 10 )).to        eq('   012    ')
+    expect(formatter.halign_center( '0123' , 10 )).to       eq('   0123   ')
+    expect(formatter.halign_center( '0123456789' , 10 )).to eq('0123456789')
+    expect(formatter.halign_center( '012' , 11 )).to         eq('    012    ')
+    expect(formatter.halign_center( '0123' , 11 )).to        eq('   0123    ')
+    expect(formatter.halign_center( '01234567891' , 11 )).to eq('01234567891')
+    #expect(formatter.format_header(:status, halign: :center)).to eq("===== STATUS =====")
+    #expect(formatter.format_header(:status, halign: :center)).to eq("===== STATUS =====")
+  end
+
   it "outputs stderr with header" do
     formatter = Formatter::PlainText.new
     expect(formatter.stderr("output of stderr")).to eq(["======= STDERR      =======", "output of stderr"])
