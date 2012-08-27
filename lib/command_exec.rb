@@ -3,6 +3,8 @@
 require 'popen4'
 require 'colored'
 require 'logger'
+require 'json'
+require 'psych'
 
 require 'command_exec/formatter/plain_text'
 

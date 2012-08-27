@@ -165,7 +165,7 @@ module CommandExec
 
     # Run the program
     #
-    def run(formatter=Formatter::PlainText.new)
+    def run
 
       formatter.logger = @logger
 
@@ -185,19 +185,15 @@ module CommandExec
         if @error_detection_on.include?(:return_code)
           unless @error_indicators[:allowed_return_code].include? process.return_code
             process.status = :failed 
-            process.output << formatter.return_code(process.return_code)
           end
         end
 
         if @error_detection_on.include?(:stderr) and not process.status == :failed
           if error_in_string_found?( @error_indicators[:forbidden_word_in_stderr], process.stderr)
             process.status = :failed 
-            process.output << formatter.stderr(process.stderr)
           end
         end
-
         @logger.debug "Result of command run #{process.status}"
-        process.output << formatter.status(process.status)
 
       end
 

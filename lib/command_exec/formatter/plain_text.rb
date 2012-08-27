@@ -31,7 +31,7 @@ module CommandExec
         @return_code = []
         @stderr = []
         @stdout = []
-        @status = []
+        @status = nil
         @reason_for_failure = []
 
         @logger = Logger.new($stdout)
