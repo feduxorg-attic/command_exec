@@ -30,9 +30,7 @@ module CommandExec
           out[f] = avail_fields[f] if avail_fields.has_key?(f)
         end
 
-        binding.pry
-
-        XmlSimple.xml_out out
+        out.to_xml(root: 'command')
       end
     end
   end

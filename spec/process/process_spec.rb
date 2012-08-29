@@ -216,7 +216,7 @@ describe CommandExec::Process do
       process.status = :failed
       process.reason_for_failure = 'great an error occured'
 
-      expect(process.to_xml).to eq("<opt>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <reason_for_failure>great an error occured</reason_for_failure>\n</opt>\n")
+      expect(process.to_xml).to eq("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<command>\n  <status type=\"array\">\n    <status>FAILED</status>\n  </status>\n  <return-code type=\"array\">\n    <return-code>output of return code</return-code>\n  </return-code>\n  <stderr type=\"array\">\n    <stderr>output of stderr</stderr>\n  </stderr>\n  <stdout type=\"array\">\n    <stdout>output of stdout</stdout>\n  </stdout>\n  <log-file type=\"array\">\n    <log-file>output of log file</log-file>\n  </log-file>\n  <reason-for-failure type=\"array\">\n    <reason-for-failure>great an error occured</reason-for-failure>\n  </reason-for-failure>\n</command>\n")
     end
 
   end

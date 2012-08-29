@@ -5,7 +5,6 @@ PATH
       POpen4
       activesupport
       colored
-      xml-simple
 
 GEM
   remote: http://rubygems.org/
@@ -82,7 +81,6 @@ GEM
     thor (0.15.4)
     tmrb (1.2.7)
       thor
-    xml-simple (1.1.1)
     yard (0.8.2.1)
 
 PLATFORMS
