@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Main
 module CommandExec
   # Classed concerning pdflatex exceptions

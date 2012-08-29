@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 module CommandExec
   module SpecHelper
     def capture_stderr(&block)

@@ -1,11 +1,17 @@
+# encoding: utf-8
+
 module CommandExec
   module Formatter
-    class PlainText
+    class PlainText < Base
 
       attr_reader :output
       attr_writer :logger
 
+      public
+
       def initialize(options={})
+        super
+
         @options = {
           headers: {
             names: {
@@ -22,35 +28,12 @@ module CommandExec
             show: true,
           },
           color_set: :success,
+          logger: Logger.new($stdout),
         }.deep_merge options
 
         @headers_options = @options[:headers]
         @color_set = @options[:success]
-
-        @log_file = []
-        @return_code = []
-        @stderr = []
-        @stdout = []
-        @status = nil
-        @reason_for_failure = []
-
-        @logger = Logger.new($stdout)
-      end
-
-      def log_file(*content)
-        @log_file += content.flatten
-      end
-
-      def return_code(*content)
-        @return_code += content.flatten
-      end
-
-      def stdout(*content)
-        @stdout += content.flatten
-      end
-
-      def stderr(*content)
-        @stderr += content.flatten
+        @logger = @options[:logger]
       end
 
       def status(value)
@@ -66,9 +49,7 @@ module CommandExec
         @status
       end
 
-      def reason_for_failure(value)
-        @reason_for_failure << value.to_s
-      end
+      private 
 
       def max_header_length
         @max_header_length ||= @headers_options[:names].values.inject(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
@@ -113,10 +94,12 @@ module CommandExec
         output
       end
 
-      def output(*order)
+      public
+
+      def output(*fields)
         out = []
 
-        avail_order = {
+        avail_fields = {
           :status => @status,
           :return_code => @return_code,
           :stderr => @stderr,
@@ -124,11 +107,11 @@ module CommandExec
           :log_file => @log_file,
           :reason_for_failure => @reason_for_failure,
         }
-        order = [:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure] if order.blank?
+        fields = [:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure] if fields.blank?
 
-        order.flatten.each do |var|
-          out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_order.has_key?(var)
-          out += avail_order[var] if avail_order.has_key?(var)
+        fields.flatten.each do |var|
+          out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
+          out += avail_fields[var] if avail_fields.has_key?(var)
         end
 
         out.flatten

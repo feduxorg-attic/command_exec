@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 module CommandExec
   class Process
     attr_accessor :executable
@@ -65,59 +67,58 @@ module CommandExec
       @status
     end
 
-    def reason_for_failure=(*content)
-        @reason_for_failure += content.flatten
+    def reason_for_failure=(content)
+        @reason_for_failure << content.to_s
     end
 
     def return_code=(value)
       @return_code = value
     end
 
-    def to_a(*fields, formatter)
-      formatter=Formatter::PlainText.new if formatter.nil?
+    private 
 
-      formatter.status(@status)
-      formatter.return_code(@return_code)
-      formatter.stderr(@stderr)
-      formatter.stdout(@stdout)
-      formatter.log_file(@log_file)
-      formatter.reason_for_failure(@reason_for_failure)
+    def output(*fields,formatter)
 
-      formatter.output(fields.flatten)
-    end
-
-    def to_h(*fields)
-
-      fields = {
+      avail_fields = {
         status: @status,
         return_code: @return_code,
         stderr: @stderr,
         stdout: @stdout,
         log_file: @log_file,
         reason_for_failure: @reason_for_failure,
-      } if fields.nil?
+      } 
 
-      hash = {}
-      fields.flatten.each { |f,v| hash[f.to_sym] }
+      fields.flatten.each do |f|
+        formatter.public_send(f, avail_fields[f])
+      end
 
-      hash
+      formatter.output(fields.flatten)
     end
 
-    def to_s(*fields,formatter)
-      formatter=Formatter::PlainText.new if formatter.nil?
-      to_a(fields.flatten, formatter).join("\n")
+    public 
+
+    def to_a(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::PlainText.new)
+      output(fields, formatter)
     end
 
-    def to_xml
-
+    def to_h(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::Hash.new)
+      output(fields, formatter)
     end
 
-    def to_json(*fields)
-      JSON.generate self.to_h(fields.flatten)
+    def to_s(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::PlainText.new)
+      output(fields, formatter).join("\n")
     end
 
-    def to_yml
+    def to_xml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::XML.new)
+      output(fields, formatter)
+    end
 
+    def to_json(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::JSON.new)
+      output(fields, formatter)
+    end
+
+    def to_yaml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::YAML.new)
+      output(fields, formatter)
     end
   end
 end
