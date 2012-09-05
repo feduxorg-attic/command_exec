@@ -9,6 +9,7 @@ YARD::Rake::YardocTask.new do |t|
   t.options = ['--output-dir=doc/yard', '--markup-provider=redcarpet', '--markup=markdown' ]
 end
 
+desc 'start tmux'
 task :terminal do
   sh "script/terminal"
 end
@@ -19,6 +20,7 @@ task :t => :terminal
 namespace :version do
   version_file = Dir.glob('lib/**/version.rb').first
 
+  desc 'bump version of library to new version'
   task :bump do
 
     new_version = ENV['VERSION']
@@ -40,6 +42,7 @@ end}
     sh "git tag data_uri-#{new_version}" 
   end
 
+  desc 'show version of library'
   task :show do
     raw_version = File.open(version_file, "r").readlines.grep(/VERSION/).first
 
@@ -52,8 +55,16 @@ end}
 
   end
 
+  desc 'Restore version file from git repository'
   task :restore do
     sh "git checkout #{version_file}"
   end
 
+end
+
+namespace :travis do
+  desc 'Runs travis-lint to check .travis.yml'
+  task :check do
+    sh 'travis-lint'
+  end
 end
