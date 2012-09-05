@@ -1,9 +1,12 @@
 command-exec(1) -- execute shell commands with ease
 ===================================================
 
+[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/maxmeyer/command_exec)
+
 ## Description
 
 This gem brings command execution via POpen4 with all the bells and whistles.
+
 
 ## Usage
 

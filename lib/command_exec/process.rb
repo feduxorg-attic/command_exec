@@ -97,7 +97,7 @@ module CommandExec
 
     public 
 
-    def to_a(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::PlainText.new)
+    def to_a(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::Array.new)
       output(fields, formatter)
     end
 
@@ -105,7 +105,7 @@ module CommandExec
       output(fields, formatter)
     end
 
-    def to_s(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::PlainText.new)
+    def to_s(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::Array.new)
       output(fields, formatter).join("\n")
     end
 
