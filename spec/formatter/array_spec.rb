@@ -118,11 +118,13 @@ describe Formatter::Array do
     end
 
     it "supports blank headers" do
-      @formatter.return_code("output of return code")
-      expect(@formatter.output(:return_code)).to eq(["" , "output of return code"])
+      formatter = Formatter::Array.new(headers: { names: { return_code: "" } } )
+      formatter.return_code("output of return code")
+      expect(formatter.output(:return_code)).to eq(["" , "output of return code"])
     end
 
     it "suppresses headers if nil" do
+      formatter = Formatter::Array.new(headers: { names: { return_code: nil } })
       expect(@formatter.return_code("output of return code")).to eq(["output of return code"])
     end
 
