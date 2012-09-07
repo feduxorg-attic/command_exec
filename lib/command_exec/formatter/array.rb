@@ -120,10 +120,9 @@ module CommandExec
         output
       end
 
-    public
-
-      def output(*fields)
+      def prepare_output(fields=[])
         out = []
+        fields = fields.flatten
 
         avail_fields = {
           :status => @status,
@@ -135,12 +134,18 @@ module CommandExec
         }
         fields = [:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure] if fields.blank?
 
-        fields.flatten.each do |var|
+        fields.each do |var|
           out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
           out += avail_fields[var] if avail_fields.has_key?(var)
         end
 
-        out.flatten
+        out
+      end
+
+    public
+
+      def output(*fields)
+        prepare_output(fields.flatten)
       end
     end
   end

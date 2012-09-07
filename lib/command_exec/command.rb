@@ -166,11 +166,8 @@ module CommandExec
     # Run the program
     #
     def run
-
-      formatter.logger = @logger
-
-      process = Process.new(:logger => @logger)
-      process.log_file(@log_file)
+      process = CommandExec::Process.new(:logger => @logger)
+      process.log_file = @log_file
 
       check_path
 
@@ -189,7 +186,7 @@ module CommandExec
         end
 
         if @error_detection_on.include?(:stderr) and not process.status == :failed
-          if error_in_string_found?( @error_indicators[:forbidden_word_in_stderr], process.stderr)
+          if error_occured?( @error_indicators[:forbidden_word_in_stderr], process.stderr)
             process.status = :failed 
           end
         end
@@ -203,25 +200,30 @@ module CommandExec
     # Find error in stdout
     # 
     # @return [Boolean] Returns true if it finds an error
-    def error_in_string_found?(*keywords, string )
-      return false if keywords.blank? 
-      return false if string.blank?
-
+    def error_occured?(*needles, haystacks )
       error_found = false
-      keywords.flatten.each do |word|
-        if string.include? word
-          error_found = true
-          break
+      needles = needles.flatten
+      *haystacks = haystacks
+
+      return false if needles.blank? 
+      return false if haystacks.blank?
+
+      needles.each do |n|
+        haystacks.each do |h|
+          if h.include? n
+            error_found = true
+            break
+          end
         end
       end
 
       error_found
     end
 
-    # Constructur to initiate a new command and run it later
+    # Run a command 
     #
     # @see #initialize
-    def Command.execute(name,opts={})
+    def self.execute(name,opts={})
       command = new(name,opts)
       command.run
 

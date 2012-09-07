@@ -82,7 +82,7 @@ module CommandExec
     public
 
       def output(*fields)
-        prepare_output fields.flatten
+        prepare_output(fields.flatten)
       end
     end
   end

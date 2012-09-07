@@ -2,7 +2,7 @@
 
 module CommandExec
   module Formatter
-    class JSON < Hash
+    class JSON < CommandExec::Formatter::Hash
       def output(*fields)
         ::JSON.generate prepare_output(fields.flatten) 
       end

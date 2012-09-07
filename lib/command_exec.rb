@@ -16,6 +16,7 @@ require 'command_exec/formatter/hash'
 require 'command_exec/formatter/json'
 require 'command_exec/formatter/yaml'
 require 'command_exec/formatter/xml'
+require 'command_exec/formatter/string'
 
 require 'command_exec/version'
 require 'command_exec/exceptions'
