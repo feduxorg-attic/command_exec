@@ -5,6 +5,7 @@ PATH
       POpen4
       activesupport
       colored
+      xml-simple
 
 GEM
   remote: http://rubygems.org/
@@ -84,6 +85,7 @@ GEM
       thor
     travis-lint (1.4.0)
       hashr (>= 0.0.19)
+    xml-simple (1.1.1)
     yard (0.8.2.1)
 
 PLATFORMS

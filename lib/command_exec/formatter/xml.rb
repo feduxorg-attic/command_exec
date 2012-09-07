@@ -4,7 +4,7 @@ module CommandExec
   module Formatter
     class XML < Hash
       def output(*fields)
-        prepare_output(fields.flatten).to_xml(root: 'command')
+        XmlSimple.xml_out(prepare_output(fields.flatten), 'RootName' => 'command', 'NoAttr' => true)
       end
     end
   end
