@@ -1,7 +1,7 @@
 #encoding: utf-8
 
 require 'popen4'
-require 'colored'
+require 'smart_colored/extend'
 require 'logger'
 require 'json'
 require 'psych'

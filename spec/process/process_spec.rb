@@ -100,7 +100,7 @@ describe CommandExec::Process do
 
       expect(process.to_a).to eq([
         "=====       STATUS       =====",
-        "\e[1m\e[1;32mFAILED\e[0m\e[0m",
+        "\e[1;32mFAILED\e[0m",
         "=====    RETURN CODE     =====",
         "output of return code",
         "=====       STDERR       =====",
@@ -115,7 +115,7 @@ describe CommandExec::Process do
 
       expect(process.to_a(:status)).to eq([
         "=====       STATUS       =====",
-        "\e[1m\e[1;32mFAILED\e[0m\e[0m",
+        "\e[1;32mFAILED\e[0m",
       ])
 
     end
@@ -152,7 +152,7 @@ describe CommandExec::Process do
 
       expect(process.to_s).to eq([
         "=====       STATUS       =====",
-        "\e[1m\e[1;32mFAILED\e[0m\e[0m",
+        "\e[1;32mFAILED\e[0m",
         "=====    RETURN CODE     =====",
         "output of return code",
         "=====       STDERR       =====",

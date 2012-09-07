@@ -101,20 +101,20 @@ describe Formatter::Array do
     end
 
     it "outputs status" do
-      expect(@formatter.status(:failed)).to eq([ "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
-      expect(@formatter.status(:success)).to eq(["\e[1m\e[1;32mOK\e[0m\e[0m"])
-      expect(@formatter.status(:unknown)).to eq([ "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
+      expect(@formatter.status(:failed)).to eq([ "\e[1;32mFAILED\e[0m"])
+      expect(@formatter.status(:success)).to eq(["\e[1;32mOK\e[0m"])
+      expect(@formatter.status(:unknown)).to eq([ "\e[1;32mFAILED\e[0m"])
     end
 
     it "outputs status as single value (no data is appended)" do
       @formatter.status(:success)
       @formatter.status(:failed)
-      expect(@formatter.output(:status)).to eq(["=====       STATUS       =====", "\e[1m\e[1;32mFAILED\e[0m\e[0m"])
+      expect(@formatter.output(:status)).to eq(["=====       STATUS       =====", "\e[1;32mFAILED\e[0m"])
     end
 
     it "supports status as string as well" do
-      expect(@formatter.status('failed')).to eq(["\e[1m\e[1;32mFAILED\e[0m\e[0m"])
-      expect(@formatter.status('success')).to eq([ "\e[1m\e[1;32mOK\e[0m\e[0m"])
+      expect(@formatter.status('failed')).to eq(["\e[1;32mFAILED\e[0m"])
+      expect(@formatter.status('success')).to eq([ "\e[1;32mOK\e[0m"])
     end
 
     it "supports blank headers" do
@@ -124,7 +124,6 @@ describe Formatter::Array do
     end
 
     it "suppresses headers if nil" do
-      formatter = Formatter::Array.new(headers: { names: { return_code: nil } })
       expect(@formatter.return_code("output of return code")).to eq(["output of return code"])
     end
 
@@ -142,7 +141,7 @@ describe Formatter::Array do
       ])
       expect(@formatter.output).to eq([
         "=====       STATUS       =====",
-        "\e[1m\e[1;32mFAILED\e[0m\e[0m",
+        "\e[1;32mFAILED\e[0m",
         "=====    RETURN CODE     =====",
         "output of return code",
         "=====       STDERR       =====",
