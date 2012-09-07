@@ -5,14 +5,16 @@ $LOAD_PATH << File.expand_path('../lib' , File.dirname(__FILE__))
 unless ENV['TRAVIS_CI'] == 'true'
   require 'pry'
   require 'debugger'
+  require 'ap'
 end
-require 'stringio'
-require 'ap'
 
+require 'stringio'
 require 'tempfile'
 
-require 'simplecov'
-SimpleCov.start
+unless ENV['TRAVIS_CI'] == 'true'
+  require 'simplecov'
+  SimpleCov.start
+end
 
 require 'command_exec'
 require 'command_exec/spec_helper_module'
