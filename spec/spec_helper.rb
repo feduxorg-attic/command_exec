@@ -2,8 +2,10 @@
 
 $LOAD_PATH << File.expand_path('../lib' , File.dirname(__FILE__))
 
-require 'pry'
-require 'debugger'
+unless ENV['TRAVIS_CI'] == 'true'
+  require 'pry'
+  require 'debugger'
+end
 require 'stringio'
 require 'ap'
 

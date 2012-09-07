@@ -1,8 +1,11 @@
 #!/usr/bin/env rake
-require 'bundler/gem_tasks'
-require 'yard'
-require 'rubygems/package_task'
-require 'active_support/core_ext/string/strip'
+
+unless ENV['TRAVIS_CI'] == 'true'
+  require 'bundler/gem_tasks'
+  require 'yard'
+  require 'rubygems/package_task'
+  require 'active_support/core_ext/string/strip'
+end
 
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', 'README.md', 'LICENCE.md']
@@ -72,6 +75,12 @@ end
 namespace :test do
   desc 'Run specs'
   task :specs do
+    sh 'rspec spec'
+  end
+
+  desc 'Run tests in "travis mode"'
+  task :travis_specs do
+    ENV['TRAVIS_CI'] = 'true'
     sh 'rspec spec'
   end
 end
