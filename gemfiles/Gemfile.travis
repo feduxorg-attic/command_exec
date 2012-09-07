@@ -2,7 +2,7 @@ source :rubygems
 
 # Specify your gem's dependencies in workplace-letter_generator.gemspec
 #gemspec path: '../command_exec.gemspec'
-gemspec path: File.expand_path('../command_exec.gemspec', File.dirname(__FILE__))
+gemspec path: '../'
 
 group :test do
   gem 'rake'
