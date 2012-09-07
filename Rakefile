@@ -68,3 +68,10 @@ namespace :travis do
     sh 'travis-lint'
   end
 end
+
+namespace :test do
+  desc 'Run specs'
+  task :specs do
+    sh 'rspec spec'
+  end
+end
