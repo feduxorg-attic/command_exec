@@ -14,3 +14,7 @@ group :documentation do
   gem 'redcarpet'
   gem 'github-markup'
 end
+
+group :development do
+  gem 'pry'
+end
