@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 $stderr.puts "error. execution failed"
 exit 0
