@@ -10,11 +10,18 @@ module CommandExec
 
     # Create a new command to execute
     #
-    # @param [Symbol] name name of command
-    # @param [optional,Hash] opts options for the command
-    # @option opts [String] :options options for binary
+    # @param [Symbol] name 
+    #   name of command
+    #
+    # @param [optional,Hash] opts 
+    #   options for the command
+    #
+    # @option opts [String] :options 
+    #   options for binary
+    #
     # @option opts [String] :parameter parameter for binary
-    # @option opts [String] :error_keywords keyword indicating an error on stdout
+    # @option opts [String] :parameter parameter for binary
+    # @option opts [optional,Hash] :error_indicators indicating an error while execution of command 
     # @option opts [String] :working_directory working directory where the process should run in
     # @option opts [String] :log_file file path to log file of process
     # @option opts [String] :log_level level of information in output
