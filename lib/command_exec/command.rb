@@ -196,14 +196,14 @@ module CommandExec
         end
 
         if @error_detection_on.include?(:stderr) and not process.status == :failed
-          if error_occured?( @error_indicators[:forbidden_word_in_stderr], process.stderr)
+          if error_occured?( @error_indicators[:forbidden_words_in_stderr], process.stderr)
             @logger.debug "Error detection on stderr found an error"
             process.status = :failed 
           end
         end
 
         if @error_detection_on.include?(:stdout) and not process.status == :failed
-          if error_occured?( @error_indicators[:forbidden_word_in_stdout], process.stdout)
+          if error_occured?( @error_indicators[:forbidden_words_in_stdout], process.stdout)
             @logger.debug "Error detection on stdout found an error"
             process.status = :failed 
           end
