@@ -5,7 +5,7 @@ module CommandExec
   # Run commands
   class Command
 
-    attr_accessor :log_file, :options , :parameter, :error_keywords
+    attr_accessor :log_file, :options , :parameter
     attr_reader :result, :path, :working_directory
 
     # Create a new command to execute
@@ -34,7 +34,6 @@ module CommandExec
           :forbidden_word_in_stderr => [],
         },
         :on_error_do => :return_process_information,
-        :error_keywords => [],
         :working_directory => Dir.pwd,
         :log_file => '',
         :log_level => :info,
@@ -54,7 +53,6 @@ module CommandExec
       *@error_detection_on = @opts[:error_detection_on]
       @error_indicators = @opts[:error_indicators]
       @on_error_do = @opts[:on_error_do]
-      @error_keywords = @opts[:error_keywords]
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -229,6 +227,5 @@ module CommandExec
 
       command
     end
-
   end
 end

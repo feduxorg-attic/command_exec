@@ -86,10 +86,6 @@ describe Command do
       expect(Dir.pwd).to eq(File.expand_path('../..', File.dirname(__FILE__)))
     end
 
-    it "has special keywords indicating errors in stdout" do
-      expect(command.error_keywords).to eq(%q[abc def])
-    end
-
     it "can be used to construct a command string, which can be executed" do
       command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
       expect(command.to_s).to eq("/bin/true -a -b index.tex blub.tex")
