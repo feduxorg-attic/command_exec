@@ -202,7 +202,18 @@ describe Command do
                             :parameter => '1',
                             :log_level => :silent,
                             :error_detection_on => :stderr, 
-                            :error_indicators => { :forbidden_word_in_stderr => %{error} })
+                            :error_indicators => { :forbidden_words_in_stderr => %w{error} })
+      command.run
+      expect(command.result.status).to eq(:failed)
+    end
+
+    it "considers stdout for error handling" do
+      command = Command.new(:stdout_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '1',
+                            :log_level => :silent,
+                            :error_detection_on => :stdout, 
+                            :error_indicators => { :forbidden_words_in_stdout => %w{error} })
       command.run
       expect(command.result.status).to eq(:failed)
     end

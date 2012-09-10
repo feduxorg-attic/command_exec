@@ -39,6 +39,8 @@ module CommandExec
           :forbidden_return_code => [],
           :allowed_word_in_stderr => [],
           :forbidden_word_in_stderr => [],
+          :allowed_words_in_stdout => [],
+          :forbidden_words_in_stdout => [],
         },
         :on_error_do => :return_process_information,
         :working_directory => Dir.pwd,
@@ -195,8 +197,15 @@ module CommandExec
             process.status = :failed 
           end
         end
-        @logger.debug "Result of command run #{process.status}"
 
+        if @error_detection_on.include?(:stdout) and not process.status == :failed
+          if error_occured?( @error_indicators[:forbidden_word_in_stdout], process.stdout)
+            @logger.debug "Error detection on stdout found an error"
+            process.status = :failed 
+          end
+        end
+
+        @logger.debug "Result of command run #{process.status}"
       end
 
       @result = process
