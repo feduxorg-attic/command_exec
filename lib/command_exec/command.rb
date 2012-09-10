@@ -37,8 +37,10 @@ module CommandExec
         :error_indicators => {
           :allowed_return_code => [0],
           :forbidden_return_code => [],
-          :allowed_word_in_stderr => [],
-          :forbidden_word_in_stderr => [],
+          #
+          :allowed_words_in_stderr => [],
+          :forbidden_words_in_stderr => [],
+          #
           :allowed_words_in_stdout => [],
           :forbidden_words_in_stdout => [],
         },
@@ -188,12 +190,14 @@ module CommandExec
 
         if @error_detection_on.include?(:return_code)
           unless @error_indicators[:allowed_return_code].include? process.return_code
+            @logger.debug "Error detection on return code found an error"
             process.status = :failed 
           end
         end
 
         if @error_detection_on.include?(:stderr) and not process.status == :failed
           if error_occured?( @error_indicators[:forbidden_word_in_stderr], process.stderr)
+            @logger.debug "Error detection on stderr found an error"
             process.status = :failed 
           end
         end
