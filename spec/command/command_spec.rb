@@ -247,9 +247,12 @@ describe Command do
     end
 
     it "finds errors in string" do
-      expect(command.send(:error_occured?, ['error'] , ['long string witherrorinside'] )).to eq(true)
-      expect(command.send(:error_occured?, ['error', 'inside'] , ['long string with error inside'] )).to eq(true)
-      expect(command.send(:error_occured?, ['error'] , ['long string with no erro"r" inside'] )).to eq(false)
+      expect(command.send(:error_occured?, ['error'] , [], ['long string witherrorinside'] )).to eq(true)
+      expect(command.send(:error_occured?, ['error', 'inside'] , [], ['long string with error inside'] )).to eq(true)
+      expect(command.send(:error_occured?, ['error'] , [], ['long string with no erro"r" inside'] )).to eq(false)
+
+      expect(command.send(:error_occured?, ['error'] , ['long string with error inside but an exception defined'], ['long string with error inside but an exception defined'] )).to eq(false)
+      expect(command.send(:error_occured?, ['error'] , ['substring exception defined'], ['long string with error inside but a substring exception defined'] )).to eq(false)
     end
   end
 end

@@ -232,10 +232,10 @@ module CommandExec
         data.each do |line|
           line.strip!
 
-          debugger
           #line includes word -> error
-          #exception does not include line -> error, if includes line -> no error
-          if line.include? word and exception.find{ |e| line == e }.blank?
+          #exception does not include line/substring of line -> error, if
+          #includes line/substring of line -> no error
+          if line.include? word and exception.find{ |e| line[e] }.blank?
             error_found = true
             break
           end
