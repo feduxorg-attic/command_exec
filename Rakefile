@@ -75,7 +75,7 @@ end
 namespace :test do
   desc 'Run specs'
   task :specs do
-    sh 'rspec spec'
+    sh 'bundle exec rspec spec'
   end
 
   desc 'Run tests in "travis mode"'
