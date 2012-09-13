@@ -207,6 +207,17 @@ describe Command do
       expect(command.result.status).to eq(:failed)
     end
 
+    it "considers stderr for error handling but can make exceptions" do
+      command = Command.new(:stderr_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '1',
+                            :log_level => :silent,
+                            :error_detection_on => :stderr, 
+                            :error_indicators => { :forbidden_words_in_stderr => %w{error}, :allowed_words_in_stderr =>  ["error. execution failed"]})
+      command.run
+      expect(command.result.status).to eq(:success)
+    end
+
     it "considers stdout for error handling" do
       command = Command.new(:stdout_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),

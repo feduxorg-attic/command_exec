@@ -177,6 +177,7 @@ module CommandExec
     def run
       process = CommandExec::Process.new(:logger => @logger)
       process.log_file = @log_file
+      process.status = :success
 
       check_path
 
@@ -196,14 +197,14 @@ module CommandExec
         end
 
         if @error_detection_on.include?(:stderr) and not process.status == :failed
-          if error_occured?( @error_indicators[:forbidden_words_in_stderr], process.stderr)
+          if error_occured?( @error_indicators[:forbidden_words_in_stderr], @error_indicators[:allowed_words_in_stderr], process.stderr)
             @logger.debug "Error detection on stderr found an error"
             process.status = :failed 
           end
         end
 
         if @error_detection_on.include?(:stdout) and not process.status == :failed
-          if error_occured?( @error_indicators[:forbidden_words_in_stdout], process.stdout)
+          if error_occured?( @error_indicators[:forbidden_words_in_stdout], @error_indicators[:allowed_words_in_stdout], process.stdout)
             @logger.debug "Error detection on stdout found an error"
             process.status = :failed 
           end
@@ -218,17 +219,23 @@ module CommandExec
     # Find error in stdout
     # 
     # @return [Boolean] Returns true if it finds an error
-    def error_occured?(*needles, haystacks )
+    def error_occured?(forbidden_word, exception, data )
       error_found = false
-      needles = needles.flatten
-      *haystacks = haystacks
+      *forbidden_word = forbidden_word
+      *exception = exception
+      *data = data
 
-      return false if needles.blank? 
-      return false if haystacks.blank?
+      return false if forbidden_word.blank?
+      return false if data.blank?
 
-      needles.each do |n|
-        haystacks.each do |h|
-          if h.include? n
+      forbidden_word.each do |word|
+        data.each do |line|
+          line.strip!
+
+          debugger
+          #line includes word -> error
+          #exception does not include line -> error, if includes line -> no error
+          if line.include? word and exception.find{ |e| line == e }.blank?
             error_found = true
             break
           end
