@@ -244,7 +244,7 @@ module CommandExec
 
           #line includes word -> error
           #exception does not include line/substring of line -> error, if
-          #includes line/substring of line -> no error
+          #  includes line/substring of line -> no error
           if line.include? word and exception.find{ |e| line[e] }.blank?
             error_found = true
             break
