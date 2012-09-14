@@ -18,7 +18,7 @@ module CommandExec
       $stdout = previous_stdout
     end
 
-    def create_tmp_file_with(base_name, content)
+    def create_temp_file_with(base_name, content)
       file = Tempfile.new(base_name)
       file.write(content)
       file.close

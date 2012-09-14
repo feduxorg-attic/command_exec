@@ -119,7 +119,7 @@ describe Command do
     end
 
     it "use a log file if given" do
-      application_log_file = create_tmp_file_with('command_exec_test', 'TEXT IN LOG') 
+      application_log_file = create_temp_file_with('command_exec_test', 'TEXT IN LOG') 
 
       bucket = StringIO.new
       logger = Logger.new(bucket)
