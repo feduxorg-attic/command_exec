@@ -101,7 +101,17 @@ command = CommandExec::Command.new(
 }
 command.run
 ```
+## Error detection
 
+Errors can be detected in:
+* STDERR
+* STDOUT
+* LOGFILE
+
+Furthermore `command_exec` looks at the return code of your command.
+
+```ruby
+```
 ## Output
 
 After execute the command you get the following output. Today it's not possible

@@ -3,13 +3,6 @@
 * refactor lib interface
 ```ruby
 #options
-  error_detection_on: [:stdout,:stderr,:return_code,:log_file]
-  error_indicators: {
-    stdout: %W{ word1 word2 }
-    stderr: %W{ word1 word2 }
-    log_file: %W{ word1 word2 }
-    return_code: [1,2,3,4]
-  }
   on_error: [:do_nothing, :return_status, :raise_exception ]
 
 #raise_exception with serialized status object
