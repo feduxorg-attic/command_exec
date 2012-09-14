@@ -5,16 +5,23 @@ module CommandExec
   # Run commands
   class Command
 
-    attr_accessor :log_file, :options , :parameter, :error_keywords
+    attr_accessor :log_file, :options , :parameter
     attr_reader :result, :path, :working_directory
 
     # Create a new command to execute
     #
-    # @param [Symbol] name name of command
-    # @param [optional,Hash] opts options for the command
-    # @option opts [String] :options options for binary
+    # @param [Symbol] name 
+    #   name of command
+    #
+    # @param [optional,Hash] opts 
+    #   options for the command
+    #
+    # @option opts [String] :options 
+    #   options for binary
+    #
     # @option opts [String] :parameter parameter for binary
-    # @option opts [String] :error_keywords keyword indicating an error on stdout
+    # @option opts [String] :parameter parameter for binary
+    # @option opts [optional,Hash] :error_indicators indicating an error while execution of command 
     # @option opts [String] :working_directory working directory where the process should run in
     # @option opts [String] :log_file file path to log file of process
     # @option opts [String] :log_level level of information in output
@@ -26,12 +33,26 @@ module CommandExec
         :logger => Logger.new($stderr),
         :options => '',
         :parameter => '',
-        :error_keywords => [],
+        :error_detection_on => [:return_code],
+        :error_indicators => {
+          :allowed_return_code => [0],
+          :forbidden_return_code => [],
+          #
+          :allowed_words_in_stderr => [],
+          :forbidden_words_in_stderr => [],
+          #
+          :allowed_words_in_stdout => [],
+          :forbidden_words_in_stdout => [],
+          #
+          :allowed_words_in_log_file => [],
+          :forbidden_words_in_log_file => [],
+        },
+        :on_error_do => :return_process_information,
         :working_directory => Dir.pwd,
         :log_file => '',
         :log_level => :info,
         :search_paths => ENV['PATH'].split(':'),
-      }.update opts
+      }.deep_merge opts
 
       @logger = @opts[:logger] 
       configure_logging 
@@ -41,8 +62,11 @@ module CommandExec
       @options = @opts[:options]
       @path = resolve_path @name, @opts[:search_paths]
       @parameter = @opts[:parameter]
-      @error_keywords = @opts[:error_keywords]
       @log_file = @opts[:log_file]
+
+      *@error_detection_on = @opts[:error_detection_on]
+      @error_indicators = @opts[:error_indicators]
+      @on_error_do = @opts[:on_error_do]
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -154,159 +178,91 @@ module CommandExec
     # Run the program
     #
     def run
+      process = CommandExec::Process.new(:logger => @logger)
+      process.log_file = @log_file
+      process.status = :success
 
       check_path
 
       Dir.chdir(@working_directory) do
-        _stdout = ''
-        _stderr = ''
-
         status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
-          _stdout = stdout.read.strip
-          _stderr = stderr.read.strip
-        end
-        @logger.debug "Command exited with #{status}"
-
-        error_in_stdout_found = error_in_string_found?(error_keywords,_stdout)
-        @logger.debug "Errors found in stdout" if error_in_stdout_found
-
-        @result = run_successful?( status.success? ,  error_in_stdout_found ) 
-        @logger.debug "Result of command run #{@result}"
-
-        if @result == false
-          msg = message(
-            @result, 
-            help_output(
-                :stdout => StringIO.new(_stdout),
-                :stderr => StringIO.new(_stderr),
-                :log_file => read_log(@log_file)
-            )
-          )
-        else
-          msg =  message(@result)
+          process.stdout = stdout.readlines
+          process.stderr = stderr.readlines
         end
 
-        @logger.info "#{@name.to_s}: #{msg}"
-      end
+        process.return_code = status.exitstatus
 
-      @result
-    end
-
-    # Read the content of the log_file
-    #
-    # @param [Path] filename path to log_file
-    # @return [IO] handle for io
-    def read_log(filename)
-      return StringIO.new if filename.blank?
-
-      begin
-        file = File.open(log_file)
-        @logger.debug "read logfile \"#{file}\" "
-      rescue Errno::ENOENT
-        file = StringIO.new
-        @logger.warn "Logfile #{@log_file} not found!"
-      rescue Exception => e
-        file = StringIO.new
-        @logger.warn "An error happen while reading log_file #{@log_file}: #{e.message}"
-      end
-
-      file
-    end
-
-    # Decide if a program run was successful
-    #
-    # @return [Boolean] Returns the decision
-    def run_successful?(success,error_in_stdout)
-      if success == false or error_in_stdout == true 
-        return false
-      else 
-        return true 
-      end
-    end
-
-    # Decide which output to return to the user
-    # to help him with debugging
-    #
-    # @return [Array] Returns lines of log/stdout/stderr
-    def help_output(h={})
-      handles = {
-        log_file: StringIO.new,
-        stdout: StringIO.new,
-        stderr: StringIO.new
-      }.merge h
-
-      result = []
-      { log_file:  { 
-          io_handle: handles[:log_file],
-          header: '================== LOGFILE ==================',
-          number_of_lines: 30
-        },
-        stdout: {
-          io_handle: handles[:stdout],
-          header: '================== STDOUT  ==================',
-          number_of_lines: nil
-        },
-        stderr: {
-          io_handle: handles[:stderr],
-          header: '================== STDERR  ==================',
-          number_of_lines: nil
-        }
-      }.each do |io,options|
-        tmp = options[:io_handle].readlines(options[:number_of_lines])
-
-        if tmp.size > 0
-          result << options[:header]
-          result += tmp
+        if @error_detection_on.include?(:return_code)
+          unless @error_indicators[:allowed_return_code].include? process.return_code
+            @logger.debug "Error detection on return code found an error"
+            process.status = :failed 
+          end
         end
+
+        if @error_detection_on.include?(:stderr) and not process.status == :failed
+          if error_occured?( @error_indicators[:forbidden_words_in_stderr], @error_indicators[:allowed_words_in_stderr], process.stderr)
+            @logger.debug "Error detection on stderr found an error"
+            process.status = :failed 
+          end
+        end
+
+        if @error_detection_on.include?(:stdout) and not process.status == :failed
+          if error_occured?( @error_indicators[:forbidden_words_in_stdout], @error_indicators[:allowed_words_in_stdout], process.stdout)
+            @logger.debug "Error detection on stdout found an error"
+            process.status = :failed 
+          end
+        end
+
+        if @error_detection_on.include?(:log_file) and not process.status == :failed
+          if error_occured?( @error_indicators[:forbidden_words_in_log_file], @error_indicators[:allowed_words_in_log_file], process.log_file)
+            @logger.debug "Error detection on log file found an error"
+            process.status = :failed 
+          end
+        end
+
+        @logger.debug "Result of command run #{process.status}"
       end
 
-      result
+      @result = process
     end
 
     # Find error in stdout
     # 
     # @return [Boolean] Returns true if it finds an error
-    def error_in_string_found? (keywords=[], string )
-      return false if keywords.empty? or not keywords.is_a? Array 
-      return false if string.nil? or not string.is_a? String
-
+    def error_occured?(forbidden_word, exception, data )
       error_found = false
-      keywords.each do |word|
-        if string.include? word
-          error_found = true
-          break
+      *forbidden_word = forbidden_word
+      *exception = exception
+      *data = data
+
+      return false if forbidden_word.blank?
+      return false if data.blank?
+
+      forbidden_word.each do |word|
+        data.each do |line|
+          line.strip!
+
+          #line includes word -> error
+          #exception does not include line/substring of line -> error, if
+          #  includes line/substring of line -> no error
+          if line.include? word and exception.find{ |e| line[e] }.blank?
+            error_found = true
+            break
+          end
         end
       end
 
       error_found
     end
 
-    # Generate the message which is return to the user
-    # 
-    # @param [Boolean] run_successful true if a positive message should be returned
-    # @param [Array] msg Message which should be returned
-    def message(run_successful, *output)
-
-      msg = []
-      if run_successful
-        msg << 'OK'.green.bold
-      else
-        msg << 'FAILED'.red.bold
-        msg += output.flatten
-      end
-
-      msg.join("\n")
-    end
-
-    # Constructur to initiate a new command and run it later
+    # Run a command 
     #
     # @see #initialize
-    def Command.execute(name,opts={})
+    def self.execute(name,opts={})
       command = new(name,opts)
       command.run
 
       command
     end
-
   end
 end

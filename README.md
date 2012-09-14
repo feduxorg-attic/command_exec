@@ -1,9 +1,14 @@
 command-exec(1) -- execute shell commands with ease
 ===================================================
 
+[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/maxmeyer/command_exec)
+[![Build Status](https://secure.travis-ci.org/maxmeyer/command_exec.png)](http://travis-ci.org/maxmeyer/command_exec)
+
+
 ## Description
 
 This gem brings command execution via POpen4 with all the bells and whistles.
+
 
 ## Usage
 
@@ -96,7 +101,17 @@ command = CommandExec::Command.new(
 }
 command.run
 ```
+## Error detection
 
+Errors can be detected in:
+* STDERR
+* STDOUT
+* LOGFILE
+
+Furthermore `command_exec` looks at the return code of your command.
+
+```ruby
+```
 ## Output
 
 After execute the command you get the following output. Today it's not possible

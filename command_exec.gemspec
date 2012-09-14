@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
   # specify any dependencies here; for example:
   s.add_runtime_dependency 'POpen4'
-  s.add_runtime_dependency 'colored'
+  s.add_runtime_dependency 'smart_colored'
   s.add_runtime_dependency 'activesupport'
+  s.add_runtime_dependency 'xml-simple'
 end
