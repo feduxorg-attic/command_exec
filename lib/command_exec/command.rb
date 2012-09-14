@@ -43,6 +43,9 @@ module CommandExec
           #
           :allowed_words_in_stdout => [],
           :forbidden_words_in_stdout => [],
+          #
+          :allowed_words_in_log_file => [],
+          :forbidden_words_in_log_file => [],
         },
         :on_error_do => :return_process_information,
         :working_directory => Dir.pwd,
@@ -206,6 +209,13 @@ module CommandExec
         if @error_detection_on.include?(:stdout) and not process.status == :failed
           if error_occured?( @error_indicators[:forbidden_words_in_stdout], @error_indicators[:allowed_words_in_stdout], process.stdout)
             @logger.debug "Error detection on stdout found an error"
+            process.status = :failed 
+          end
+        end
+
+        if @error_detection_on.include?(:log_file) and not process.status == :failed
+          if error_occured?( @error_indicators[:forbidden_words_in_log_file], @error_indicators[:allowed_words_in_log_file], process.log_file)
+            @logger.debug "Error detection on log file found an error"
             process.status = :failed 
           end
         end

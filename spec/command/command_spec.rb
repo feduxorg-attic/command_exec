@@ -228,6 +228,20 @@ describe Command do
       command.run
       expect(command.result.status).to eq(:failed)
     end
+
+    it "considers log file for error handling" do
+      temp_file = create_temp_file_with('log_file_test', 'error, huh, what goes on' )
+
+      command = Command.new(:log_file_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :parameter => '1',
+                            :log_level => :silent,
+                            :log_file => temp_file,
+                            :error_detection_on => :log_file, 
+                            :error_indicators => { :forbidden_words_in_log_file => %w{error} })
+      command.run
+      expect(command.result.status).to eq(:failed)
+    end
   end
 
   context :private_api do
