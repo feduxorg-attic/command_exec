@@ -178,5 +178,27 @@ describe Formatter::Array do
         "output of stderr"
       ])
     end
+
+    it "outputs only wanted values in the given order)" do
+      @formatter.stderr(["output of stderr"])
+      @formatter.stdout("output of stdout")
+      @formatter.log_file("output of log file")
+      @formatter.return_code("output of return code")
+      @formatter.status(:failed)
+
+      expect(@formatter.output([:stdout,:stderr])).to eq([
+        "=====       STDOUT       =====",
+        "output of stdout",
+        "=====       STDERR       =====",
+        "output of stderr",
+      ])
+
+      expect(@formatter.output([:stderr,:stdout])).to eq([
+        "=====       STDERR       =====",
+        "output of stderr",
+        "=====       STDOUT       =====",
+        "output of stdout",
+      ])
+    end
   end
 end
