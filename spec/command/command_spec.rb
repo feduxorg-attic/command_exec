@@ -111,6 +111,7 @@ describe Command do
     end
 
     it "is silent and returns no output" do
+      # if you choose the system runner output of commands will be not suppressed"
       bucket = StringIO.new
       logger = Logger.new(bucket)
       Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :silent)
