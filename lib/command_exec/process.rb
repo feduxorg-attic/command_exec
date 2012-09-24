@@ -75,7 +75,7 @@ module CommandExec
     end
 
     def reason_for_failure=(content)
-        @reason_for_failure << content.to_s
+      @reason_for_failure << content.to_s
     end
 
     def return_code=(value)

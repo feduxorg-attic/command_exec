@@ -226,6 +226,7 @@ module CommandExec
           if error_occured?( @error_indicators[:forbidden_words_in_stderr], @error_indicators[:allowed_words_in_stderr], process.stderr)
             @logger.debug "Error detection on stderr found an error"
             process.status = :failed 
+            process.reason_for_failure = :stderr
           end
         end
 
@@ -233,6 +234,7 @@ module CommandExec
           if error_occured?( @error_indicators[:forbidden_words_in_stdout], @error_indicators[:allowed_words_in_stdout], process.stdout)
             @logger.debug "Error detection on stdout found an error"
             process.status = :failed 
+            process.reason_for_failure = :stdout
           end
         end
 
@@ -240,13 +242,25 @@ module CommandExec
           if error_occured?( @error_indicators[:forbidden_words_in_log_file], @error_indicators[:allowed_words_in_log_file], process.log_file)
             @logger.debug "Error detection on log file found an error"
             process.status = :failed 
+            process.reason_for_failure = :log_file
           end
         end
 
         @logger.debug "Result of command run #{process.status}"
-      end
 
       @result = process
+      if process.status == :failed
+        case @on_error_do
+        when :nothing
+          #nothing
+        when :raise_error
+          raise CommandExec::Exceptions::CommandExecutionFailed
+        when :throw_error
+          throw :command_execution_failed 
+        else
+          #nothing
+        end
+      end
     end
 
     # Find error in stdout
