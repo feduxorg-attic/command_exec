@@ -18,6 +18,7 @@ module CommandExec
               log_file:    'LOG FILE',
               stderr:      'STDERR',
               stdout:      'STDOUT',
+              pid:         'PID',
               reason_for_failure: 'REASON FOR FAILURE',
             },
             prefix: '=' * 5,
@@ -38,6 +39,7 @@ module CommandExec
         @stderr = []
         @stdout = []
         @status = []
+        @pid = []
         @reason_for_failure = []
       end
 
@@ -55,6 +57,10 @@ module CommandExec
 
       def stderr(*content)
         @stderr += content.flatten
+      end
+
+      def pid(value)
+        @pid[0] = value.to_s
       end
 
       def reason_for_failure(*content)
@@ -130,9 +136,11 @@ module CommandExec
           :stderr => @stderr,
           :stdout => @stdout,
           :log_file => @log_file,
+          :pid => @pid,
           :reason_for_failure => @reason_for_failure,
         }
-        fields = [:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure] if fields.blank?
+
+        fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
 
         fields.each do |var|
           out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)

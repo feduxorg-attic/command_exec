@@ -133,6 +133,7 @@ describe Formatter::Array do
       @formatter.log_file("output of log file")
       @formatter.return_code("output of return code")
       @formatter.status(:failed)
+      @formatter.pid(4711)
       @formatter.reason_for_failure('great an error occured')
 
       expect(@formatter.output(:stderr)).to eq([
@@ -150,6 +151,8 @@ describe Formatter::Array do
         "output of stdout",
         "=====      LOG FILE      =====",
         "output of log file",
+        "=====        PID         =====",
+        '4711',
         "===== REASON FOR FAILURE =====",
         'great an error occured'
       ])

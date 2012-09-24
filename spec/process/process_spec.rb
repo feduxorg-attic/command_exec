@@ -62,6 +62,16 @@ describe CommandExec::Process do
       expect(process.stderr).to eq(['content'])
     end
 
+    it "takes a pid" do
+      process = CommandExec::Process.new(logger: Logger.new(dev_null)) 
+      process.pid = 4711
+      expect(process.pid).to eq("4711")
+
+      process = CommandExec::Process.new(logger: Logger.new(dev_null)) 
+      process.pid = "4711"
+      expect(process.pid).to eq("4711")
+    end
+
     it "takes a status" do
       process = CommandExec::Process.new(logger: Logger.new(dev_null)) 
       process.status = :failed
@@ -96,6 +106,7 @@ describe CommandExec::Process do
       process.log_file = create_temp_file_with('process.log' , 'output of log file' )
       process.return_code = "output of return code"
       process.status = :failed
+      process.pid = 4711
       process.reason_for_failure = 'great an error occured'
 
       expect(process.to_a).to eq([
@@ -109,6 +120,8 @@ describe CommandExec::Process do
         "output of stdout",
         "=====      LOG FILE      =====",
         "output of log file",
+        "=====        PID         =====",
+        "4711",
         "===== REASON FOR FAILURE =====",
         "great an error occured",
       ])
@@ -128,6 +141,7 @@ describe CommandExec::Process do
       process.log_file = create_temp_file_with('process.log' , 'output of log file' )
       process.return_code = "output of return code"
       process.status = :failed
+      process.pid = 4711
       process.reason_for_failure = 'great an error occured'
 
       expect(process.to_h).to eq({ 
@@ -136,6 +150,7 @@ describe CommandExec::Process do
         log_file: ["output of log file"],
         return_code: ["output of return code"],
         status: ['FAILED'],
+        pid: ['4711'],
         reason_for_failure: ['great an error occured'],
       })
     end
@@ -148,6 +163,7 @@ describe CommandExec::Process do
       process.log_file = create_temp_file_with('process.log' , 'output of log file' )
       process.return_code = "output of return code"
       process.status = :failed
+      process.pid = 4711
       process.reason_for_failure = 'great an error occured'
 
       expect(process.to_s).to eq([
@@ -161,6 +177,8 @@ describe CommandExec::Process do
         "output of stdout",
         "=====      LOG FILE      =====",
         "output of log file",
+        "=====        PID         =====",
+        "4711",
         "===== REASON FOR FAILURE =====",
         "great an error occured",
       ].join("\n")
@@ -175,9 +193,10 @@ describe CommandExec::Process do
       process.log_file = create_temp_file_with('process.log' , 'output of log file' )
       process.return_code = "output of return code"
       process.status = :failed
+      process.pid = 4711
       process.reason_for_failure = 'great an error occured'
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"reason_for_failure\":[\"great an error occured\"]}")
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"]}")
     end
 
     it 'returns a json encoded string and supports unicode as well' do
@@ -188,9 +207,10 @@ describe CommandExec::Process do
       process.log_file = create_temp_file_with('process.log' , 'output of log file' )
       process.return_code = "output of return code"
       process.status = :failed
+      process.pid = 4711
       process.reason_for_failure = 'great an error occured'
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"reason_for_failure\":[\"great an error occured\"]}")
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"]}")
     end
 
     it 'returns a yaml encoded string' do
@@ -201,9 +221,10 @@ describe CommandExec::Process do
       process.log_file = create_temp_file_with('process.log' , 'output of log file' )
       process.return_code = "output of return code"
       process.status = :failed
+      process.pid = 4711
       process.reason_for_failure = 'great an error occured'
 
-      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:reason_for_failure:\n- great an error occured\n")
+      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n")
     end
 
     it 'returns a xml encoded string' do
@@ -214,9 +235,10 @@ describe CommandExec::Process do
       process.log_file = create_temp_file_with('process.log' , 'output of log file' )
       process.return_code = "output of return code"
       process.status = :failed
+      process.pid = 4711
       process.reason_for_failure = 'great an error occured'
 
-      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <reason_for_failure>great an error occured</reason_for_failure>\n</command>\n")
+      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n</command>\n")
     end
 
   end

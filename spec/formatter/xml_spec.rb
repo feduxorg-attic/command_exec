@@ -12,6 +12,7 @@ describe Formatter::XML do
       @formatter.stdout("output of stdout")
       @formatter.log_file("output of log file")
       @formatter.return_code("output of return code")
+      @formatter.pid(4711)
       @formatter.status(:failed)
 
       expect(@formatter.output(:stdout,:stderr)).to eq("<command>\n  <stdout>output of stdout</stdout>\n  <stderr>output of stderr</stderr>\n</command>\n")
@@ -22,6 +23,7 @@ describe Formatter::XML do
       @formatter.stdout("output of stdout")
       @formatter.log_file("output of log file")
       @formatter.return_code("output of return code")
+      @formatter.pid(4711)
       @formatter.status(:failed)
 
       expect(@formatter.output(:stdout,:stderr)).to eq("<command>\n  <stdout>output of stdout</stdout>\n  <stderr>output of stderr 1/2</stderr>\n  <stderr>output of stderr 2/2</stderr>\n</command>\n")

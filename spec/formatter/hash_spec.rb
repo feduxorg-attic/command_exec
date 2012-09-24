@@ -12,7 +12,7 @@ describe Formatter::Hash do
 
     it "prepares output for all fields (default)" do
       @formatter.stderr("output of stderr")
-      expect(@formatter.send(:prepare_output)).to eq({:status=>[], :return_code=>[], :stderr=>["output of stderr"], :stdout=>[], :log_file=>[], :reason_for_failure=>[]})
+      expect(@formatter.send(:prepare_output)).to eq({:status=>[], :pid => [], :return_code=>[], :stderr=>["output of stderr"], :stdout=>[], :log_file=>[], :reason_for_failure=>[]})
     end
 
     it "prepares output for given fields" do
@@ -78,6 +78,7 @@ describe Formatter::Hash do
       @formatter.log_file("output of log file")
       @formatter.return_code("output of return code")
       @formatter.status(:failed)
+      @formatter.pid(4711)
       @formatter.reason_for_failure('great an error occured')
 
       expect(@formatter.output(:stderr)).to eq(stderr: [ "output of stderr" ])
@@ -86,6 +87,7 @@ describe Formatter::Hash do
                                       stderr: [ "output of stderr"],
                                       stdout: [ "output of stdout"],
                                       log_file: [ "output of log file"],
+                                      pid: [ "4711" ],
                                       reason_for_failure: [ 'great an error occured'],
                                      )
       expect(@formatter.output(:stdout,:stderr)).to eq(
