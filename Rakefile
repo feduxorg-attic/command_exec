@@ -29,7 +29,7 @@ namespace :version do
   desc 'bump version of library to new version'
   task :bump do
 
-    new_version = ENV['VERSION']
+    new_version = ENV['VERSION'] || ENV['version']
 
     raw_module_name = File.open(version_file, "r").readlines.grep(/module/).first
     module_name = raw_module_name.chomp.match(/module\s+(\S+)/) {$1}
