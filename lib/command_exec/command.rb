@@ -5,7 +5,7 @@ module CommandExec
   # Run commands
   class Command
 
-    attr_accessor :log_file, :options , :parameter
+    attr_accessor :cmd_log_file, :options , :parameter
     attr_reader :result, :path, :working_directory
 
     # Create a new command to execute
@@ -33,6 +33,7 @@ module CommandExec
         :logger => Logger.new($stderr),
         :options => '',
         :parameter => '',
+        :cmd_log_file => '',
         :error_detection_on => [:return_code],
         :error_indicators => {
           :allowed_return_code => [0],
@@ -62,7 +63,7 @@ module CommandExec
       @options = @opts[:options]
       @path = resolve_path @name, @opts[:search_paths]
       @parameter = @opts[:parameter]
-      @log_file = @opts[:log_file]
+      @cmd_log_file = @opts[:cmd_log_file]
 
       *@error_detection_on = @opts[:error_detection_on]
       @error_indicators = @opts[:error_indicators]
@@ -179,7 +180,7 @@ module CommandExec
     #
     def run
       process = CommandExec::Process.new(:logger => @logger)
-      process.log_file = @log_file
+      process.log_file = @cmd_log_file if @cmd_log_file
       process.status = :success
 
       check_path

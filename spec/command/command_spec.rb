@@ -126,7 +126,7 @@ describe Command do
 
       command = Command.new(:logger_test ,
                             :logger => logger ,
-                            :log_file => application_log_file ,
+                            :cmd_log_file => application_log_file ,
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
     end
 
@@ -137,7 +137,7 @@ describe Command do
       command = Command.new(:logger_test ,
                             :logger => logger ,
                             :log_level => :warning,
-                            :log_file => '/tmp/i_do_not_exist.log',
+                            :cmd_log_file => '/tmp/i_do_not_exist.log',
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
 
       expect(bucket.string['WARN']).to_not eq(nil)
