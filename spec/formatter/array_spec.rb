@@ -36,37 +36,33 @@ describe Formatter::Array do
     end
 
     it "centers header names" do
-      expect(@formatter.send(:halign_center, '012' , 10 )).to        eq('   012    ')
-      expect(@formatter.send(:halign_center, '0123' , 10 )).to       eq('   0123   ')
-      expect(@formatter.send(:halign_center, '0123456789' , 10 )).to eq('0123456789')
-      expect(@formatter.send(:halign_center, '012' , 11 )).to         eq('    012    ')
-      expect(@formatter.send(:halign_center, '0123' , 11 )).to        eq('   0123    ')
-      expect(@formatter.send(:halign_center, '01234567891' , 11 )).to eq('01234567891')
+      expect(@formatter.send(:halign, '012' , 10 , :center)).to        eq('   012    ')
+      expect(@formatter.send(:halign, '0123' , 10 , :center)).to       eq('   0123   ')
+      expect(@formatter.send(:halign, '0123456789' , 10 , :center)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012' , 11 , :center)).to         eq('    012    ')
+      expect(@formatter.send(:halign, '0123' , 11 , :center)).to        eq('   0123    ')
+      expect(@formatter.send(:halign, '01234567891' , 11 , :center)).to eq('01234567891')
+
+      #default = center
+      expect(@formatter.send(:halign, '01234567891' , 11 , :unknown)).to eq('01234567891')
     end
 
     it "leftify header names" do
-      expect(@formatter.send(:halign_left, '012' , 10 )).to        eq('012       ')
-      expect(@formatter.send(:halign_left, '0123' , 10 )).to       eq('0123      ')
-      expect(@formatter.send(:halign_left, '0123456789' , 10 )).to eq('0123456789')
-      expect(@formatter.send(:halign_left, '012' , 11 )).to         eq('012        ')
-      expect(@formatter.send(:halign_left, '0123' , 11 )).to        eq('0123       ')
-      expect(@formatter.send(:halign_left, '01234567891' , 11 )).to eq('01234567891')
+      expect(@formatter.send(:halign, '012' , 10 , :left)).to        eq('012       ')
+      expect(@formatter.send(:halign, '0123' , 10 , :left)).to       eq('0123      ')
+      expect(@formatter.send(:halign, '0123456789' , 10 , :left)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012' , 11 , :left)).to         eq('012        ')
+      expect(@formatter.send(:halign, '0123' , 11 , :left)).to        eq('0123       ')
+      expect(@formatter.send(:halign, '01234567891' , 11 , :left)).to eq('01234567891')
     end
 
     it "justify header names right" do
-      expect(@formatter.send(:halign_right, '012' , 10 )).to        eq('       012')
-      expect(@formatter.send(:halign_right, '0123' , 10 )).to       eq('      0123')
-      expect(@formatter.send(:halign_right, '0123456789' , 10 )).to eq('0123456789')
-      expect(@formatter.send(:halign_right, '012' , 11 )).to         eq('        012')
-      expect(@formatter.send(:halign_right, '0123' , 11 )).to        eq('       0123')
-      expect(@formatter.send(:halign_right, '01234567891' , 11 )).to eq('01234567891')
-    end
-
-    it "decides how to align header" do
-      expect(@formatter.send(:halign, '012' , 11 , :center)).to         eq('    012    ')
-      expect(@formatter.send(:halign, '012' , 10 , :left)).to        eq('012       ')
       expect(@formatter.send(:halign, '012' , 10 , :right)).to        eq('       012')
-      expect(@formatter.send(:halign, '012' , 11 , :unknown)).to         eq('    012    ')
+      expect(@formatter.send(:halign, '0123' , 10 , :right)).to       eq('      0123')
+      expect(@formatter.send(:halign, '0123456789' , 10 , :right)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012' , 11 , :right)).to         eq('        012')
+      expect(@formatter.send(:halign, '0123' , 11 , :right)).to        eq('       0123')
+      expect(@formatter.send(:halign, '01234567891' , 11 , :right)).to eq('01234567891')
     end
 
   end

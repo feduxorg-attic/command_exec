@@ -90,27 +90,14 @@ module CommandExec
       def halign(name, max_length, orientation)
         case orientation
         when :center
-          halign_center(name,max_length)
+          name.center(max_length)
         when :left
-          halign_left(name,max_length)
+          name.ljust(max_length)
         when :right
-          halign_right(name,max_length)
+          name.rjust(max_length)
         else
-          halign_center(name,max_length)
+          name.center(max_length)
         end
-      end
-
-      def halign_center(name, max_length)
-        num_whitespace = ( max_length - name.length ) / 2.0
-        name = ' ' * num_whitespace.floor + name + ' ' * num_whitespace.ceil
-      end
-
-      def halign_left(name, max_length)
-        name = name + ' ' * (max_length - name.length)
-      end
-
-      def halign_right(name, max_length)
-        name = ' ' * (max_length - name.length) + name
       end
 
       def format_header(header,options={})
