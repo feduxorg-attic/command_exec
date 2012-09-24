@@ -1,11 +1,11 @@
 #encoding: utf-8
 
-require 'popen4'
 require 'smart_colored/extend'
 require 'logger'
 require 'json'
 require 'psych'
 require 'xmlsimple'
+require 'open3'
 
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/string/filters'

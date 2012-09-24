@@ -90,7 +90,8 @@ command.run
 
 What should be put to logger? Available choices are :debug, :info, :warn,
 :error, :fatal, :unkonwn, :silent. If you choose :silent nothing will be
-output.
+output. If you choose open3 as runner this is also true for stdout/stderr of
+the executed programms. this is not true for the system runner.
 
 
 ```ruby
@@ -110,12 +111,24 @@ Errors can be detected in:
 
 Furthermore `command_exec` looks at the return code of your command.
 
+## Reaction on error
+
+If an error occured, `command_exec` supports three different ways to react upon
+an error:
+* do nothing
+* throw an error
+* raise an exception
+
+
 ```ruby
 ```
 ## Output
 
 After execute the command you get the following output. Today it's not possible
 to suppress that output, but it's on the roadmap.
+
+Order of fields
+Available fields
 
 ### Successfull 
 

@@ -184,13 +184,14 @@ module CommandExec
 
       check_path
 
-      Dir.chdir(@working_directory) do
-        status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
+      case @run_via
+      when :open3
+        Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
           process.stdout = stdout.readlines
           process.stderr = stderr.readlines
+          process.pid = wait_thr.pid
+          process.return_code = wait_thr.value.exitstatus
         end
-
-        process.return_code = status.exitstatus
 
         if @error_detection_on.include?(:return_code)
           unless @error_indicators[:allowed_return_code].include? process.return_code
