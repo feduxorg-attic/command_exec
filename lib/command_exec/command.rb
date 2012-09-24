@@ -33,7 +33,9 @@ module CommandExec
         :logger => Logger.new($stderr),
         :options => '',
         :parameter => '',
+        :working_directory => Dir.pwd,
         :cmd_log_file => '',
+        :search_paths => ENV['PATH'].split(':'),
         :error_detection_on => [:return_code],
         :error_indicators => {
           :allowed_return_code => [0],
@@ -49,11 +51,8 @@ module CommandExec
           :forbidden_words_in_log_file => [],
         },
         :on_error_do => :return_process_information,
-        :working_directory => Dir.pwd,
-        :log_file => '',
         :run_via => :open3,
         :log_level => :info,
-        :search_paths => ENV['PATH'].split(':'),
       }.deep_merge opts
 
       @logger = @opts[:logger] 
