@@ -119,6 +119,17 @@ describe Command do
       expect(bucket.string).to eq("")
     end
 
+    it "supports other log levels as well" do
+      bucket = StringIO.new
+      logger = Logger.new(bucket)
+
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :info)
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :warn)
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :error)
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :fatal)
+      Command.execute(:echo, :logger => logger ,:parameter => "output", :log_level => :unknown)
+    end
+
     it "use a log file if given" do
       application_log_file = create_temp_file_with('command_exec_test', 'TEXT IN LOG') 
 
