@@ -21,7 +21,7 @@ module CommandExec
     
     # Class used to indicate that a command run
     # ended with a failure 
-    class ExecuteCommandFailed < RuntimeError; end
+    class CommandExecutionFailed < RuntimeError; end
     
     # Class used to indicate that a logfile
     # could not be found in file system
