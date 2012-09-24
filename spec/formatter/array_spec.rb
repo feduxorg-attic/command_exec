@@ -164,7 +164,7 @@ describe Formatter::Array do
       expect(@formatter.reason_for_failure('error in stdout found')).to eq([ "error in stdout found" ])
     end
 
-    it "output only wanted values (given as array)" do
+    it "outputs only wanted values (given as array)" do
       @formatter.stderr(["output of stderr"])
       @formatter.stdout("output of stdout")
       @formatter.log_file("output of log file")
