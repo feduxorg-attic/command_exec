@@ -1,7 +1,10 @@
 #!/usr/bin/env rake
 
 unless ENV['TRAVIS_CI'] == 'true'
-  require 'bundler/gem_tasks'
+  namespace :gem do
+    require 'bundler/gem_tasks'
+  end
+
   require 'yard'
   require 'rubygems/package_task'
   require 'active_support/core_ext/string/strip'
