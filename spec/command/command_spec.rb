@@ -234,13 +234,123 @@ describe Command do
 
       command = Command.new(:log_file_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :parameter => '1',
                             :log_level => :silent,
-                            :log_file => temp_file,
+                            :cmd_log_file => temp_file,
                             :error_detection_on => :log_file, 
                             :error_indicators => { :forbidden_words_in_log_file => %w{error} })
       command.run
       expect(command.result.status).to eq(:failed)
+    end
+
+    it "returns the result of command execution as process object (defaults to :return_process_information)" do
+      command = Command.new(:output_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      command.run
+      expect(command.result.class).to eq(CommandExec::Process)
+    end
+
+    it "returns the result of command execution as process object" do
+      command = Command.new(:output_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :on_error_do => :return_process_information,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      command.run
+      expect(command.result.class).to eq(CommandExec::Process)
+    end
+
+    it "does nothing on error if told so" do
+      command = Command.new(:raise_error_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :on_error_do => :nothing,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      expect{command.run}.to_not raise_error
+      expect{command.run}.to_not throw_symbol
+    end
+
+    it "raises an exception" do
+      command = Command.new(:raise_error_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :on_error_do => :raise_error,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      expect{command.run}.to raise_error(CommandExec::Exceptions::CommandExecutionFailed)
+
+      command = Command.new(:not_raise_error_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :on_error_do => :raise_error,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      expect{command.run}.to_not raise_error
+    end
+
+    it "throws an error" do
+      command = Command.new(:throw_error_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :on_error_do => :throw_error,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      expect{command.run}.to throw_symbol(:command_execution_failed)
+
+      command = Command.new(:not_throw_error_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :on_error_do => :throw_error,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      expect{command.run}.to_not throw_symbol
+    end
+
+    it "support open3 as runner" do
+      #implicit via default value (open3)
+      command = Command.new(:runner_open3_test,
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :log_level => :silent,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      command.run
+      expect(command.result.status).to eq(:success)
+
+      #or explicit
+      command = Command.new(:runner_open3_test,
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :run_via => :open3,
+                            :log_level => :silent,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      command.run
+      expect(command.result.status).to eq(:success)
+    end
+
+    it "support system as runner" do
+      command = Command.new(:runner_system_test,
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :run_via => :system,
+                            :log_level => :silent,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      command.run
+      expect(command.result.status).to eq(:success)
+    end
+
+    it "has a default runner: open3" do
+      command = Command.new(:runner_system_test,
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :run_via => :unknown_runner,
+                            :log_level => :silent,
+                            :error_detection_on => :return_code, 
+                            :error_indicators => { :allowed_return_code => [ 0 ]})
+      command.run
+      expect(command.result.status).to eq(:success)
     end
   end
 

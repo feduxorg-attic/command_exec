@@ -51,6 +51,7 @@ module CommandExec
         :on_error_do => :return_process_information,
         :working_directory => Dir.pwd,
         :log_file => '',
+        :run_via => :open3,
         :log_level => :info,
         :search_paths => ENV['PATH'].split(':'),
       }.deep_merge opts
@@ -68,6 +69,8 @@ module CommandExec
       *@error_detection_on = @opts[:error_detection_on]
       @error_indicators = @opts[:error_indicators]
       @on_error_do = @opts[:on_error_do]
+
+      @run_via = @opts[:run_via]
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -193,11 +196,30 @@ module CommandExec
           process.pid = wait_thr.pid
           process.return_code = wait_thr.value.exitstatus
         end
+      when :system
+        Dir.chdir(@working_directory) do
+          system(to_s)
+          process.stdout = []
+          process.stderr = []
+          process.pid = $?.pid
+          process.return_code = $?.exitstatus
+        end
+      else
+        Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
+          process.stdout = stdout.readlines
+          process.stderr = stderr.readlines
+          process.pid = wait_thr.pid
+          process.return_code = wait_thr.value.exitstatus
+        end
+      end
 
         if @error_detection_on.include?(:return_code)
-          unless @error_indicators[:allowed_return_code].include? process.return_code
+          if not @error_indicators[:allowed_return_code].include? process.return_code or 
+                 @error_indicators[:forbidden_return_code].include? process.return_code
+
             @logger.debug "Error detection on return code found an error"
             process.status = :failed 
+            process.reason_for_failure = :return_code
           end
         end
 
