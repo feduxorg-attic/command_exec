@@ -5,7 +5,7 @@ module CommandExec
   # Run commands
   class Command
 
-    attr_accessor :cmd_log_file, :options , :parameter
+    attr_accessor :log_file, :options , :parameter
     attr_reader :result, :path, :working_directory
 
     # Create a new command to execute
@@ -24,7 +24,7 @@ module CommandExec
     # @option opts [optional,Hash] :error_indicators indicating an error while execution of command 
     # @option opts [String] :working_directory working directory where the process should run in
     # @option opts [String] :log_file file path to log file of process
-    # @option opts [String] :log_level level of information in output
+    # @option opts [String] :lib_log_level level of information in output
     # @option opts [String] :search_paths Paths where to look for executable
     def initialize(name,opts={})
 
@@ -34,7 +34,7 @@ module CommandExec
         :options => '',
         :parameter => '',
         :working_directory => Dir.pwd,
-        :cmd_log_file => '',
+        :log_file => '',
         :search_paths => ENV['PATH'].split(':'),
         :error_detection_on => [:return_code],
         :error_indicators => {
@@ -52,7 +52,7 @@ module CommandExec
         },
         :on_error_do => :return_process_information,
         :run_via => :open3,
-        :log_level => :info,
+        :lib_log_level => :info,
       }.deep_merge opts
 
       @logger = @opts[:logger] 
@@ -63,7 +63,7 @@ module CommandExec
       @options = @opts[:options]
       @path = resolve_path @name, @opts[:search_paths]
       @parameter = @opts[:parameter]
-      @cmd_log_file = @opts[:cmd_log_file]
+      @log_file = @opts[:log_file]
 
       *@error_detection_on = @opts[:error_detection_on]
       @error_indicators = @opts[:error_indicators]
@@ -122,7 +122,7 @@ module CommandExec
     end
 
     def configure_logging
-      case @opts[:log_level]
+      case @opts[:lib_log_level]
       when :debug
         @logger.level = Logger::DEBUG
       when :error
@@ -182,7 +182,7 @@ module CommandExec
     #
     def run
       process = CommandExec::Process.new(:logger => @logger)
-      process.log_file = @cmd_log_file if @cmd_log_file
+      process.log_file = @log_file if @log_file
       process.status = :success
 
       check_path
