@@ -190,7 +190,6 @@ module CommandExec
       case @run_via
       when :open3
         Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
-          binding.pry
           process.stdout = stdout.readlines.map(&:chomp)
           process.stderr = stderr.readlines.map(&:chomp)
           process.pid = wait_thr.pid
