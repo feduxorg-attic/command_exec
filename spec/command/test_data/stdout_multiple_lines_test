@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+puts "error. execution failed\nerror. execution failed"
+exit 0

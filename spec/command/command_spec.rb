@@ -238,6 +238,18 @@ describe Command do
       expect(command.result.status).to eq(:failed)
     end
 
+    
+    it "removes newlines from stdout" do
+      #same for stderr
+      command = Command.new(:stdout_multiple_lines_test, 
+                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
+                            :lib_log_level => :silent,
+                            :error_detection_on => :stdout, 
+                            :error_indicators => { :forbidden_words_in_stdout => %w{error} })
+      command.run
+      expect(command.result.stdout).to eq(["error. execution failed", "error. execution failed"])
+    end
+
     it "considers log file for error handling" do
       temp_file = create_temp_file_with('log_file_test', 'error, huh, what goes on' )
 
