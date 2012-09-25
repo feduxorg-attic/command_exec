@@ -87,3 +87,7 @@ namespace :test do
     sh 'rspec spec'
   end
 end
+
+task :console do
+  sh 'script/console'
+end
