@@ -233,10 +233,10 @@ p command.result
 ```
 
 If you prefer more or less information you can make use of the
-`:log_level`-option. With one exception, those log levels are the same like in
+`:lib_log_level`-option. With one exception, those log levels are the same like in
 the `Logger`-class. Additionally you can use `:silent` to suppress all output
 of the library, if you use the `open3` and not the `system` runner. If you
-chose to use the system runner, STDOUT from the command won't be captured.
+choose to use the system runner, STDOUT from the command won't be captured.
 
 
 <table>
@@ -278,14 +278,14 @@ chose to use the system runner, STDOUT from the command won't be captured.
 ```ruby
 command = CommandExec::Command.execute( :echo , 
                                         :parameter => 'hello world' ,
-                                        :log_level => :debug,
+                                        :lib_log_level => :debug,
                                         )
 p command.result
 ```
 
-### Command options
+### Command options and parameter
 
-The next to options (command options and command parameters) are very similar.
+The next two options (command options and command parameters) are very similar.
 Both will be used to build the command which should be executed. The main
 difference is the position of given string in the command string.
 
@@ -297,18 +297,37 @@ So, if you don't want to use the `options`- and/or the `parameter`-option, you
 don't need to do it. But may be there are situations, where you would like to
 be as concise as possible.
 
-Use this option to tell the command that it should behave differently (via
-command options). 
+
+Recommended:
 
 ```ruby
-command = CommandExec::Command.execute( :echo , 
-                                        :options => '',
-                                        :parameter => 'hello world' ,
-                                        :log_level => :debug,
+command = CommandExec::Command.execute( :ls , 
+                                        :options => '-al',
+                                        :parameter => '/bin',
+                                        :lib_log_level => :debug,
                                         )
 p command.result
 ```
 
+But also valid:
+
+```ruby
+command = CommandExec::Command.execute( :ls , 
+                                        :options => '-al /bin',
+                                        :lib_log_level => :debug,
+                                        )
+p command.result
+```
+
+Or:
+
+```ruby
+command = CommandExec::Command.execute( :ls , 
+                                        :parameter => '-al /bin',
+                                        :lib_log_level => :debug,
+                                        )
+p command.result
+```
 
 ### Command parameters
 :parameter => '',
