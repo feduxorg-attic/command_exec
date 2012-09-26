@@ -214,6 +214,49 @@ result.to_a(:stderr, :stdout)
 result.to_a([:stderr, :stdout])
 ```
 
+## Extended usage
+
+There are multiple ways to tell `command_exec` about a command:
+
+### Search command in PATH
+
+If the first parameter of `run` and `execute` is a `Symbol` the library will
+search for the command in the paths given in the $PATH-shell-variable.
+
+```ruby
+command = CommandExec::Command.execute( :echo , 
+                                        :parameter => 'hello world',
+                                        )
+p command.result
+```
+
+### Path to command
+
+If you prefer to use a full qualified path, this is possible as well.
+
+```ruby
+command = CommandExec::Command.execute( '/bin/echo' , 
+                                        :parameter => 'hello world',
+                                        )
+p command.result
+```
+
+It also supports relative paths. But be aware to tell the library the correct
+one. The base path for relative ones is the working directory of the *library*,
+not the working directory of the command (see section "[Working
+directory](#working_directory)" about that).
+
+
+```ruby
+Dir.chdir('/tmp') do
+  command = CommandExec::Command.execute( '../bin/echo' , 
+                                          :parameter => 'hello world',
+                                          :logger => Logger.new($stderr)
+                                          )
+  p command.result
+end
+```
+
 ## Options
 
 ### Logging 
@@ -329,23 +372,45 @@ command = CommandExec::Command.execute( :ls ,
 p command.result
 ```
 
-### Command parameters
-:parameter => '',
-
-If you would like 
-
-### Working directory
-
-:working_directory => Dir.pwd,
-
 ### Command log file
-:cmd_log_file => '',
+
+If the command creates a log file, you can tell `command_exec` about that file
+via the `:log_file`-option. That log file can be used to look for errors during the
+command execution (please see the chapter about [Error
+detection](#error_detection) for further information about that).
+
+```ruby
+command = CommandExec::Command.execute( :ls , 
+                                        :options => '-al',
+                                        :log_file => '/path/to/log_file',
+                                        )
+p command.result
+```
 
 ### Command search path
 
-:search_paths => ENV['PATH'].split(':'),
+If you need to change the paths where a command can be found, you could use the
+`:search_path`-option. It defaults to those paths found in $PATH.
 
-### Error detection
+It supports multiple values as `Array`
+```ruby
+command = CommandExec::Command.execute( :ls , 
+                                        :options => '-al',
+                                        :search_paths => [ '/bin' ],
+                                        )
+p command.result
+```
+
+Or single values as `String`
+```ruby
+command = CommandExec::Command.execute( :ls , 
+                                        :options => '-al',
+                                        :search_paths => '/bin',
+                                        )
+p command.result
+```
+
+### <a name="error_detection">Error detection</a>
 
 :error_detection_on => [:return_code],
 :error_indicators => {
@@ -361,6 +426,19 @@ If you would like
   :allowed_words_in_log_file => [],
   :forbidden_words_in_log_file => [],
 },
+
+### <a name="working_directory">Working directory</a>
+
+To change the working directory for the command you can use the `:working_directory`-option.
+
+```ruby
+command = CommandExec::Command.execute( :ls , 
+                                        :options => '-al',
+                                        :working_directory => '/tmp',
+                                        )
+p command.result
+```
+
 
 ### Error reaction
 
@@ -429,7 +507,7 @@ command = CommandExec::Command.new(
 command.run
 ```
 
-* `:log_level`: 
+* `:lib_log_level`: 
 
 What should be put to logger? Available choices are :debug, :info, :warn,
 :error, :fatal, :unkonwn, :silent. If you choose :silent nothing will be
@@ -441,7 +519,7 @@ the executed programms. this is not true for the system runner.
 command = CommandExec::Command.new(
   'command',
   :logfile => 'path/to/logfile.log',
-  :log_level => :debug
+  :lib_log_level => :debug
 }
 command.run
 ```
