@@ -392,7 +392,7 @@ p command.result
 If you need to change the paths where a command can be found, you could use the
 `:search_path`-option. It defaults to those paths found in $PATH.
 
-It supports multiple values as `Array`
+It supports multiple values as `Array`:
 ```ruby
 command = CommandExec::Command.execute( :ls , 
                                         :options => '-al',
@@ -401,7 +401,7 @@ command = CommandExec::Command.execute( :ls ,
 p command.result
 ```
 
-Or single values as `String`
+Or single values as `String`:
 ```ruby
 command = CommandExec::Command.execute( :ls , 
                                         :options => '-al',

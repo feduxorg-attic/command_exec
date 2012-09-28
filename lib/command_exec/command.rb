@@ -205,8 +205,8 @@ module CommandExec
         end
       else
         Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
-          process.stdout = stdout.readlines.map(&chomp)
-          process.stderr = stderr.readlines.map(&chomp)
+          process.stdout = stdout.readlines.map(&:chomp)
+          process.stderr = stderr.readlines.map(&:chomp)
           process.pid = wait_thr.pid
           process.return_code = wait_thr.value.exitstatus
         end
