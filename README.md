@@ -332,6 +332,7 @@ The next two options (command options and command parameters) are very similar.
 Both will be used to build the command which should be executed. The main
 difference is the position of given string in the command string.
 
+
 ```
 <command> <options> <parameter>
 ```
@@ -347,7 +348,6 @@ Recommended:
 command = CommandExec::Command.execute( :ls , 
                                         :options => '-al',
                                         :parameter => '/bin',
-                                        :lib_log_level => :debug,
                                         )
 p command.result
 ```
@@ -357,7 +357,6 @@ But also valid:
 ```ruby
 command = CommandExec::Command.execute( :ls , 
                                         :options => '-al /bin',
-                                        :lib_log_level => :debug,
                                         )
 p command.result
 ```
@@ -367,6 +366,32 @@ Or:
 ```ruby
 command = CommandExec::Command.execute( :ls , 
                                         :parameter => '-al /bin',
+                                        )
+p command.result
+```
+
+Please check if you use single or double quotes correctly! `command_exec` takes
+the parameters and options as given. That's why
+
+```ruby
+#will succeed
+#see debug output for reason
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "\"Thats a string\n with a newline\"",
+                                        :lib_log_level => :debug,
+                                        )
+p command.result
+```
+
+isn't the same like
+
+```ruby
+#will fail
+#see debug output for reason
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "Thats a string\n with a newline",
                                         :lib_log_level => :debug,
                                         )
 p command.result
@@ -375,9 +400,10 @@ p command.result
 ### Command log file
 
 If the command creates a log file, you can tell `command_exec` about that file
-via the `:log_file`-option. That log file can be used to look for errors during the
-command execution (please see the chapter about [Error
-detection](#error_detection) for further information about that).
+via the `:log_file`-option. Honestly, this option only makes sense if you
+configure `command_exec`to search for errors in the file (please see the
+chapter about [Error detection](#error_detection) for further information about
+that).
 
 ```ruby
 command = CommandExec::Command.execute( :ls , 
@@ -393,6 +419,7 @@ If you need to change the paths where a command can be found, you could use the
 `:search_path`-option. It defaults to those paths found in $PATH.
 
 It supports multiple values as `Array`:
+
 ```ruby
 command = CommandExec::Command.execute( :ls , 
                                         :options => '-al',
@@ -402,6 +429,7 @@ p command.result
 ```
 
 Or single values as `String`:
+
 ```ruby
 command = CommandExec::Command.execute( :ls , 
                                         :options => '-al',
@@ -412,20 +440,162 @@ p command.result
 
 ### <a name="error_detection">Error detection</a>
 
-:error_detection_on => [:return_code],
-:error_indicators => {
-  :allowed_return_code => [0],
-  :forbidden_return_code => [],
-  #
-  :allowed_words_in_stderr => [],
-  :forbidden_words_in_stderr => [],
-  #
-  :allowed_words_in_stdout => [],
-  :forbidden_words_in_stdout => [],
-  #
-  :allowed_words_in_log_file => [],
-  :forbidden_words_in_log_file => [],
-},
+`command_exec` is capable of searching for errors. To enable error detection
+you need to activate it via the `:error_detection_on`-option. It supports error
+detection on:
+
+<table>
+ <tr>
+  <td><strong>Search in...</strong></td>
+  <td><strong>Symbol</strong></td>
+ </tr>
+ <tr>
+  <td>Return code</td>
+  <td>:return_code</td>
+ </tr>
+ <tr>
+  <td>STDOUT</td>
+  <td>:stdout</td>
+ </tr>
+ <tr>
+  <td>STDERR</td>
+  <td>:stderr</td>
+ </tr>
+ <tr>
+  <td>Log file</td>
+  <td>:log_file</td>
+ </tr>
+</table>
+
+But you need to provide information, what item indicates an error.
+
+<table>
+ <tr>
+  <td><strong>Indicator for...</strong></td>
+  <td><strong>Options</strong></td>
+  <td><strong>Type</strong></td>
+ </tr>
+ <tr>
+  <td>Return code</td>
+  <td>
+  :allowed_return_code<br/>
+  :forbidden_return_code
+  </td>
+  <td>
+  Array
+  </td>
+ </tr>
+ <tr>
+  <td>STDERR</td>
+  <td>
+  :allowed_words_in_stderr<br/>
+  :forbidden_words_in_stderr
+  </td>
+  <td>
+  Array
+  </td>
+ </tr>
+ <tr>
+  <td>STDOUT</td>
+  <td>
+  :allowed_words_in_stdout<br/>
+  :forbidden_words_in_stdout
+  </td>
+  <td>
+  Array
+  </td>
+ </tr>
+ <tr>
+  <td>Log file</td>
+  <td>
+  :allowed_words_in_log_file<br/>
+  :forbidden_words_in_log_file
+  </td>
+  <td>
+  Array
+  </td>
+ </tr>
+</table>
+
+*Return code*
+
+If the command returns helpful return codes, those can be used to check if an
+error occured. You can tell `command_exec` about allowed or forbidden return
+codes.
+
+
+```ruby
+#All error codes except `0` will be detected as an error.
+command = CommandExec::Command.execute( :false , 
+                                        :error_detection_on => [:return_code],
+                                        :error_indicators => {
+                                          :allowed_return_code => [0],
+                                        },
+                                        )
+p command.result
+
+#If the command exits with a return code of `1`, this will be detected as an
+#error.
+command = CommandExec::Command.execute( :false , 
+                                        :error_detection_on => [:return_code],
+                                        :error_indicators => {
+                                          :forbidden_return_code => [1],
+                                        },
+                                        )
+p command.result
+```
+
+*STDOUT*
+
+`command_exec` can search for errors in STDOUT. To enable this functionality,
+you need set the `:error_detection_on`-option on ':stdout'. Furthermore you
+need to tell the library, what strings are error indicators
+(`forbidden_words_in_stdout`). If there are some strings which contain the
+error string(s), but are no errors, you need to use the
+`allowed_words_in_stdout`-option. The same is true, if the allowed word is in
+the same line.
+
+```ruby
+#Simple error search
+#will fail
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "\"wow, a test. That's great.\nBut an error occured in this line\"",
+                                        :error_detection_on => [:stdout],
+                                        :error_indicators => {
+                                          :forbidden_words_in_stdout => %w{ error }
+                                        },
+                                        )
+p command.result
+
+#error indicator in string, which is no error
+#will succeed
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "\"wow, a test. That's great.\nBut no error occured in this line\"",
+                                        :error_detection_on => [:stdout],
+                                        :error_indicators => {
+                                          :forbidden_words_in_stdout => %w{ error },
+                                          :allowed_words_in_stdout => ["no error occured"] , 
+                                        },
+                                        )
+p command.result
+
+#error indicator in same line, which is no error
+#will succeed
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "\"wow, a test. That's great.\nBut no error occured in this line because of some other string\"",
+                                        :error_detection_on => [:stdout],
+                                        :error_indicators => {
+                                          :forbidden_words_in_stdout => %w{ error },
+                                          :allowed_words_in_stdout => ["some other string"] , 
+                                        },
+                                        )
+p command.result
+```
+
+
 
 ### <a name="working_directory">Working directory</a>
 
