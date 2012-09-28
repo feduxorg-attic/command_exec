@@ -373,6 +373,19 @@ describe Command do
       command.run
       expect(command.result.status).to eq(:success)
     end
+
+    it "find errors beyond newlines in the string" do
+      command = CommandExec::Command.new( :echo ,
+                                         :options => '-e',
+                                         :parameter => "\"wow, a test. That's great.\nBut an error occured in this line\"",
+                                         :error_detection_on => [:stdout],
+                                         :error_indicators => {
+                                           :forbidden_words_in_stdout => %w{ error }
+                                         },
+                                        )
+                                        command.run
+                                        expect(command.result.status).to eq(:failed)
+    end
   end
 
   context :private_api do
