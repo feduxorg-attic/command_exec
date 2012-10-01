@@ -46,7 +46,7 @@ module CommandExec
           end
         end
 
-      @log_file = file.readlines
+      @log_file = file.readlines.map(&:chomp)
     end
 
     def pid=(value)
