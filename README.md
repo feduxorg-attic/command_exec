@@ -100,7 +100,7 @@ command = CommandExec::Command.execute( :echo , :parameter => 'hello world' )
 p command.result
 ```
 
-### Result of command execution
+### <a name="result_of_command_execution">Result of command execution</a>
 
 That `result`-object can be used to inspect the result of the command execution. It
 supports several different methods, but only some are from interest for
@@ -397,7 +397,7 @@ command = CommandExec::Command.execute( :echo ,
 p command.result
 ```
 
-### Command log file
+### <a name="log_file">Command log file</a>
 
 If the command creates a log file, you can tell `command_exec` about that file
 via the `:log_file`-option. Honestly, this option only makes sense if you
@@ -545,10 +545,17 @@ command = CommandExec::Command.execute( :false ,
 p command.result
 ```
 
+In the case of the detection of errors `command_exec`defaults to:
+
+```ruby
+:error_detection_on => [:return_code],
+:allowed_return_code => [0],
+```
+
 *STDOUT*
 
 `command_exec` can search for errors in STDOUT. To enable this functionality,
-you need set the `:error_detection_on`-option on ':stdout'. Furthermore you
+you need to set the `:error_detection_on`-option on ':stdout'. Furthermore you
 need to tell the library, what strings are error indicators
 (`forbidden_words_in_stdout`). If there are some strings which contain the
 error string(s), but are no errors, you need to use the
@@ -595,7 +602,52 @@ command = CommandExec::Command.execute( :echo ,
 p command.result
 ```
 
+*STDERR*
 
+The same is true for STDERR. You need to activate the error detection via
+`:error_detection_on => [:stderr]`. The error indicators can be given via
+`:forbidden_words_in_stderr => %w{ error }` and `:allowed_words_in_stdout =>
+["some other string"]`.
+
+```ruby
+#will fail
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "\"wow, a test. That's great.\nBut an error occured in this line\" >&2",
+                                        :error_detection_on => [:stderr],
+                                        :error_indicators => {
+                                          :forbidden_words_in_stderr => %w{ error },
+                                        },
+                                        )
+p command.result
+```
+
+*LOG FILE*
+
+To search for errors in the log file a command created during execution, you
+need to provide the information where `command_exec` finds the log file (see
+section [Command Log file](#log_file)).
+
+The options are very similar to those for STDERR and STDOUT: To activate error
+detection for log files use `:error_detection_on => [:log_file]`. The error
+indicators can be given via `:forbidden_words_in_log_file => %w{ error }` and
+`:allowed_words_in_log_file => ["some other string"]`.
+
+```ruby
+File.open('/tmp/test.log', 'w') do |f|
+  f.write "wow, a test. That's great.\nBut an error occured in this line"
+end
+
+#will fail
+command = CommandExec::Command.execute( :echo , 
+                                        :error_detection_on => [:log_file],
+                                        :log_file => '/tmp/test.log',
+                                        :error_indicators => {
+                                          :forbidden_words_in_log_file => %w{ error },
+                                        },
+                                        )
+p command.result
+```
 
 ### <a name="working_directory">Working directory</a>
 
@@ -609,10 +661,40 @@ command = CommandExec::Command.execute( :ls ,
 p command.result
 ```
 
-
 ### Error reaction
 
-:on_error_do => :return_process_information,
+If an error occured, `command_exec` can raise an exception, 'throw' an error or
+do nothing at all. Besides the configured option, on every run it returns the
+  result for the run (see [Result of command
+  execution](#result_of_command_execution) for more details).
+
+*Raise an exception aka error*
+
+If an error occured during command execution, you can tell `command_exec` to
+raise an exception.
+
+```ruby
+begin
+  command = CommandExec::Command.execute( :false , 
+                                          :on_error_do => :raise_error,
+                                        )
+rescue CommandExec::Exceptions::CommandExecutionFailed => e
+  puts e.message
+end
+```
+
+*Throw error*
+
+If you prefer not to use execptions, you can use ruby's
+`throw`-`catch`-mechanism.
+
+```ruby
+catch :command_execution_failed do 
+  command = CommandExec::Command.execute( :false , 
+                                          :on_error_do => :throw_error,
+                                        )
+end
+```
 
 ### Runner
 
