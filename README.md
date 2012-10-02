@@ -698,135 +698,44 @@ end
 
 ### Runner
 
-:run_via => :open3,
-
-
-* `:logger`: Logger for output of information
-
-```ruby
-command = CommandExec::Command.new(
-  'command',
-  :logger => Logger.new($stderr),
-}
-command.run
-```
-
-* `:options`: Commandline options for executed command
+Today there are two runners available: `:open3` and `system`. Use the first one
+if you want `:stdout` and `:stderr` to be captured and searched for errors. If
+you're only interested in the `:return_code` you could use the
+`:system`-runner. Please be aware, that using the `system`-runner + error
+detection on `stdout`, `stderr` is not working as you might expect.
 
 ```ruby
-command = CommandExec::Command.new(
-  'command',
-  :options => '--command options',
-}
-command.run
+#will fail
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "\"wow, a test. That's great.\nBut an error occured in this line\"",
+                                        :error_detection_on => [:stdout],
+                                        :error_indicators => {
+                                          :forbidden_words_in_stdout => %w{ error }
+                                        },
+                                        :run_via => :open3,
+                                        )
+p command.result
+
+#will succeed, because stdout was not caputured
+command = CommandExec::Command.execute( :echo , 
+                                        :options => '-e',
+                                        :parameter => "\"wow, a test. That's great.\nBut an error occured in this line\"",
+                                        :error_detection_on => [:stdout],
+                                        :error_indicators => {
+                                          :forbidden_words_in_stdout => %w{ error }
+                                        },
+                                        :run_via => :system,
+                                        )
+p command.result
 ```
+## HowTo
 
-* `error_keywords`: Keywords which indicate error(s)
+TBD
 
-Are there any keywords in stdout of the command which should be executed, which
-indicate errors?
+## Further Reading
 
-```ruby
-command = CommandExec::Command.new(
-  'command',
-  :error_keywords => ['key words in', 'stdout with indicate errors' ],
-}
-command.run
-```
-
-* `:working_directory`: Change working directory of command 
-
-Change working directory to given one before command execution.
-
-```ruby
-command = CommandExec::Command.new(
-  'command',
-  :working_directory => 'working/directory/where/the/command/should/be/executed/in',
-}
-command.run
-```
-
-* `logfile`: Logfile of command
-
-The first 30 lines of the command-logfile will be output by logger if an error
-occured. 
-
-```ruby
-command = CommandExec::Command.new(
-  'command',
-  :logfile => 'path/to/logfile.log',
-}
-command.run
-```
-
-* `:lib_log_level`: 
-
-What should be put to logger? Available choices are :debug, :info, :warn,
-:error, :fatal, :unkonwn, :silent. If you choose :silent nothing will be
-output. If you choose open3 as runner this is also true for stdout/stderr of
-the executed programms. this is not true for the system runner.
-
-
-```ruby
-command = CommandExec::Command.new(
-  'command',
-  :logfile => 'path/to/logfile.log',
-  :lib_log_level => :debug
-}
-command.run
-```
-## Error detection
-
-Errors can be detected in:
-* STDERR
-* STDOUT
-* LOGFILE
-
-Furthermore `command_exec` looks at the return code of your command.
-
-## Reaction on error
-
-If an error occured, `command_exec` supports three different ways to react upon
-an error:
-* do nothing
-* throw an error
-* raise an exception
-
-
-```ruby
-```
-## Output
-
-After execute the command you get the following output. Today it's not possible
-to suppress that output, but it's on the roadmap.
-
-Order of fields
-Available fields
-
-### Successfull 
-
-```
-<timestamp> command: OK
-```
-
-### Failed with STDERR set
-
-```
-<timestamp> command: FAILED
-================== LOGFILE ==================
-[...]
-================== STDOUT ==================
-[...]
-================== STDERR ==================
-[...]
-```
-
-### Failed with string in STDOUT indicating an error
-
-```
-<timestamp> command: FAILED
-================== STDOUT ==================
-```
+* API-documentation: http://rdoc.info/github/maxmeyer/command_exec/frames
 
 ## Dependencies
 
@@ -836,6 +745,21 @@ development dependencies.
 ## Todo
 
 Please see TODO.md for enhancements which are planned for implementation.
+
+## Development
+
+1. Fork it
+2. Create your remote (`git remote add <your_remote_repo> <path_to_repo>`)
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push <your_remote_repo> my-new-feature`)
+5. Create new Pull Request
+
+The API-documentation can be found at
+http://rdoc.info/github/maxmeyer/command_exec/frames
+
+Please see 'http://git-scm.com/book' first if you have further questions about
+`git`.
 
 ## Copyright
 
