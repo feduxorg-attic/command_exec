@@ -36,37 +36,33 @@ describe Formatter::Array do
     end
 
     it "centers header names" do
-      expect(@formatter.send(:halign_center, '012' , 10 )).to        eq('   012    ')
-      expect(@formatter.send(:halign_center, '0123' , 10 )).to       eq('   0123   ')
-      expect(@formatter.send(:halign_center, '0123456789' , 10 )).to eq('0123456789')
-      expect(@formatter.send(:halign_center, '012' , 11 )).to         eq('    012    ')
-      expect(@formatter.send(:halign_center, '0123' , 11 )).to        eq('   0123    ')
-      expect(@formatter.send(:halign_center, '01234567891' , 11 )).to eq('01234567891')
+      expect(@formatter.send(:halign, '012' , 10 , :center)).to        eq('   012    ')
+      expect(@formatter.send(:halign, '0123' , 10 , :center)).to       eq('   0123   ')
+      expect(@formatter.send(:halign, '0123456789' , 10 , :center)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012' , 11 , :center)).to         eq('    012    ')
+      expect(@formatter.send(:halign, '0123' , 11 , :center)).to        eq('   0123    ')
+      expect(@formatter.send(:halign, '01234567891' , 11 , :center)).to eq('01234567891')
+
+      #default = center
+      expect(@formatter.send(:halign, '01234567891' , 11 , :unknown)).to eq('01234567891')
     end
 
     it "leftify header names" do
-      expect(@formatter.send(:halign_left, '012' , 10 )).to        eq('012       ')
-      expect(@formatter.send(:halign_left, '0123' , 10 )).to       eq('0123      ')
-      expect(@formatter.send(:halign_left, '0123456789' , 10 )).to eq('0123456789')
-      expect(@formatter.send(:halign_left, '012' , 11 )).to         eq('012        ')
-      expect(@formatter.send(:halign_left, '0123' , 11 )).to        eq('0123       ')
-      expect(@formatter.send(:halign_left, '01234567891' , 11 )).to eq('01234567891')
+      expect(@formatter.send(:halign, '012' , 10 , :left)).to        eq('012       ')
+      expect(@formatter.send(:halign, '0123' , 10 , :left)).to       eq('0123      ')
+      expect(@formatter.send(:halign, '0123456789' , 10 , :left)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012' , 11 , :left)).to         eq('012        ')
+      expect(@formatter.send(:halign, '0123' , 11 , :left)).to        eq('0123       ')
+      expect(@formatter.send(:halign, '01234567891' , 11 , :left)).to eq('01234567891')
     end
 
     it "justify header names right" do
-      expect(@formatter.send(:halign_right, '012' , 10 )).to        eq('       012')
-      expect(@formatter.send(:halign_right, '0123' , 10 )).to       eq('      0123')
-      expect(@formatter.send(:halign_right, '0123456789' , 10 )).to eq('0123456789')
-      expect(@formatter.send(:halign_right, '012' , 11 )).to         eq('        012')
-      expect(@formatter.send(:halign_right, '0123' , 11 )).to        eq('       0123')
-      expect(@formatter.send(:halign_right, '01234567891' , 11 )).to eq('01234567891')
-    end
-
-    it "decides how to align header" do
-      expect(@formatter.send(:halign, '012' , 11 , :center)).to         eq('    012    ')
-      expect(@formatter.send(:halign, '012' , 10 , :left)).to        eq('012       ')
       expect(@formatter.send(:halign, '012' , 10 , :right)).to        eq('       012')
-      expect(@formatter.send(:halign, '012' , 11 , :unknown)).to         eq('    012    ')
+      expect(@formatter.send(:halign, '0123' , 10 , :right)).to       eq('      0123')
+      expect(@formatter.send(:halign, '0123456789' , 10 , :right)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012' , 11 , :right)).to         eq('        012')
+      expect(@formatter.send(:halign, '0123' , 11 , :right)).to        eq('       0123')
+      expect(@formatter.send(:halign, '01234567891' , 11 , :right)).to eq('01234567891')
     end
 
   end
@@ -133,6 +129,7 @@ describe Formatter::Array do
       @formatter.log_file("output of log file")
       @formatter.return_code("output of return code")
       @formatter.status(:failed)
+      @formatter.pid(4711)
       @formatter.reason_for_failure('great an error occured')
 
       expect(@formatter.output(:stderr)).to eq([
@@ -150,6 +147,8 @@ describe Formatter::Array do
         "output of stdout",
         "=====      LOG FILE      =====",
         "output of log file",
+        "=====        PID         =====",
+        '4711',
         "===== REASON FOR FAILURE =====",
         'great an error occured'
       ])
@@ -165,7 +164,7 @@ describe Formatter::Array do
       expect(@formatter.reason_for_failure('error in stdout found')).to eq([ "error in stdout found" ])
     end
 
-    it "output only wanted values (given as array)" do
+    it "outputs only wanted values (given as array)" do
       @formatter.stderr(["output of stderr"])
       @formatter.stdout("output of stdout")
       @formatter.log_file("output of log file")
@@ -177,6 +176,28 @@ describe Formatter::Array do
         "output of stdout",
         "=====       STDERR       =====",
         "output of stderr"
+      ])
+    end
+
+    it "outputs only wanted values in the given order)" do
+      @formatter.stderr(["output of stderr"])
+      @formatter.stdout("output of stdout")
+      @formatter.log_file("output of log file")
+      @formatter.return_code("output of return code")
+      @formatter.status(:failed)
+
+      expect(@formatter.output([:stdout,:stderr])).to eq([
+        "=====       STDOUT       =====",
+        "output of stdout",
+        "=====       STDERR       =====",
+        "output of stderr",
+      ])
+
+      expect(@formatter.output([:stderr,:stdout])).to eq([
+        "=====       STDERR       =====",
+        "output of stderr",
+        "=====       STDOUT       =====",
+        "output of stdout",
       ])
     end
   end

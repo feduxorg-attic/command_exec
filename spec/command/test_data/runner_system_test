@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+#$stdout.puts "no error"
+exit 0

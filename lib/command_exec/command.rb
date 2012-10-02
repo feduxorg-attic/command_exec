@@ -16,23 +16,27 @@ module CommandExec
     # @param [optional,Hash] opts 
     #   options for the command
     #
-    # @option opts [String] :options 
+    # @option opts [String] :lib_logger
+    #   logger
     #   options for binary
     #
+    # @option 
     # @option opts [String] :parameter parameter for binary
     # @option opts [String] :parameter parameter for binary
     # @option opts [optional,Hash] :error_indicators indicating an error while execution of command 
     # @option opts [String] :working_directory working directory where the process should run in
     # @option opts [String] :log_file file path to log file of process
-    # @option opts [String] :log_level level of information in output
+    # @option opts [String] :lib_log_level level of information in output
     # @option opts [String] :search_paths Paths where to look for executable
     def initialize(name,opts={})
 
       @name = name
       @opts = {
-        :logger => Logger.new($stderr),
         :options => '',
         :parameter => '',
+        :working_directory => Dir.pwd,
+        :log_file => '',
+        :search_paths => ENV['PATH'].split(':'),
         :error_detection_on => [:return_code],
         :error_indicators => {
           :allowed_return_code => [0],
@@ -48,13 +52,12 @@ module CommandExec
           :forbidden_words_in_log_file => [],
         },
         :on_error_do => :return_process_information,
-        :working_directory => Dir.pwd,
-        :log_file => '',
-        :log_level => :info,
-        :search_paths => ENV['PATH'].split(':'),
+        :run_via => :open3,
+        :lib_logger => Logger.new($stderr),
+        :lib_log_level => :info,
       }.deep_merge opts
 
-      @logger = @opts[:logger] 
+      @logger = @opts[:lib_logger] 
       configure_logging 
 
       @logger.debug @opts
@@ -67,6 +70,8 @@ module CommandExec
       *@error_detection_on = @opts[:error_detection_on]
       @error_indicators = @opts[:error_indicators]
       @on_error_do = @opts[:on_error_do]
+
+      @run_via = @opts[:run_via]
 
       @working_directory = @opts[:working_directory] 
       @result = nil
@@ -119,7 +124,7 @@ module CommandExec
     end
 
     def configure_logging
-      case @opts[:log_level]
+      case @opts[:lib_log_level]
       when :debug
         @logger.level = Logger::DEBUG
       when :error
@@ -178,24 +183,44 @@ module CommandExec
     # Run the program
     #
     def run
-      process = CommandExec::Process.new(:logger => @logger)
-      process.log_file = @log_file
+      process = CommandExec::Process.new(:lib_logger => @logger)
+      process.log_file = @log_file if @log_file
       process.status = :success
 
       check_path
 
-      Dir.chdir(@working_directory) do
-        status = POpen4::popen4(to_s) do |stdout, stderr, stdin, pid|
-          process.stdout = stdout.readlines
-          process.stderr = stderr.readlines
+      case @run_via
+      when :open3
+        Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
+          process.stdout = stdout.readlines.map(&:chomp)
+          process.stderr = stderr.readlines.map(&:chomp)
+          process.pid = wait_thr.pid
+          process.return_code = wait_thr.value.exitstatus
         end
-
-        process.return_code = status.exitstatus
+      when :system
+        Dir.chdir(@working_directory) do
+          system(to_s)
+          process.stdout = []
+          process.stderr = []
+          process.pid = $?.pid
+          process.return_code = $?.exitstatus
+        end
+      else
+        Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
+          process.stdout = stdout.readlines.map(&:chomp)
+          process.stderr = stderr.readlines.map(&:chomp)
+          process.pid = wait_thr.pid
+          process.return_code = wait_thr.value.exitstatus
+        end
+      end
 
         if @error_detection_on.include?(:return_code)
-          unless @error_indicators[:allowed_return_code].include? process.return_code
+          if not @error_indicators[:allowed_return_code].include? process.return_code or 
+                 @error_indicators[:forbidden_return_code].include? process.return_code
+
             @logger.debug "Error detection on return code found an error"
             process.status = :failed 
+            process.reason_for_failure = :return_code
           end
         end
 
@@ -203,6 +228,7 @@ module CommandExec
           if error_occured?( @error_indicators[:forbidden_words_in_stderr], @error_indicators[:allowed_words_in_stderr], process.stderr)
             @logger.debug "Error detection on stderr found an error"
             process.status = :failed 
+            process.reason_for_failure = :stderr
           end
         end
 
@@ -210,6 +236,7 @@ module CommandExec
           if error_occured?( @error_indicators[:forbidden_words_in_stdout], @error_indicators[:allowed_words_in_stdout], process.stdout)
             @logger.debug "Error detection on stdout found an error"
             process.status = :failed 
+            process.reason_for_failure = :stdout
           end
         end
 
@@ -217,13 +244,25 @@ module CommandExec
           if error_occured?( @error_indicators[:forbidden_words_in_log_file], @error_indicators[:allowed_words_in_log_file], process.log_file)
             @logger.debug "Error detection on log file found an error"
             process.status = :failed 
+            process.reason_for_failure = :log_file
           end
         end
 
         @logger.debug "Result of command run #{process.status}"
-      end
 
       @result = process
+      if process.status == :failed
+        case @on_error_do
+        when :nothing
+          #nothing
+        when :raise_error
+          raise CommandExec::Exceptions::CommandExecutionFailed, "An error occured. Please check for reason via command.reason_for_failure and/or command.stdout, comand.stderr, command.log_file, command.return_code"
+        when :throw_error
+          throw :command_execution_failed 
+        else
+          #nothing
+        end
+      end
     end
 
     # Find error in stdout

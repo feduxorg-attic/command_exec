@@ -2,25 +2,27 @@
 
 module CommandExec
   class Process
-    attr_accessor :executable
-    attr_reader :status, :log_file, :stdout, :stderr, :reason_for_failure, :return_code
+    attr_accessor :executable 
+    attr_reader :status, :log_file, :stdout, :stderr, :reason_for_failure, :return_code, :pid
 
     def initialize(options={})
       @options = {
-        logger: Logger.new($stderr),
+        lib_logger: Logger.new($stderr),
         stderr: [],
         stdout: [],
         output: [],
+        pid: nil,
         return_code: nil,
         reason_for_failure: [],
         status: :success,
       }.merge options
 
-      @logger = @options[:logger]
+      @logger = @options[:lib_logger]
 
       @stderr = @options[:stderr]
       @stdout = @options[:stdout]
       @status = @options[:status]
+      @pid = @options[:pid]
       @reason_for_failure = @options[:reason_for_failure]
       @return_code = @options[:return_code]
 
@@ -30,7 +32,7 @@ module CommandExec
     def log_file=(filename=nil)
         if filename.blank?
           file = StringIO.new 
-          @logger.info "Blank file name for log file given. Using empty String"
+          @logger.debug "No file name for log file given. Using empty String"
         else
           begin
             file = File.open(filename)
@@ -44,7 +46,11 @@ module CommandExec
           end
         end
 
-      @log_file = file.readlines
+      @log_file = file.readlines.map(&:chomp)
+    end
+
+    def pid=(value)
+      @pid = value.to_s
     end
 
     def stdout=(*content)
@@ -69,7 +75,7 @@ module CommandExec
     end
 
     def reason_for_failure=(content)
-        @reason_for_failure << content.to_s
+      @reason_for_failure << content.to_s
     end
 
     def return_code=(value)
@@ -86,6 +92,7 @@ module CommandExec
         stderr: @stderr,
         stdout: @stdout,
         log_file: @log_file,
+        pid: @pid,
         reason_for_failure: @reason_for_failure,
       } 
 
@@ -98,27 +105,27 @@ module CommandExec
 
     public 
 
-    def to_a(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::Array.new)
+    def to_a(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::Array.new)
       output(fields, formatter)
     end
 
-    def to_h(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::Hash.new)
+    def to_h(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::Hash.new)
       output(fields, formatter)
     end
 
-    def to_s(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::String.new)
+    def to_s(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::String.new)
       output(fields, formatter)
     end
 
-    def to_xml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::XML.new)
+    def to_xml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::XML.new)
       output(fields, formatter)
     end
 
-    def to_json(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::JSON.new)
+    def to_json(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::JSON.new)
       output(fields, formatter)
     end
 
-    def to_yaml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:reason_for_failure], formatter=Formatter::YAML.new)
+    def to_yaml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::YAML.new)
       output(fields, formatter)
     end
   end

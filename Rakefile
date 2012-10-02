@@ -1,7 +1,10 @@
 #!/usr/bin/env rake
 
 unless ENV['TRAVIS_CI'] == 'true'
-  require 'bundler/gem_tasks'
+  namespace :gem do
+    require 'bundler/gem_tasks'
+  end
+
   require 'yard'
   require 'rubygems/package_task'
   require 'active_support/core_ext/string/strip'
@@ -26,7 +29,7 @@ namespace :version do
   desc 'bump version of library to new version'
   task :bump do
 
-    new_version = ENV['VERSION']
+    new_version = ENV['VERSION'] || ENV['version']
 
     raw_module_name = File.open(version_file, "r").readlines.grep(/module/).first
     module_name = raw_module_name.chomp.match(/module\s+(\S+)/) {$1}
@@ -83,4 +86,8 @@ namespace :test do
     ENV['TRAVIS_CI'] = 'true'
     sh 'rspec spec'
   end
+end
+
+task :console do
+  sh 'script/console'
 end
