@@ -23,14 +23,14 @@ describe Command do
       end
 
       Dir.chdir '/tmp/' do
-        command = Command.new('../bin/true')
-        expect(command.path).to eq('/bin/true')
+        command = Command.new('../usr/bin/true')
+        expect(command.path).to eq('/usr/bin/true')
       end
     end
 
     it 'searches $PATH to find the command' do 
       command = Command.new(:true)
-      expect(command.path).to eq("/bin/true")
+      expect(command.path).to eq("/usr/bin/true")
     end
 
     it 'offers an option to change $PATH for the command execution' do
@@ -39,7 +39,7 @@ describe Command do
     end
 
     it "checks if exec is executable" do
-      command = Command.new('/bin/true')
+      command = Command.new('/usr/bin/true')
       expect(command.executable?).to eq(true)
 
       command = Command.new('/etc/passwd')
@@ -47,16 +47,16 @@ describe Command do
     end
 
     it "checks if exec exists" do
-      command = Command.new('/bin/true')
+      command = Command.new('/usr/bin/true')
       expect(command.exists?).to eq(true)
 
-      command = Command.new('/usr/bin/true')
+      command = Command.new('/usr/bin/does_not_exist')
       expect(command.exists?).to eq(false)
     end
 
     it "checks if exec is valid (exists, executable, type = file)" do
       #does not exist
-      command = Command.new('/usr/bin/true')
+      command = Command.new('/usr/bin/does_not_exist')
       expect(command.valid?).to eq(false)
 
       #is a directory not a file
@@ -64,7 +64,7 @@ describe Command do
       expect(command.valid?).to eq(false)
 
       #exists and is executable and is a file
-      command = Command.new('/bin/true')
+      command = Command.new('/usr/bin/true')
       expect(command.valid?).to eq(true)
     end
 
@@ -88,7 +88,7 @@ describe Command do
 
     it "can be used to construct a command string, which can be executed" do
       command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
-      expect(command.to_s).to eq("/bin/true -a -b index.tex blub.tex")
+      expect(command.to_s).to eq("/usr/bin/true -a -b index.tex blub.tex")
     end
 
     it "runs programms" do
@@ -395,7 +395,7 @@ describe Command do
     end
 
     it "raises an error if command does not exist" do
-      command = Command.new('/usr/bin/true', lib_log_level: :silent)
+      command = Command.new('/usr/bin/does_not_exist', lib_log_level: :silent)
       expect{command.send(:check_path)}.to raise_error CommandNotFound
     end
 
