@@ -3,10 +3,10 @@
 require 'spec_helper'
 
 describe Command do
-  let(:logger) {Logger.new(StringIO.new)}
+  let(:lib_logger) {Logger.new(StringIO.new)}
   #let(:logger) {Logger.new($stdout)}
   let(:lib_log_level) {:info}
-  let(:command) { Command.new(:echo , :logger => logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
+  let(:command) { Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
 
   context :public_api do
     test_dir = File.expand_path('test_data', File.dirname(__FILE__))
@@ -104,8 +104,8 @@ describe Command do
 
     it "is very verbose and returns a lot of output" do
       bucket = StringIO.new
-      logger = Logger.new(bucket)
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :lib_log_level => :debug)
+      lib_logger = Logger.new(bucket)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :debug)
 
       expect(bucket.string['DEBUG']).to_not eq(nil)
     end
@@ -113,41 +113,41 @@ describe Command do
     it "is silent and returns no output" do
       # if you choose the system runner output of commands will be not suppressed"
       bucket = StringIO.new
-      logger = Logger.new(bucket)
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :lib_log_level => :silent)
+      lib_logger = Logger.new(bucket)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :silent)
 
       expect(bucket.string).to eq("")
     end
 
     it "supports other log levels as well" do
       bucket = StringIO.new
-      logger = Logger.new(bucket)
+      lib_logger = Logger.new(bucket)
 
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :lib_log_level => :info)
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :lib_log_level => :warn)
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :lib_log_level => :error)
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :lib_log_level => :fatal)
-      Command.execute(:echo, :logger => logger ,:parameter => "output", :lib_log_level => :unknown)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :info)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :warn)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :error)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :fatal)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :unknown)
     end
 
     it "use a log file if given" do
       application_log_file = create_temp_file_with('command_exec_test', 'TEXT IN LOG') 
 
       bucket = StringIO.new
-      logger = Logger.new(bucket)
+      lib_logger = Logger.new(bucket)
 
       command = Command.new(:logger_test ,
-                            :logger => logger ,
+                            :lib_logger => lib_logger ,
                             :log_file => application_log_file ,
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
     end
 
     it "outputs only warnings when told to output those" do
       bucket = StringIO.new
-      logger = Logger.new(bucket)
+      lib_logger = Logger.new(bucket)
 
       command = Command.new(:logger_test ,
-                            :logger => logger ,
+                            :lib_logger => lib_logger ,
                             :lib_log_level => :warn,
                             :log_file => '/tmp/i_do_not_exist.log',
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run

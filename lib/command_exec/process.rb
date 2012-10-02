@@ -7,7 +7,7 @@ module CommandExec
 
     def initialize(options={})
       @options = {
-        logger: Logger.new($stderr),
+        lib_logger: Logger.new($stderr),
         stderr: [],
         stdout: [],
         output: [],
@@ -17,7 +17,7 @@ module CommandExec
         status: :success,
       }.merge options
 
-      @logger = @options[:logger]
+      @logger = @options[:lib_logger]
 
       @stderr = @options[:stderr]
       @stdout = @options[:stdout]

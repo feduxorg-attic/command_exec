@@ -16,9 +16,11 @@ module CommandExec
     # @param [optional,Hash] opts 
     #   options for the command
     #
-    # @option opts [String] :options 
+    # @option opts [String] :lib_logger
+    #   logger
     #   options for binary
     #
+    # @option 
     # @option opts [String] :parameter parameter for binary
     # @option opts [String] :parameter parameter for binary
     # @option opts [optional,Hash] :error_indicators indicating an error while execution of command 
@@ -30,7 +32,6 @@ module CommandExec
 
       @name = name
       @opts = {
-        :logger => Logger.new($stderr),
         :options => '',
         :parameter => '',
         :working_directory => Dir.pwd,
@@ -52,10 +53,11 @@ module CommandExec
         },
         :on_error_do => :return_process_information,
         :run_via => :open3,
+        :lib_logger => Logger.new($stderr),
         :lib_log_level => :info,
       }.deep_merge opts
 
-      @logger = @opts[:logger] 
+      @logger = @opts[:lib_logger] 
       configure_logging 
 
       @logger.debug @opts
@@ -181,7 +183,7 @@ module CommandExec
     # Run the program
     #
     def run
-      process = CommandExec::Process.new(:logger => @logger)
+      process = CommandExec::Process.new(:lib_logger => @logger)
       process.log_file = @log_file if @log_file
       process.status = :success
 
