@@ -1,14 +1,46 @@
 # encoding: utf-8
 
+#Main
 module CommandExec
+  #Formatting output
   module Formatter
+    #Style array
     class Array
 
+      # @!attribute [r] output
+      #   return the formatted output
       attr_reader :output
+      # @!attribute [w] logger
+      #   set the logger after object creation
       attr_writer :logger
 
-    public
-
+      # Create new array formatter
+      # 
+      # @param [Hash] options
+      #   Options for formatter
+      #
+      # @option options [Hash] :headers
+      #   It is used to configure how the headers will be formatted
+      #
+      #   There are several sub-options:
+      #
+      #   * :names  [Hash]: What should be output as name for the header
+      #     * :status [String]: 'STATUS'
+      #     * :return_code [String]: 'RETURN CODE'
+      #     * :log_file [String]: 'LOG FILE'
+      #     * :stderr [String]: 'STDERR'
+      #     * :stdout [String]: 'STDOUT'
+      #     * :pid [String]: 'PID'
+      #     * :reason\_for\_failure [String]: 'REASON FOR FAILURE'
+      #   * :prefix [String]: What is placed before the header ('=' * 5)
+      #   * :suffix [String]: What is placed after the header ('=' * 5)
+      #   * :halign [Symbol]: How to align the header: :center [default], :left, :right
+      #   * :show (Boolean): Should the header be shown (true)
+      #
+      # @option options [Symbol] :logger
+      #   Logger to output information. Needs to have the same interface like
+      #   the ruby `Logger`-class.
+      #   
       def initialize(options={})
         @options = {
           headers: {
@@ -26,12 +58,10 @@ module CommandExec
             halign: :center,
             show: true,
           },
-          color_set: :success,
           logger: Logger.new($stdout),
         }.deep_merge options
 
         @headers_options = @options[:headers]
-        @color_set = @options[:success]
         @logger = @options[:logger]
 
         @log_file = []
@@ -43,24 +73,44 @@ module CommandExec
         @reason_for_failure = []
       end
 
+      # Set the content of the log file
+      #
+      # @param content [Array,String]
+      #   The content of log file
       def log_file(*content)
         @log_file += content.flatten
       end
 
-      def return_code(*content)
-        @return_code += content.flatten
+      # Set the return code of the command
+      #
+      # @param value [Array,String]
+      #   Set the return code(s) of the command. 
+      def return_code(value)
+        @return_code[0] = value.to_s
+
+        @return_code
       end
 
+      # Set the content of stdout
+      #
+      # @param content [Array,String]
+      #   The content of stdout
       def stdout(*content)
         @stdout += content.flatten
       end
 
+      # Set the content of stderr
+      #
+      # @param content [Array,String]
+      #   The content of stderr
       def stderr(*content)
         @stderr += content.flatten
       end
 
       def pid(value)
         @pid[0] = value.to_s
+
+        @pid
       end
 
       def reason_for_failure(*content)

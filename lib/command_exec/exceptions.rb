@@ -12,7 +12,7 @@ module CommandExec
     # is not flagged as executable
     #
     # @example Counter measure for this error
-    # chmod +x <executable>
+    #   chmod +x <executable>
     class CommandNotExecutable < RuntimeError; end
     
     # Class used to indicate that a command 
