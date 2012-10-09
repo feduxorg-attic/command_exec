@@ -110,7 +110,7 @@ module CommandExec
           :allowed_words_in_log_file => [],
           :forbidden_words_in_log_file => [],
         },
-        :on_error_do => :return_process_information,
+        :on_error_do => :nothing,
         :run_via => :open3,
         :lib_logger => Logger.new($stderr),
         :lib_log_level => :info,
