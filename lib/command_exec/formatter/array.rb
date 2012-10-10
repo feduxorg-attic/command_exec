@@ -77,14 +77,18 @@ module CommandExec
       #
       # @param content [Array,String]
       #   The content of log file
+      #
+      # @return [Array] the content of the log file
       def log_file(*content)
         @log_file += content.flatten
       end
 
       # Set the return code of the command
       #
-      # @param value [Array,String]
+      # @param value [Integer,String]
       #   Set the return code(s) of the command. 
+      #
+      # @return [Array] the return code
       def return_code(value)
         @return_code[0] = value.to_s
 
@@ -95,6 +99,8 @@ module CommandExec
       #
       # @param content [Array,String]
       #   The content of stdout
+      #
+      # @return [Array]
       def stdout(*content)
         @stdout += content.flatten
       end
@@ -103,21 +109,43 @@ module CommandExec
       #
       # @param content [Array,String]
       #   The content of stderr
+      #
+      # @return [Array]
       def stderr(*content)
         @stderr += content.flatten
       end
 
+      # Set the pid of the command
+      #
+      # @param value [Integer,String]
+      #   Set the pid of the command. 
+      #
+      # @return [Array]
       def pid(value)
         @pid[0] = value.to_s
 
         @pid
       end
 
+      # Set the reason for failure
+      #
+      # @param content [Array, String] 
+      #   Set the reason for failure.
+      #
+      # @return [Array]
       def reason_for_failure(*content)
         @reason_for_failure += content.flatten
       end
 
-
+      # Set the status of the command
+      #
+      # param [String,Symbol] value
+      #   Set the status of the command based on input.
+      #
+      # @return [Array] 
+      #   the formatted status. It returns `OK` in bold and green if status is
+      #   `:success` and `FAILED` in bold and red if status is `:failed`.
+      #
       def status(value)
         case value.to_s
         when 'success'
@@ -131,67 +159,69 @@ module CommandExec
         @status
       end
 
-    private 
+  private 
 
-      def max_header_length
-        @max_header_length ||= @headers_options[:names].values.inject(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
+    # Get the maximum length over all headers
+    #
+    def max_header_length
+      @max_header_length ||= @headers_options[:names].values.inject(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
+    end
+
+    def halign(name, max_length, orientation)
+      case orientation
+      when :center
+        name.center(max_length)
+      when :left
+        name.ljust(max_length)
+      when :right
+        name.rjust(max_length)
+      else
+        name.center(max_length)
+      end
+    end
+
+    def format_header(header,options={})
+      opts = @headers_options.deep_merge options
+
+      output=""
+      unless opts[:names][header] == ""
+        output += "#{opts[:prefix]} " unless opts[:prefix].blank?
+        output += halign(opts[:names][header], max_header_length, opts[:halign])
+        output += " #{opts[:suffix]}" unless opts[:suffix].blank?
       end
 
-      def halign(name, max_length, orientation)
-        case orientation
-        when :center
-          name.center(max_length)
-        when :left
-          name.ljust(max_length)
-        when :right
-          name.rjust(max_length)
-        else
-          name.center(max_length)
-        end
+      output
+    end
+
+    def prepare_output(fields=[])
+      out = []
+      fields = fields.flatten
+
+      avail_fields = {
+        :status => @status,
+        :return_code => @return_code,
+        :stderr => @stderr,
+        :stdout => @stdout,
+        :log_file => @log_file,
+        :pid => @pid,
+        :reason_for_failure => @reason_for_failure,
+      }
+
+      fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
+
+      fields.each do |var|
+        out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
+        out += avail_fields[var] if avail_fields.has_key?(var)
       end
 
-      def format_header(header,options={})
-        opts = @headers_options.deep_merge options
-
-        output=""
-        unless opts[:names][header] == ""
-          output += "#{opts[:prefix]} " unless opts[:prefix].blank?
-          output += halign(opts[:names][header], max_header_length, opts[:halign])
-          output += " #{opts[:suffix]}" unless opts[:suffix].blank?
-        end
-
-        output
-      end
-
-      def prepare_output(fields=[])
-        out = []
-        fields = fields.flatten
-
-        avail_fields = {
-          :status => @status,
-          :return_code => @return_code,
-          :stderr => @stderr,
-          :stdout => @stdout,
-          :log_file => @log_file,
-          :pid => @pid,
-          :reason_for_failure => @reason_for_failure,
-        }
-
-        fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
-
-        fields.each do |var|
-          out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
-          out += avail_fields[var] if avail_fields.has_key?(var)
-        end
-
-        out
-      end
+      out
+    end
 
     public
 
-      def output(*fields)
-        prepare_output(fields.flatten)
-      end
+    def output(*fields)
+      prepare_output(fields.flatten)
+    end
     end
   end
 end
