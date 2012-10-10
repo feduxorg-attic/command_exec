@@ -10,10 +10,7 @@ unless ENV['TRAVIS_CI'] == 'true'
   require 'active_support/core_ext/string/strip'
 end
 
-YARD::Rake::YardocTask.new do |t|
-  t.files   = ['lib/**/*.rb', 'README.md', 'LICENCE.md']
-  t.options = ['--output-dir=doc/yard', '--markup-provider=redcarpet', '--markup=markdown' ]
-end
+YARD::Rake::YardocTask.new do; end
 
 desc 'start tmux'
 task :terminal do

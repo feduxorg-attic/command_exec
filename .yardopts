@@ -1,0 +1,8 @@
+--output-dir=doc/yard
+--markup-provider=redcarpet
+--markup=markdown
+--tag throw:Throw
+lib/**/*.rb
+-
+README.md
+LICENSE.md
