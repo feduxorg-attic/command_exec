@@ -24,4 +24,5 @@ require 'command_exec/exceptions'
 require 'command_exec/command'
 require 'command_exec/process'
 
+#Main
 module CommandExec; end

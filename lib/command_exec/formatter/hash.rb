@@ -1,7 +1,10 @@
 #encoding: utf-8
 
+#Main
 module CommandExec
+  #Formatting output
   module Formatter
+    #Style hash
     class Hash
 
       # @!attribute [r] output
