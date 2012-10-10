@@ -85,7 +85,7 @@ module CommandExec
 
       # Set the return code of the command
       #
-      # @param value [Integer,String]
+      # @param value [Number,String]
       #   Set the return code(s) of the command. 
       #
       # @return [Array] the return code
@@ -117,7 +117,7 @@ module CommandExec
 
       # Set the pid of the command
       #
-      # @param value [Integer,String]
+      # @param value [Number,String]
       #   Set the pid of the command. 
       #
       # @return [Array]
@@ -159,69 +159,108 @@ module CommandExec
         @status
       end
 
-  private 
+      private 
 
-    # Get the maximum length over all headers
-    #
-    def max_header_length
-      @max_header_length ||= @headers_options[:names].values.inject(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
-    end
-
-    def halign(name, max_length, orientation)
-      case orientation
-      when :center
-        name.center(max_length)
-      when :left
-        name.ljust(max_length)
-      when :right
-        name.rjust(max_length)
-      else
-        name.center(max_length)
-      end
-    end
-
-    def format_header(header,options={})
-      opts = @headers_options.deep_merge options
-
-      output=""
-      unless opts[:names][header] == ""
-        output += "#{opts[:prefix]} " unless opts[:prefix].blank?
-        output += halign(opts[:names][header], max_header_length, opts[:halign])
-        output += " #{opts[:suffix]}" unless opts[:suffix].blank?
+      # Get the maximum length over all headers
+      #
+      # @return [Number] the maxium header length
+      def max_header_length
+        @max_header_length ||= @headers_options[:names].values.inject(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
       end
 
-      output
-    end
-
-    def prepare_output(fields=[])
-      out = []
-      fields = fields.flatten
-
-      avail_fields = {
-        :status => @status,
-        :return_code => @return_code,
-        :stderr => @stderr,
-        :stdout => @stdout,
-        :log_file => @log_file,
-        :pid => @pid,
-        :reason_for_failure => @reason_for_failure,
-      }
-
-      fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
-
-      fields.each do |var|
-        out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
-        out += avail_fields[var] if avail_fields.has_key?(var)
+      # Align header names
+      #
+      # @param [String] name
+      #   the name which should be aligned
+      # 
+      # @param max_length [Number]
+      #   the maximum length which is used to align the name
+      #
+      # @param orientation [Symbol]
+      #   how to align the header name
+      #
+      # @return [String] the aligned header name
+      def halign(name, max_length, orientation)
+        case orientation
+        when :center
+          name.center(max_length)
+        when :left
+          name.ljust(max_length)
+        when :right
+          name.rjust(max_length)
+        else
+          name.center(max_length)
+        end
       end
 
-      out
-    end
+      # Format header but only if given header is defined.
+      #
+      # @param [Symbol] header
+      #   the name of the header. It has to be defined in opts[:names]
+      #
+      # @param [Hash] options
+      #   used to change format options like `prefix`, `suffix` etc. after the
+      #   creation of the `Formatter::Array`-object. Those options defined at the
+      #   creation of the `Formatter`-object are default and can be overwritten 
+      #   using this `Hash`.
+      #
+      # @return [String] the formatted header
+      def format_header(header,options={})
+        opts = @headers_options.deep_merge options
 
-    public
+        output=""
+        unless opts[:names][header] == ""
+          output += "#{opts[:prefix]} " unless opts[:prefix].blank?
+          output += halign(opts[:names][header], max_header_length, opts[:halign])
+          output += " #{opts[:suffix]}" unless opts[:suffix].blank?
+        end
 
-    def output(*fields)
-      prepare_output(fields.flatten)
-    end
+        output
+      end
+
+      # Build the data structure for output
+      #
+      # @param [Array] fields
+      #   which fields should be outputted
+      #
+      # @return [Array] 
+      #   the formatted output
+      def prepare_output(fields=[])
+        out = []
+        fields = fields.flatten
+
+        avail_fields = {
+          :status => @status,
+          :return_code => @return_code,
+          :stderr => @stderr,
+          :stdout => @stdout,
+          :log_file => @log_file,
+          :pid => @pid,
+          :reason_for_failure => @reason_for_failure,
+        }
+
+        fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
+
+        fields.each do |var|
+          out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
+          out += avail_fields[var] if avail_fields.has_key?(var)
+        end
+
+        out
+      end
+
+      public
+
+      # Output the prepared output
+      #
+      # @param [Array,Symbol) fields
+      #   the fields which should be outputted
+      #
+      # @return [Array] 
+      #   the formatted output
+      def output(*fields)
+        prepare_output(fields.flatten)
+      end
     end
   end
 end

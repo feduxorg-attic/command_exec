@@ -259,7 +259,7 @@ module CommandExec
     # @raise [CommandExec::Exceptions::CommandExecutionFailed] if an error
     #   occured and `command_exec` should raise an exception in the case of an
     #   error. 
-    # @raise [:command_execution_failed] if an error
+    # @throw [:command_execution_failed] if an error
     #   occured and `command_exec` should throw an error (which you can catch)
     #   in the case of an error
     def run
