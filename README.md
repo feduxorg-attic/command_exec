@@ -1,9 +1,7 @@
-command-exec(1) -- execute shell commands with ease
-===================================================
+# command-exec -- execute shell commands with ease
 
 [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/maxmeyer/command_exec)
 [![Build Status](https://secure.travis-ci.org/maxmeyer/command_exec.png)](http://travis-ci.org/maxmeyer/command_exec)
-
 
 ## <a name="introduction">Introduction</a>
 

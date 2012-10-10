@@ -23,14 +23,14 @@ describe Command do
       end
 
       Dir.chdir '/tmp/' do
-        command = Command.new('../usr/bin/true')
-        expect(command.path).to eq('/usr/bin/true')
+        command = Command.new('../bin/true')
+        expect(command.path).to eq('/bin/true')
       end
     end
 
     it 'searches $PATH to find the command' do 
       command = Command.new(:true)
-      expect(command.path).to eq("/usr/bin/true")
+      expect(command.path).to eq("/bin/true")
     end
 
     it 'offers an option to change $PATH for the command execution' do
@@ -39,7 +39,7 @@ describe Command do
     end
 
     it "checks if exec is executable" do
-      command = Command.new('/usr/bin/true')
+      command = Command.new('/bin/true')
       expect(command.executable?).to eq(true)
 
       command = Command.new('/etc/passwd')
@@ -47,7 +47,7 @@ describe Command do
     end
 
     it "checks if exec exists" do
-      command = Command.new('/usr/bin/true')
+      command = Command.new('/bin/true')
       expect(command.exists?).to eq(true)
 
       command = Command.new('/usr/bin/does_not_exist')
@@ -64,7 +64,7 @@ describe Command do
       expect(command.valid?).to eq(false)
 
       #exists and is executable and is a file
-      command = Command.new('/usr/bin/true')
+      command = Command.new('/bin/true')
       expect(command.valid?).to eq(true)
     end
 
@@ -88,7 +88,7 @@ describe Command do
 
     it "can be used to construct a command string, which can be executed" do
       command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
-      expect(command.to_s).to eq("/usr/bin/true -a -b index.tex blub.tex")
+      expect(command.to_s).to eq("/bin/true -a -b index.tex blub.tex")
     end
 
     it "runs programms" do
