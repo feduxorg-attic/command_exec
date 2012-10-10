@@ -1,7 +1,7 @@
 --output-dir=doc/yard
 --markup-provider=redcarpet
 --markup=markdown
---tag throw:Throw
+--type-tag throw:Throw
 lib/**/*.rb
 -
 README.md
