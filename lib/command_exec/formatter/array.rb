@@ -7,6 +7,8 @@ module CommandExec
     #Style array
     class Array
 
+      include FieldHelper
+
       # @!attribute [r] output
       #   return the formatted output
       attr_reader :output
@@ -44,22 +46,13 @@ module CommandExec
       def initialize(options={})
         @options = {
           headers: {
-            names: {
-              status:      'STATUS',
-              return_code: 'RETURN CODE',
-              log_file:    'LOG FILE',
-              stderr:      'STDERR',
-              stdout:      'STDOUT',
-              pid:         'PID',
-              reason_for_failure: 'REASON FOR FAILURE',
-            },
             prefix: '=' * 5,
             suffix: '=' * 5,
             halign: :center,
             show: true,
           },
           logger: Logger.new($stdout),
-        }.deep_merge options
+        }.deep_merge(header_names.deep_merge(options))
 
         @headers_options = @options[:headers]
         @logger = @options[:logger]
@@ -229,21 +222,11 @@ module CommandExec
         out = []
         fields = fields.flatten
 
-        avail_fields = {
-          :status => @status,
-          :return_code => @return_code,
-          :stderr => @stderr,
-          :stdout => @stdout,
-          :log_file => @log_file,
-          :pid => @pid,
-          :reason_for_failure => @reason_for_failure,
-        }
-
-        fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
+        fields = default_fields if fields.blank?
 
         fields.each do |var|
-          out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
-          out += avail_fields[var] if avail_fields.has_key?(var)
+          out << format_header(var,@headers_options) if @headers_options[:show] = true and available_fields.has_key?(var)
+          out += available_fields[var] if available_fields.has_key?(var)
         end
 
         out
