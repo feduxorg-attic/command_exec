@@ -26,3 +26,4 @@ RSpec.configure do |c|
   c.include CommandExec::SpecHelper
 end
 
+#ENV['PATH'] = '/bin'

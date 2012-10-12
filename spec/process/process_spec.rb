@@ -108,7 +108,7 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
-      process.executable = '/usr/bin/true'
+      process.executable = '/bin/true'
 
       expect(process.to_a).to eq([
         "=====       STATUS       =====",
@@ -125,8 +125,8 @@ describe CommandExec::Process do
         "4711",
         "===== REASON FOR FAILURE =====",
         "great an error occured",
-        "===== EXECUTABLE         =====",
-        "/usr/bin/true",
+        "=====     EXECUTABLE     =====",
+        "/bin/true",
       ])
 
       expect(process.to_a(:status)).to eq([

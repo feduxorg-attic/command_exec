@@ -8,6 +8,16 @@ module CommandExec
     # Return the available header names
     #
     # @return [Hash] the names of the headers
+    #
+    #   * :status [String]: 'STATUS'
+    #   * :return_code [String]: 'RETURN CODE'
+    #   * :log_file [String]: 'LOG FILE'
+    #   * :stderr [String]: 'STDERR'
+    #   * :stdout [String]: 'STDOUT'
+    #   * :pid [String]: 'PID'
+    #   * :reason\_for\_failure [String]: 'REASON FOR FAILURE'
+    #   * :executable [String]: 'EXECUTABLE'
+    #
     def header_names
       {
         headers: {

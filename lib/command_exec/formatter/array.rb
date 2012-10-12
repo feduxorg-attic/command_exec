@@ -26,14 +26,7 @@ module CommandExec
       #
       #   There are several sub-options:
       #
-      #   * :names  [Hash]: What should be output as name for the header
-      #     * :status [String]: 'STATUS'
-      #     * :return_code [String]: 'RETURN CODE'
-      #     * :log_file [String]: 'LOG FILE'
-      #     * :stderr [String]: 'STDERR'
-      #     * :stdout [String]: 'STDOUT'
-      #     * :pid [String]: 'PID'
-      #     * :reason\_for\_failure [String]: 'REASON FOR FAILURE'
+      #   * :names  [Hash]: What should be output as name for the header (filled via deep_merge and FieldHelper-Module)
       #   * :prefix [String]: What is placed before the header ('=' * 5)
       #   * :suffix [String]: What is placed after the header ('=' * 5)
       #   * :halign [Symbol]: How to align the header: :center [default], :left, :right
@@ -46,6 +39,7 @@ module CommandExec
       def initialize(options={})
         @options = {
           headers: {
+            names: {}, 
             prefix: '=' * 5,
             suffix: '=' * 5,
             halign: :center,

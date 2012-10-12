@@ -186,18 +186,8 @@ module CommandExec
     #   the formatter which is used to format the output
     def output(*fields,formatter)
 
-      avail_fields = {
-        status: @status,
-        return_code: @return_code,
-        stderr: @stderr,
-        stdout: @stdout,
-        log_file: @log_file,
-        pid: @pid,
-        reason_for_failure: @reason_for_failure,
-      } 
-
       fields.flatten.each do |f|
-        formatter.public_send(f, avail_fields[f])
+        formatter.public_send(f, available_fields[f])
       end
 
       formatter.output(fields.flatten)
