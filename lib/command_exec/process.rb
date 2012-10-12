@@ -71,6 +71,7 @@ module CommandExec
         return_code: nil,
         reason_for_failure: [],
         status: :success,
+        executable: nil,
       }.merge options
 
       @logger = @options[:lib_logger]
@@ -82,6 +83,7 @@ module CommandExec
       @pid = @options[:pid]
       @reason_for_failure = @options[:reason_for_failure]
       @return_code = @options[:return_code]
+      @executable = @options[:executable]
     end
 
     # Set the name of the log file
@@ -163,6 +165,14 @@ module CommandExec
     #   the exit status of the command 
     def return_code=(value)
       @return_code = value
+    end
+    
+    # Set the path to the executable
+    #
+    # @param [Number,String] value
+    #   the path to the executable of the command 
+    def executable=(value)
+      @executable = value
     end
 
     private 

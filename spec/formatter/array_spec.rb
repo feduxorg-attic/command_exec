@@ -131,6 +131,7 @@ describe Formatter::Array do
       @formatter.status(:failed)
       @formatter.pid(4711)
       @formatter.reason_for_failure('great an error occured')
+      @formatter.executable('/usr/bin/true')
 
       expect(@formatter.output(:stderr)).to eq([
         "=====       STDERR       =====",
@@ -150,7 +151,9 @@ describe Formatter::Array do
         "=====        PID         =====",
         '4711',
         "===== REASON FOR FAILURE =====",
-        'great an error occured'
+        'great an error occured',
+        "=====     EXECUTABLE     =====",
+        "/usr/bin/true",
       ])
       expect(@formatter.output(:stdout,:stderr)).to eq([
         "=====       STDOUT       =====",

@@ -64,6 +64,7 @@ module CommandExec
         @status = []
         @pid = []
         @reason_for_failure = []
+        @executable = []
       end
 
       # Set the content of the log file
@@ -151,6 +152,17 @@ module CommandExec
 
         @status
       end
+      
+      # Set the path to the executable of the command
+      #
+      # @param [String] value
+      #  the path to the executable
+      #
+      # @return [Array]
+      #   the executable
+      def executable(value)
+        @executable[0] = value
+      end
 
       private 
 
@@ -174,6 +186,9 @@ module CommandExec
       #
       # @return [String] the aligned header name
       def halign(name, max_length, orientation)
+
+        name = name.to_s
+
         case orientation
         when :center
           name.center(max_length)

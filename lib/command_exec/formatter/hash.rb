@@ -40,6 +40,7 @@ module CommandExec
         @status = []
         @pid = []
         @reason_for_failure = []
+        @executable = []
       end
 
       # Set the content of the log file
@@ -126,6 +127,17 @@ module CommandExec
         end
 
         @status
+      end
+
+      # Set the path to the executable of the command
+      #
+      # @param [String] value
+      #  the path to the executable
+      #
+      # @return [Array]
+      #   the executable
+      def executable(value)
+        @executable[0] = value
       end
 
       private
