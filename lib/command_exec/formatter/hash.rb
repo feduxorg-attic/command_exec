@@ -7,6 +7,8 @@ module CommandExec
     #Style hash
     class Hash
 
+      include FieldHelper
+
       # @!attribute [r] output
       #   return the formatted output
       attr_reader :output
@@ -38,6 +40,7 @@ module CommandExec
         @status = []
         @pid = []
         @reason_for_failure = []
+        @executable = []
       end
 
       # Set the content of the log file
@@ -126,6 +129,17 @@ module CommandExec
         @status
       end
 
+      # Set the path to the executable of the command
+      #
+      # @param [String] value
+      #  the path to the executable
+      #
+      # @return [Array]
+      #   the executable
+      def executable(value)
+        @executable[0] = value
+      end
+
       private
 
       # Build the data structure for output
@@ -138,20 +152,10 @@ module CommandExec
       def prepare_output(fields=[])
         out = {}
 
-        avail_fields = {
-          :status => @status,
-          :return_code => @return_code,
-          :stderr => @stderr,
-          :stdout => @stdout,
-          :log_file => @log_file,
-          :pid => @pid,
-          :reason_for_failure => @reason_for_failure,
-        }
-
-        fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
+        fields = default_fields if fields.blank?
 
         fields.each do |f|
-          out[f] = avail_fields[f] if avail_fields.has_key?(f)
+          out[f] = available_fields[f] if available_fields.has_key?(f)
         end
 
         out

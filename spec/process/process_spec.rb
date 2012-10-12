@@ -108,6 +108,7 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
+      process.executable = '/bin/true'
 
       expect(process.to_a).to eq([
         "=====       STATUS       =====",
@@ -124,6 +125,8 @@ describe CommandExec::Process do
         "4711",
         "===== REASON FOR FAILURE =====",
         "great an error occured",
+        "=====     EXECUTABLE     =====",
+        "/bin/true",
       ])
 
       expect(process.to_a(:status)).to eq([
@@ -143,6 +146,7 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
+      process.executable = '/usr/bin/true'
 
       expect(process.to_h).to eq({ 
         stderr: ["output of stderr"],
@@ -152,6 +156,7 @@ describe CommandExec::Process do
         status: ['FAILED'],
         pid: ['4711'],
         reason_for_failure: ['great an error occured'],
+        executable: ['/usr/bin/true'],
       })
     end
 
@@ -165,6 +170,7 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
+      process.executable = '/usr/bin/true'
 
       expect(process.to_s).to eq([
         "=====       STATUS       =====",
@@ -181,6 +187,8 @@ describe CommandExec::Process do
         "4711",
         "===== REASON FOR FAILURE =====",
         "great an error occured",
+        "===== EXECUTABLE         =====",
+        "/usr/bin/true",
       ].join("\n")
                                 )
     end
@@ -195,8 +203,9 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
+      process.executable = '/usr/bin/true'
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"]}")
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"]}")
     end
 
     it 'returns a json encoded string and supports unicode as well' do
@@ -209,8 +218,9 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
+      process.executable = '/usr/bin/true'
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"]}")
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"]}")
     end
 
     it 'returns a yaml encoded string' do
@@ -223,8 +233,9 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
+      process.executable = '/usr/bin/true'
 
-      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n")
+      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n:executable:\n- /usr/bin/true\n")
     end
 
     it 'returns a xml encoded string' do
@@ -237,10 +248,9 @@ describe CommandExec::Process do
       process.status = :failed
       process.pid = 4711
       process.reason_for_failure = 'great an error occured'
+      process.executable = '/usr/bin/true'
 
-      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n</command>\n")
+      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n  <executable>/usr/bin/true</executable>\n</command>\n")
     end
-
   end
-
 end

@@ -7,6 +7,8 @@ module CommandExec
     #Style array
     class Array
 
+      include FieldHelper
+
       # @!attribute [r] output
       #   return the formatted output
       attr_reader :output
@@ -24,14 +26,7 @@ module CommandExec
       #
       #   There are several sub-options:
       #
-      #   * :names  [Hash]: What should be output as name for the header
-      #     * :status [String]: 'STATUS'
-      #     * :return_code [String]: 'RETURN CODE'
-      #     * :log_file [String]: 'LOG FILE'
-      #     * :stderr [String]: 'STDERR'
-      #     * :stdout [String]: 'STDOUT'
-      #     * :pid [String]: 'PID'
-      #     * :reason\_for\_failure [String]: 'REASON FOR FAILURE'
+      #   * :names  [Hash]: What should be output as name for the header (filled via deep_merge and FieldHelper-Module)
       #   * :prefix [String]: What is placed before the header ('=' * 5)
       #   * :suffix [String]: What is placed after the header ('=' * 5)
       #   * :halign [Symbol]: How to align the header: :center [default], :left, :right
@@ -44,22 +39,14 @@ module CommandExec
       def initialize(options={})
         @options = {
           headers: {
-            names: {
-              status:      'STATUS',
-              return_code: 'RETURN CODE',
-              log_file:    'LOG FILE',
-              stderr:      'STDERR',
-              stdout:      'STDOUT',
-              pid:         'PID',
-              reason_for_failure: 'REASON FOR FAILURE',
-            },
+            names: {}, 
             prefix: '=' * 5,
             suffix: '=' * 5,
             halign: :center,
             show: true,
           },
           logger: Logger.new($stdout),
-        }.deep_merge options
+        }.deep_merge(header_names.deep_merge(options))
 
         @headers_options = @options[:headers]
         @logger = @options[:logger]
@@ -71,6 +58,7 @@ module CommandExec
         @status = []
         @pid = []
         @reason_for_failure = []
+        @executable = []
       end
 
       # Set the content of the log file
@@ -158,6 +146,17 @@ module CommandExec
 
         @status
       end
+      
+      # Set the path to the executable of the command
+      #
+      # @param [String] value
+      #  the path to the executable
+      #
+      # @return [Array]
+      #   the executable
+      def executable(value)
+        @executable[0] = value
+      end
 
       private 
 
@@ -181,6 +180,9 @@ module CommandExec
       #
       # @return [String] the aligned header name
       def halign(name, max_length, orientation)
+
+        name = name.to_s
+
         case orientation
         when :center
           name.center(max_length)
@@ -229,21 +231,11 @@ module CommandExec
         out = []
         fields = fields.flatten
 
-        avail_fields = {
-          :status => @status,
-          :return_code => @return_code,
-          :stderr => @stderr,
-          :stdout => @stdout,
-          :log_file => @log_file,
-          :pid => @pid,
-          :reason_for_failure => @reason_for_failure,
-        }
-
-        fields = [:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure] if fields.blank?
+        fields = default_fields if fields.blank?
 
         fields.each do |var|
-          out << format_header(var,@headers_options) if @headers_options[:show] = true and avail_fields.has_key?(var)
-          out += avail_fields[var] if avail_fields.has_key?(var)
+          out << format_header(var,@headers_options) if @headers_options[:show] = true and available_fields.has_key?(var)
+          out += available_fields[var] if available_fields.has_key?(var)
         end
 
         out

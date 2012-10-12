@@ -5,6 +5,9 @@ module CommandExec
   # The class used to save the data about
   # the executed command
   class Process
+
+    include FieldHelper
+
     # @!attribute [rw] executable
     #   Set/Get the executable of the command
     attr_accessor :executable 
@@ -68,6 +71,7 @@ module CommandExec
         return_code: nil,
         reason_for_failure: [],
         status: :success,
+        executable: nil,
       }.merge options
 
       @logger = @options[:lib_logger]
@@ -79,6 +83,7 @@ module CommandExec
       @pid = @options[:pid]
       @reason_for_failure = @options[:reason_for_failure]
       @return_code = @options[:return_code]
+      @executable = @options[:executable]
     end
 
     # Set the name of the log file
@@ -161,6 +166,14 @@ module CommandExec
     def return_code=(value)
       @return_code = value
     end
+    
+    # Set the path to the executable
+    #
+    # @param [Number,String] value
+    #   the path to the executable of the command 
+    def executable=(value)
+      @executable = value
+    end
 
     private 
 
@@ -173,18 +186,8 @@ module CommandExec
     #   the formatter which is used to format the output
     def output(*fields,formatter)
 
-      avail_fields = {
-        status: @status,
-        return_code: @return_code,
-        stderr: @stderr,
-        stdout: @stdout,
-        log_file: @log_file,
-        pid: @pid,
-        reason_for_failure: @reason_for_failure,
-      } 
-
       fields.flatten.each do |f|
-        formatter.public_send(f, avail_fields[f])
+        formatter.public_send(f, available_fields[f])
       end
 
       formatter.output(fields.flatten)
@@ -199,7 +202,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::Array.new)
     #   the formatter which is used the format the output
-    def to_a(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::Array.new)
+    def to_a(fields=default_fields, formatter=Formatter::Array.new)
       output(fields, formatter)
     end
 
@@ -210,7 +213,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::Hash.new)
     #   the formatter which is used the format the output
-    def to_h(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::Hash.new)
+    def to_h(fields=default_fields, formatter=Formatter::Hash.new)
       output(fields, formatter)
     end
 
@@ -221,7 +224,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::String.new)
     #   the formatter which is used the format the output
-    def to_s(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::String.new)
+    def to_s(fields=default_fields, formatter=Formatter::String.new)
       output(fields, formatter)
     end
 
@@ -232,7 +235,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::XML.new)
     #   the formatter which is used the format the output
-    def to_xml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::XML.new)
+    def to_xml(fields=default_fields, formatter=Formatter::XML.new)
       output(fields, formatter)
     end
 
@@ -243,7 +246,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::JSON.new)
     #   the formatter which is used the format the output
-    def to_json(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::JSON.new)
+    def to_json(fields=default_fields, formatter=Formatter::JSON.new)
       output(fields, formatter)
     end
 
@@ -254,7 +257,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::YAML.new)
     #   the formatter which is used the format the output
-    def to_yaml(fields=[:status,:return_code,:stderr,:stdout,:log_file,:pid,:reason_for_failure], formatter=Formatter::YAML.new)
+    def to_yaml(fields=default_fields, formatter=Formatter::YAML.new)
       output(fields, formatter)
     end
   end
