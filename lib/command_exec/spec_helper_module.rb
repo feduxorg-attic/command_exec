@@ -26,6 +26,29 @@ module CommandExec
       $stdout = previous_stdout
     end
 
+    # Manipulate environment for the given block
+    #
+    # @param [Hash] env
+    #   The environment for the block which should
+    #   be merged with ENV
+    #
+    # @param [Hash] options
+    #   Options for environment manipulation
+    #
+    # @option options [True,False] :clear
+    #   Should the environment clear before merge? 
+    #
+    # @yield Block which should be executed
+    def environment(env={},options={},&block)
+      previous_environment, environment = ENV.to_hash, env
+      ENV.clear if options[:clear] == true
+      ENV.update(environment)
+      block.call
+    ensure
+      ENV.clear
+      ENV.update previous_environment
+    end
+
     # Create temporary files for testing
     # (which will be deleted when the
     # ruby process terminates)
