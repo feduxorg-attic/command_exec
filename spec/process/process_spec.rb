@@ -212,7 +212,7 @@ describe CommandExec::Process do
         "4711",
         "===== REASON FOR FAILURE =====",
         "great an error occured",
-        "===== EXECUTABLE         =====",
+        "=====     EXECUTABLE     =====",
         "/usr/bin/true",
       ].join("\n")
                                 )
