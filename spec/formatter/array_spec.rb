@@ -132,6 +132,10 @@ describe Formatter::Array do
       @formatter.pid(4711)
       @formatter.reason_for_failure('great an error occured')
       @formatter.executable('/usr/bin/true')
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      @formatter.start_time(start_time)
+      @formatter.end_time(end_time)
 
       expect(@formatter.output(:stderr)).to eq([
         "=====       STDERR       =====",
@@ -154,6 +158,10 @@ describe Formatter::Array do
         'great an error occured',
         "=====     EXECUTABLE     =====",
         "/usr/bin/true",
+        "=====     START TIME     =====",
+        "#{start_time}",
+        "=====     END TIME     =====",
+        "#{end_time}",
       ])
       expect(@formatter.output(:stdout,:stderr)).to eq([
         "=====       STDOUT       =====",

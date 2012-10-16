@@ -24,4 +24,5 @@ group :development do
   gem 'pry-doc'
   gem 'awesome_print'
   gem 'travis-lint'
+  gem 'activesupport'
 end

@@ -269,6 +269,8 @@ module CommandExec
 
       check_path
 
+      process.start_time = Time.now
+
       case @run_via
       when :open3
         Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
@@ -293,6 +295,8 @@ module CommandExec
           process.return_code = wait_thr.value.exitstatus
         end
       end
+
+      process.end_time = Time.now
 
         if @error_detection_on.include?(:return_code)
           if not @error_indicators[:allowed_return_code].include? process.return_code or 

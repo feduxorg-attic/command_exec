@@ -49,6 +49,8 @@ module CommandExec
         :pid => @pid,
         :reason_for_failure => @reason_for_failure,
         :executable => @executable,
+        :start_time => @start_time,
+        :end_time => @end_time,
       }
     end
 

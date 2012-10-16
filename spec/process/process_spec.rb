@@ -31,6 +31,31 @@ describe CommandExec::Process do
       expect(process.log_file).to eq([])
     end
 
+    it 'accepts a start time' do
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
+      time = Time.now
+      process.start_time = time
+
+      expect(process.start_time).to eq(time)
+    end
+
+    it 'accepts an end time' do
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
+      time = Time.now
+      process.end_time = time
+
+      expect(process.end_time).to eq(time)
+    end
+
+    it 'calculates the run time' do
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
+      time = Time.now
+      process.start_time = time
+      process.end_time = time + 2.seconds
+
+      expect(process.run_time).to eq(2.seconds)
+    end
+
     it "goes on with a warning, if log file doesn't exists" do
       file = '/tmp/test1234.txt'
       bucket = StringIO.new
@@ -252,5 +277,6 @@ describe CommandExec::Process do
 
       expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n  <executable>/usr/bin/true</executable>\n</command>\n")
     end
+
   end
 end
