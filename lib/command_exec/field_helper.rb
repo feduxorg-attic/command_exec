@@ -5,6 +5,24 @@ module CommandExec
   # Shared methods for fields
   module FieldHelper
 
+    # Initialize helper
+    #
+    # will be used from array and hash via super call although there's no
+    # inheritance.
+    # See for more information http://stackoverflow.com/questions/1645398/ruby-include-question
+    def initialize
+      @end_time = []
+      @executable = []
+      @log_file = []
+      @pid = []
+      @reason_for_failure = []
+      @return_code = []
+      @start_time = []
+      @status = []
+      @stderr = []
+      @stdout = []
+    end
+
     # Return the available header names
     #
     # @return [Hash] the names of the headers
@@ -22,14 +40,16 @@ module CommandExec
       {
         headers: {
           names: {
-            status:      'STATUS',
-            return_code: 'RETURN CODE',
-            log_file:    'LOG FILE',
-            stderr:      'STDERR',
-            stdout:      'STDOUT',
-            pid:         'PID',
+            status:       'STATUS',
+            return_code:  'RETURN CODE',
+            log_file:     'LOG FILE',
+            stderr:       'STDERR',
+            stdout:       'STDOUT',
+            pid:          'PID',
             reason_for_failure: 'REASON FOR FAILURE',
-            executable: 'EXECUTABLE',
+            executable:   'EXECUTABLE',
+            start_time:   'START TIME',
+            end_time:     'END TIME',
           },
         }
       }
