@@ -87,7 +87,151 @@ module CommandExec
        :pid,
        :reason_for_failure,
        :executable,
+       :start_time,
+       :end_time,
       ] 
+    end
+
+    # Set the content of the log file
+    #
+    # @param content [Array,String]
+    #   The content of log file
+    #
+    # @return [Array] the content of the log file
+    def log_file(*content)
+      @log_file += content.flatten
+    end
+
+    # Set the return code of the command
+    #
+    # @param value [Number,String]
+    #   Set the return code(s) of the command. 
+    #
+    # @return [Array] the return code
+    def return_code(value)
+      @return_code[0] = value.to_s
+
+      @return_code
+    end
+
+    # Set the content of stdout
+    #
+    # @param content [Array,String]
+    #   The content of stdout
+    #
+    # @return [Array]
+    def stdout(*content)
+      @stdout += content.flatten
+    end
+
+    # Set the content of stderr
+    #
+    # @param content [Array,String]
+    #   The content of stderr
+    #
+    # @return [Array]
+    def stderr(*content)
+      @stderr += content.flatten
+    end
+
+    # Set the pid of the command
+    #
+    # @param value [Number,String]
+    #   Set the pid of the command. 
+    #
+    # @return [Array]
+    def pid(value)
+      @pid[0] = value.to_s
+
+      @pid
+    end
+
+    # Set the reason for failure
+    #
+    # @param content [Array, String] 
+    #   Set the reason for failure.
+    #
+    # @return [Array]
+    def reason_for_failure(*content)
+      @reason_for_failure += content.flatten
+    end
+      
+    # Set the path to the executable of the command
+    #
+    # @param [String] value
+    #  the path to the executable
+    #
+    # @return [Array]
+    #   the executable
+    def executable(value)
+      @executable[0] = value
+    end
+    
+    # Set the status of the command
+    #
+    # @param [String,Symbol] value
+    #   Set the status of the command based on input.
+    #
+    # @param [Hash] options
+    #   Options for status
+    #
+    # @option options [True,False] :color
+    #   Should the output be colored
+    #
+    # @return [Array] 
+    #   the formatted status. It returns `OK` (in bold and green) if status is
+    #   `:success` and `FAILED` (in bold and red) if status is `:failed`.
+    #
+    def prepare_status(value,options={})
+
+      case value.to_s
+      when 'success'
+        @status[0] = message_success(color: options[:color])
+      when 'failed'
+        @status[0] = message_failure(color: options[:color])
+      else
+        @status[0] = message_failure(color: options[:color])
+      end
+
+      @status
+    end
+
+    # Returns the success message
+    #
+    # @param [Hash] options
+    #   options
+    #
+    # @option options [True,False] :color
+    #   should the message return in color
+    #
+    # @return [String] the message
+    def message_success(options={})
+      message = 'OK'
+
+      if options[:color] 
+        return message.green.bold
+      else
+        return message
+      end
+    end
+
+    # Returns the failure message
+    #
+    # @param [Hash] options
+    #   options
+    #
+    # @option options [True,False] :color
+    #   should the message return in color
+    #
+    # @return [String] the message
+    def message_failure(options)
+      message = 'FAILED'
+
+      if options[:color] 
+        return message.red.bold
+      else
+        return message
+      end
     end
   end
 end
