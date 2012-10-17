@@ -23,6 +23,8 @@ module CommandExec
       @stdout = []
     end
 
+    private
+
     # Return the available header names
     #
     # @return [Hash] the names of the headers
@@ -91,6 +93,75 @@ module CommandExec
        :end_time,
       ] 
     end
+    
+    # Set the status of the command
+    #
+    # @param [String,Symbol] value
+    #   Set the status of the command based on input.
+    #
+    # @param [Hash] options
+    #   Options for status
+    #
+    # @option options [True,False] :color
+    #   Should the output be colored
+    #
+    # @return [Array] 
+    #   the formatted status. It returns `OK` (in bold and green) if status is
+    #   `:success` and `FAILED` (in bold and red) if status is `:failed`.
+    #
+    def prepare_status(value,options={})
+
+      case value.to_s
+      when 'success'
+        @status[0] = message_success(color: options[:color])
+      when 'failed'
+        @status[0] = message_failure(color: options[:color])
+      else
+        @status[0] = message_failure(color: options[:color])
+      end
+
+      @status
+    end
+
+    # Returns the success message
+    #
+    # @param [Hash] options
+    #   options
+    #
+    # @option options [True,False] :color
+    #   should the message return in color
+    #
+    # @return [String] the message
+    def message_success(options={})
+      message = 'OK'
+
+      if options[:color] 
+        return message.green.bold
+      else
+        return message
+      end
+    end
+
+    # Returns the failure message
+    #
+    # @param [Hash] options
+    #   options
+    #
+    # @option options [True,False] :color
+    #   should the message return in color
+    #
+    # @return [String] the message
+    def message_failure(options)
+      message = 'FAILED'
+
+      if options[:color] 
+        return message.red.bold
+      else
+        return message
+      end
+    end
+
+    public
 
     # Set the content of the log file
     #
@@ -167,71 +238,26 @@ module CommandExec
       @executable[0] = value
     end
     
-    # Set the status of the command
+    # Set the start time of command execution 
     #
-    # @param [String,Symbol] value
-    #   Set the status of the command based on input.
+    # @param [Time] value
+    #  the start time  of command execution
     #
-    # @param [Hash] options
-    #   Options for status
-    #
-    # @option options [True,False] :color
-    #   Should the output be colored
-    #
-    # @return [Array] 
-    #   the formatted status. It returns `OK` (in bold and green) if status is
-    #   `:success` and `FAILED` (in bold and red) if status is `:failed`.
-    #
-    def prepare_status(value,options={})
-
-      case value.to_s
-      when 'success'
-        @status[0] = message_success(color: options[:color])
-      when 'failed'
-        @status[0] = message_failure(color: options[:color])
-      else
-        @status[0] = message_failure(color: options[:color])
-      end
-
-      @status
+    # @return [Array]
+    #   the start time
+    def start_time(value)
+      @start_time[0] = value
     end
-
-    # Returns the success message
+    
+    # Set the end time of command execution 
     #
-    # @param [Hash] options
-    #   options
+    # @param [Time] value
+    #  the end time  of command execution
     #
-    # @option options [True,False] :color
-    #   should the message return in color
-    #
-    # @return [String] the message
-    def message_success(options={})
-      message = 'OK'
-
-      if options[:color] 
-        return message.green.bold
-      else
-        return message
-      end
-    end
-
-    # Returns the failure message
-    #
-    # @param [Hash] options
-    #   options
-    #
-    # @option options [True,False] :color
-    #   should the message return in color
-    #
-    # @return [String] the message
-    def message_failure(options)
-      message = 'FAILED'
-
-      if options[:color] 
-        return message.red.bold
-      else
-        return message
-      end
+    # @return [Array]
+    #   the end time
+    def end_time(value)
+      @end_time[0] = value
     end
   end
 end
