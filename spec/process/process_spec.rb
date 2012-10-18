@@ -31,6 +31,31 @@ describe CommandExec::Process do
       expect(process.log_file).to eq([])
     end
 
+    it 'accepts a start time' do
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
+      time = Time.now
+      process.start_time = time
+
+      expect(process.start_time).to eq(time)
+    end
+
+    it 'accepts an end time' do
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
+      time = Time.now
+      process.end_time = time
+
+      expect(process.end_time).to eq(time)
+    end
+
+    it 'calculates the run time' do
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
+      time = Time.now
+      process.start_time = time
+      process.end_time = time + 2.seconds
+
+      expect(process.run_time).to eq(2.seconds)
+    end
+
     it "goes on with a warning, if log file doesn't exists" do
       file = '/tmp/test1234.txt'
       bucket = StringIO.new
@@ -110,9 +135,14 @@ describe CommandExec::Process do
       process.reason_for_failure = 'great an error occured'
       process.executable = '/bin/true'
 
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      process.start_time = start_time
+      process.end_time = end_time
+
       expect(process.to_a).to eq([
         "=====       STATUS       =====",
-        "\e[1;32mFAILED\e[0m",
+        "\e[1;31mFAILED\e[0m",
         "=====    RETURN CODE     =====",
         "output of return code",
         "=====       STDERR       =====",
@@ -127,11 +157,15 @@ describe CommandExec::Process do
         "great an error occured",
         "=====     EXECUTABLE     =====",
         "/bin/true",
+        "=====     START TIME     =====",
+        start_time,
+        "=====      END TIME      =====",
+        end_time,
       ])
 
       expect(process.to_a(:status)).to eq([
         "=====       STATUS       =====",
-        "\e[1;32mFAILED\e[0m",
+        "\e[1;31mFAILED\e[0m",
       ])
 
     end
@@ -148,6 +182,11 @@ describe CommandExec::Process do
       process.reason_for_failure = 'great an error occured'
       process.executable = '/usr/bin/true'
 
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      process.start_time = start_time
+      process.end_time = end_time
+
       expect(process.to_h).to eq({ 
         stderr: ["output of stderr"],
         stdout: ["output of stdout"],
@@ -157,6 +196,8 @@ describe CommandExec::Process do
         pid: ['4711'],
         reason_for_failure: ['great an error occured'],
         executable: ['/usr/bin/true'],
+        start_time: [ start_time ],
+        end_time: [ end_time],
       })
     end
 
@@ -172,9 +213,14 @@ describe CommandExec::Process do
       process.reason_for_failure = 'great an error occured'
       process.executable = '/usr/bin/true'
 
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      process.start_time = start_time
+      process.end_time = end_time
+
       expect(process.to_s).to eq([
         "=====       STATUS       =====",
-        "\e[1;32mFAILED\e[0m",
+        "\e[1;31mFAILED\e[0m",
         "=====    RETURN CODE     =====",
         "output of return code",
         "=====       STDERR       =====",
@@ -187,8 +233,12 @@ describe CommandExec::Process do
         "4711",
         "===== REASON FOR FAILURE =====",
         "great an error occured",
-        "===== EXECUTABLE         =====",
+        "=====     EXECUTABLE     =====",
         "/usr/bin/true",
+        "=====     START TIME     =====",
+        start_time,
+        "=====      END TIME      =====",
+        end_time,
       ].join("\n")
                                 )
     end
@@ -205,7 +255,12 @@ describe CommandExec::Process do
       process.reason_for_failure = 'great an error occured'
       process.executable = '/usr/bin/true'
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"]}")
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      process.start_time = start_time
+      process.end_time = end_time
+
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time}\"],\"end_time\":[\"#{end_time}\"]}")
     end
 
     it 'returns a json encoded string and supports unicode as well' do
@@ -220,7 +275,12 @@ describe CommandExec::Process do
       process.reason_for_failure = 'great an error occured'
       process.executable = '/usr/bin/true'
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"]}")
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      process.start_time = start_time
+      process.end_time = end_time
+
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time}\"],\"end_time\":[\"#{end_time}\"]}")
     end
 
     it 'returns a yaml encoded string' do
@@ -235,7 +295,12 @@ describe CommandExec::Process do
       process.reason_for_failure = 'great an error occured'
       process.executable = '/usr/bin/true'
 
-      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n:executable:\n- /usr/bin/true\n")
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      process.start_time = start_time
+      process.end_time = end_time
+
+      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n:executable:\n- /usr/bin/true\n:start_time:\n- #{start_time.strftime("%Y-%m-%d %H:%M:%S.%9N %:z")}\n:end_time:\n- #{end_time.strftime("%Y-%m-%d %H:%M:%S.%9N %:z")}\n")
     end
 
     it 'returns a xml encoded string' do
@@ -250,7 +315,13 @@ describe CommandExec::Process do
       process.reason_for_failure = 'great an error occured'
       process.executable = '/usr/bin/true'
 
-      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n  <executable>/usr/bin/true</executable>\n</command>\n")
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      process.start_time = start_time
+      process.end_time = end_time
+
+      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n  <executable>/usr/bin/true</executable>\n  <start_time>#{start_time}</start_time>\n  <end_time>#{end_time}</end_time>\n</command>\n")
     end
+
   end
 end

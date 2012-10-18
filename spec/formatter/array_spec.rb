@@ -97,19 +97,19 @@ describe Formatter::Array do
     end
 
     it "outputs status" do
-      expect(@formatter.status(:failed)).to eq([ "\e[1;32mFAILED\e[0m"])
+      expect(@formatter.status(:failed)).to eq(["\e[1;31mFAILED\e[0m"])
       expect(@formatter.status(:success)).to eq(["\e[1;32mOK\e[0m"])
-      expect(@formatter.status(:unknown)).to eq([ "\e[1;32mFAILED\e[0m"])
+      expect(@formatter.status(:unknown)).to eq(["\e[1;31mFAILED\e[0m"])
     end
 
     it "outputs status as single value (no data is appended)" do
       @formatter.status(:success)
       @formatter.status(:failed)
-      expect(@formatter.output(:status)).to eq(["=====       STATUS       =====", "\e[1;32mFAILED\e[0m"])
+      expect(@formatter.output(:status)).to eq(["=====       STATUS       =====", "\e[1;31mFAILED\e[0m"])
     end
 
     it "supports status as string as well" do
-      expect(@formatter.status('failed')).to eq(["\e[1;32mFAILED\e[0m"])
+      expect(@formatter.status('failed')).to eq(["\e[1;31mFAILED\e[0m"])
       expect(@formatter.status('success')).to eq([ "\e[1;32mOK\e[0m"])
     end
 
@@ -132,6 +132,10 @@ describe Formatter::Array do
       @formatter.pid(4711)
       @formatter.reason_for_failure('great an error occured')
       @formatter.executable('/usr/bin/true')
+      start_time = Time.now
+      end_time= start_time + 2.seconds
+      @formatter.start_time(start_time)
+      @formatter.end_time(end_time)
 
       expect(@formatter.output(:stderr)).to eq([
         "=====       STDERR       =====",
@@ -139,7 +143,7 @@ describe Formatter::Array do
       ])
       expect(@formatter.output).to eq([
         "=====       STATUS       =====",
-        "\e[1;32mFAILED\e[0m",
+        "\e[1;31mFAILED\e[0m",
         "=====    RETURN CODE     =====",
         "output of return code",
         "=====       STDERR       =====",
@@ -154,6 +158,10 @@ describe Formatter::Array do
         'great an error occured',
         "=====     EXECUTABLE     =====",
         "/usr/bin/true",
+        "=====     START TIME     =====",
+        start_time,
+        "=====      END TIME      =====",
+        end_time,
       ])
       expect(@formatter.output(:stdout,:stderr)).to eq([
         "=====       STDOUT       =====",

@@ -18,6 +18,7 @@ end
 
 require 'command_exec'
 require 'command_exec/spec_helper_module'
+require 'active_support/core_ext/numeric/time'
 
 include CommandExec
 include CommandExec::Exceptions

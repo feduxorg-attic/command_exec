@@ -29,8 +29,10 @@ describe Command do
     end
 
     it 'searches $PATH to find the command' do 
-      command = Command.new(:true)
-      expect(command.path).to eq("/bin/true")
+      environment({ 'PATH' => '/bin' }) do
+        command = Command.new(:true)
+        expect(command.path).to eq("/bin/true")
+      end
     end
 
     it 'offers an option to change $PATH for the command execution' do
@@ -87,8 +89,10 @@ describe Command do
     end
 
     it "can be used to construct a command string, which can be executed" do
-      command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
-      expect(command.to_s).to eq("/bin/true -a -b index.tex blub.tex")
+      environment('PATH' => '/bin') {
+        command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
+        expect(command.to_s).to eq("/bin/true -a -b index.tex blub.tex")
+      }
     end
 
     it "runs programms" do
@@ -128,6 +132,7 @@ describe Command do
       Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :error)
       Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :fatal)
       Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :unknown)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :garbage_sasdfasf)
     end
 
     it "use a log file if given" do

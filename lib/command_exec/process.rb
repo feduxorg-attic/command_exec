@@ -29,7 +29,13 @@ module CommandExec
     #
     # @!attribute [r] pid
     #   Get the pid of the command
-    attr_reader :status, :log_file, :stdout, :stderr, :reason_for_failure, :return_code, :pid
+    #
+    # @!attribute [r] start_time
+    #   Return the time when the execution of the command started
+    #
+    # @!attribute [r] end_time
+    #   Return the time when the execution of the command finished
+    attr_reader :status, :log_file, :stdout, :stderr, :reason_for_failure, :return_code, :pid, :start_time, :end_time
 
     # Create a process object
     #
@@ -84,6 +90,9 @@ module CommandExec
       @reason_for_failure = @options[:reason_for_failure]
       @return_code = @options[:return_code]
       @executable = @options[:executable]
+
+      @start_time = nil
+      @end_time = nil
     end
 
     # Set the name of the log file
@@ -173,6 +182,26 @@ module CommandExec
     #   the path to the executable of the command 
     def executable=(value)
       @executable = value
+    end
+      
+    # Set the start time of the command execution
+    #
+    # @param [Number,String] value
+    #   the path to the executable of the command 
+    def start_time=(value)
+      @start_time = value
+    end
+
+    # Set the end time of the command execution
+    #
+    # @param [Number,String] value
+    #   the path to the executable of the command 
+    def end_time=(value)
+      @end_time = value
+    end
+
+    def run_time
+      end_time - start_time
     end
 
     private 
