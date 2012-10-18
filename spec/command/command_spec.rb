@@ -132,6 +132,7 @@ describe Command do
       Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :error)
       Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :fatal)
       Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :unknown)
+      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :garbage_sasdfasf)
     end
 
     it "use a log file if given" do
