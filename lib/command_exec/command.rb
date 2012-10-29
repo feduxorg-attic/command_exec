@@ -202,7 +202,7 @@ module CommandExec
       when :warn
         @logger.level = Logger::WARN
       when :silent
-        @logger.instance_variable_set(:@logdev, nil)
+        @logger.level = Logger::SILENT
       else
         @logger.level = Logger::INFO
       end

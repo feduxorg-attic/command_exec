@@ -1,11 +1,13 @@
 #encoding: utf-8
 
 require 'smart_colored/extend'
-require 'logger'
 require 'json'
 require 'psych'
 require 'xmlsimple'
 require 'open3'
+
+require 'logger'
+require 'command_exec/logger'
 
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/string/filters'
