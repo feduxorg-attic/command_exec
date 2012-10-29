@@ -66,6 +66,18 @@ to search for errors.
 
 ## <a name="usage">Usage<a/>
 
+### Gem versioning
+
+This gem uses semantic versioning. The major version is increased when breaking
+changes has been made. The minor version is increased if backward-compatiable
+changes introduce new functionality. The patch version is increased if a bug
+was fixed and the change is backward-compatible. Please see http://semver.org/
+for more information.
+
+### Ruby Version
+
+This gem supports ruby up from 1.9.3.
+
 ### Install gem
 
 Install the `command_exec`-gem via `rubygems` or whatever package manager (e.g. `bundler`) you like
