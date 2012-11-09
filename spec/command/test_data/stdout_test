@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+$stdout.puts "error, huh, what goes on"
+exit 0

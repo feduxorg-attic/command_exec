@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+$stderr.puts "this is output on stderr"
+$stdout.puts "this is output on stdout"
+
+exit 128
