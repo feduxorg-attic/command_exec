@@ -25,6 +25,8 @@ require 'command_exec/formatter/string'
 
 require 'command_exec/version'
 require 'command_exec/exceptions'
+require 'command_exec/error_detector/contains'
+require 'command_exec/error_detector'
 require 'command_exec/command'
 require 'command_exec/process'
 
