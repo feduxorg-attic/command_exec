@@ -4,7 +4,7 @@ module CommandExec
   #detect errors
   class ErrorDetector
 
-    class Contains
+    class ContainsWithSubStringSearch
 
       class << self
         def check(*args,&block)
