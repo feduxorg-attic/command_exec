@@ -300,11 +300,7 @@ describe CommandExec::Process do
       process.start_time = start_time
       process.end_time = end_time
 
-      if RUBY_VERSION == '1.9.2'
-        time_format_string = "%Y-%m-%d %H:%M:%S.%9N %z"
-      else
-        time_format_string = "%Y-%m-%d %H:%M:%S.%9N %:z"
-      end
+      time_format_string = "%Y-%m-%d %H:%M:%S.%9N %:z"
 
       expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n:executable:\n- /usr/bin/true\n:start_time:\n- #{start_time.strftime(time_format_string)}\n:end_time:\n- #{end_time.strftime(time_format_string)}\n")
     end
