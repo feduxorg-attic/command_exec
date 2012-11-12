@@ -1,4 +1,4 @@
 #main CommandExec
 module CommandExec
-  VERSION = ''
+  VERSION = '0.2.0'
 end
