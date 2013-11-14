@@ -32,6 +32,10 @@ require 'command_exec/formatter/string'
 #exceptions
 require 'command_exec/exceptions'
 
+#error detection
+#require 'command_exec/error_detector/contains_with_substring_search'
+require 'the_array_comparator'
+
 #business logic
 require 'command_exec/command'
 require 'command_exec/process'

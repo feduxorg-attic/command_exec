@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'smart_colored'
   s.add_runtime_dependency 'activesupport'
   s.add_runtime_dependency 'xml-simple'
+  s.add_runtime_dependency 'the_array_comparator'
 end

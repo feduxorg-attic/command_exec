@@ -4,6 +4,16 @@ module CommandExec
   #detect errors
   class ErrorDetector
 
+    def initialize(comparator=TheArrayComparator::Comparator.new)
+      @comparator = comparator
+
+    end
+
+    
+    def check_status_code(code)
+
+    end
+
     def check_for(type,*args)
       case type 
       when :contains
