@@ -6,20 +6,18 @@ module CommandExec
 
     def initialize(comparator=TheArrayComparator::Comparator.new)
       @comparator = comparator
-
     end
 
-    
-    def check_status_code(code)
-
+    def check_for( *args )
+      @comparator.add_check( *args )
     end
 
-    def check_for(type,*args)
-      case type 
-      when :contains
-      when :contains_not
-      end
+    def found_error?
+      not @comparator.success?
+    end
 
+    def failed_sample
+      @comparator.result.failed_sample
     end
 
   end

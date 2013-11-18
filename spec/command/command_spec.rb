@@ -8,18 +8,17 @@ describe Command do
   let(:lib_log_level) {:info}
   let(:command) { Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
 
-  context :public_api do
-    test_dir = File.expand_path('test_data', File.dirname(__FILE__))
+  context '#run' do
 
     it "supports relative paths" do
-      Dir.chdir('spec/command') do
-        command = Command.new('test_data/true_test')
-        expect(command.path).to eq(File.join(test_dir, 'true_test'))
+      Dir.chdir( examples_directory ) do
+        command = Command.new('command/true_test')
+        expect(command.path).to eq( File.join( examples_directory, 'command', 'true_test' ) )
       end
 
-      Dir.chdir test_dir do
+      Dir.chdir( File.join( examples_directory, 'command' ) ) do
         command = Command.new('./true_test')
-        expect(command.path).to eq(File.join(test_dir, 'true_test'))
+        expect(command.path).to eq(File.join( examples_directory, 'command', 'true_test'))
       end
 
       Dir.chdir '/tmp/' do
@@ -36,8 +35,8 @@ describe Command do
     end
 
     it 'offers an option to change $PATH for the command execution' do
-      command = Command.new(:echo_test, search_paths: [test_dir])
-      expect(command.path).to eq(File.join(test_dir, 'echo_test'))
+      command = Command.new(:echo_test, search_paths: [ File.join( examples_directory, 'command' ) ])
+      expect(command.path).to eq(File.join( examples_directory, 'command', 'echo_test'))
     end
 
     it "checks if exec is executable" do
@@ -96,22 +95,27 @@ describe Command do
     end
 
     it "runs programms" do
-      command = Command.new(:echo, :parameter => "output", :lib_log_level => :silent )
-      command.run
-      expect(command.result.status).to eq(:success)
+      silence( :stdout ) do
+        command = Command.new(:echo, :parameter => "output" )
+        command.run
+
+        expect(command.result.status).to eq(:success)
+      end
+
     end
 
     it "execute existing programs" do
-      command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b", :lib_log_level => :silent  )
-      expect(command.result.status).to eq(:success)
+      silence( :stdout ) do
+        command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b"  )
+        expect(command.result.status).to eq(:success)
+      end
     end
 
     it "is very verbose and returns a lot of output" do
-      bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :debug)
+      logger = double( 'Logger' )
+      allow( logger ).to receive( :debug )
 
-      expect(bucket.string['DEBUG']).to_not eq(nil)
+      Command.execute(:echo, :parameter => "output", lib_logger: logger ) 
     end
 
     it "is silent and returns no output" do
@@ -409,13 +413,5 @@ describe Command do
       expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
     end
 
-    it "finds errors in string" do
-      expect(command.send(:error_occured?, ['error'] , [], ['long string witherrorinside'] )).to eq(true)
-      expect(command.send(:error_occured?, ['error', 'inside'] , [], ['long string with error inside'] )).to eq(true)
-      expect(command.send(:error_occured?, ['error'] , [], ['long string with no erro"r" inside'] )).to eq(false)
-
-      expect(command.send(:error_occured?, ['error'] , ['long string with error inside but an exception defined'], ['long string with error inside but an exception defined'] )).to eq(false)
-      expect(command.send(:error_occured?, ['error'] , ['substring exception defined'], ['long string with error inside but a substring exception defined'] )).to eq(false)
-    end
   end
 end

@@ -11,12 +11,12 @@ require 'active_support/core_ext/string/filters'
 require 'active_support/core_ext/hash/deep_merge'
 require 'active_support/core_ext/hash/conversions'
 
-#metadata
-require 'command_exec/version'
+require 'fedux_org/stdlib/logging/logger'
 
-#logging
-require 'logger'
-require 'command_exec/logger'
+require 'the_array_comparator'
+
+require 'command_exec/version'
+require 'command_exec/main'
 
 #helper for fields
 require 'command_exec/field_helper'
@@ -33,10 +33,7 @@ require 'command_exec/formatter/string'
 require 'command_exec/exceptions'
 
 #error detection
-#require 'command_exec/error_detector/contains_with_substring_search'
-require 'the_array_comparator'
-
-#business logic
+require 'command_exec/error_detector'
 require 'command_exec/command'
 require 'command_exec/process'
 

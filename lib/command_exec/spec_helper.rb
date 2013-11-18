@@ -1,4 +1,5 @@
 #encoding: utf-8
+require 'active_support/core_ext/kernel/reporting'
 
 # Main
 module CommandExec
@@ -8,22 +9,14 @@ module CommandExec
     #
     # @param [Block] block
     def capture_stderr(&block)
-      previous_stderr, $stderr = $stderr, StringIO.new
-      block.call
-      return $stderr.string
-    ensure
-      $stderr = previous_stderr
+      capture(:stderr, &block)
     end
 
     # Capture stdout
     #
     # @param [Block] block
     def capture_stdout(&block)
-      previous_stdout, $stdout = $stdout, StringIO.new
-      block.call
-      return $stdout.string
-    ensure
-      $stdout = previous_stdout
+      capture(:stdout, &block)
     end
 
     # Manipulate environment for the given block

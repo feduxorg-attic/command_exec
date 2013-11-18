@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'activesupport'
   s.add_runtime_dependency 'xml-simple'
   s.add_runtime_dependency 'the_array_comparator'
+  s.add_runtime_dependency 'fedux_org-stdlib'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
