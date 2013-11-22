@@ -153,7 +153,7 @@ describe Command do
 
     it "outputs only warnings when told to output those" do
       bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
+      lib_logger = FeduxOrg::Stdlib::Logging::Logger.new( Logger.new( bucket ) )
 
       command = Command.new(:logger_test,
                             :lib_logger => lib_logger,
