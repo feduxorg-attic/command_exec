@@ -279,15 +279,15 @@ module CommandExec
       end
 
       if @error_detection_on.include?(:stderr)
-        error_detector.check_for @error_indicators[:forbidden_words_in_stderr], :not_contains, process.stderr, @error_indicators[:allowed_words_in_stderr], tag: :stderr
+        error_detector.check_for @error_indicators[:forbidden_words_in_stderr], :not_contains, process.stderr, exceptions: @error_indicators[:allowed_words_in_stderr], tag: :stderr
       end
 
       if @error_detection_on.include?(:stdout)
-        error_detector.check_for @error_indicators[:forbidden_words_in_stdout], :not_contains, process.stdout, @error_indicators[:allowed_words_in_stdout], tag: :stdout
+        error_detector.check_for @error_indicators[:forbidden_words_in_stdout], :not_contains, process.stdout, exceptions: @error_indicators[:allowed_words_in_stdout], tag: :stdout
       end
 
       if @error_detection_on.include?(:log_file)
-        error_detector.check_for @error_indicators[:forbidden_words_in_log_file], :not_contains, process.log_file, @error_indicators[:allowed_words_in_log_file], tag: :log_file
+        error_detector.check_for @error_indicators[:forbidden_words_in_log_file], :not_contains, process.log_file, exceptions: @error_indicators[:allowed_words_in_log_file], tag: :log_file
       end
 
 
