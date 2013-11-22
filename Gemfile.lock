@@ -5,7 +5,7 @@ PATH
       activesupport
       fedux_org-stdlib
       smart_colored
-      the_array_comparator
+      the_array_comparator (>= 0.5.0)
       xml-simple
 
 GEM
@@ -39,10 +39,10 @@ GEM
       debugger-linecache (~> 1.2.0)
       debugger-ruby_core_source (~> 1.2.3)
     debugger-linecache (1.2.0)
-    debugger-ruby_core_source (1.2.3)
+    debugger-ruby_core_source (1.2.4)
     diff-lcs (1.2.5)
     docile (1.1.0)
-    fedux_org-stdlib (0.1.0)
+    fedux_org-stdlib (0.1.1)
       activesupport
     ffi (1.9.3)
     fuubar (1.2.1)
@@ -54,7 +54,6 @@ GEM
     github-markup (0.7.5)
     hashr (0.0.22)
     i18n (0.6.5)
-    lockfile (2.1.0)
     method_source (0.8.2)
     minitest (4.7.5)
     multi_json (1.8.2)
@@ -78,15 +77,14 @@ GEM
     rspec-instafail (0.2.4)
     rspec-mocks (2.14.4)
     ruby-progressbar (1.2.0)
-    simplecov (0.8.1)
+    simplecov (0.8.2)
       docile (~> 1.1.0)
-      lockfile (>= 2.1.0)
       multi_json
       simplecov-html (~> 0.8.0)
     simplecov-html (0.8.0)
     slop (3.4.7)
     smart_colored (1.1.1)
-    the_array_comparator (0.4.0)
+    the_array_comparator (0.5.0)
       activesupport
     thor (0.18.1)
     thread_safe (0.1.3)
