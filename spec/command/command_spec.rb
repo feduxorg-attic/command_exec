@@ -359,17 +359,26 @@ describe Command do
   context :private_api do
     it "raises an error if command is not executable" do
       command = Command.new('/etc/passwd' )
-      expect{command.send(:check_path)}.to raise_error CommandNotExecutable
+
+      silence( :stderr ) do
+        expect{command.send(:check_path)}.to raise_error CommandNotExecutable
+      end
     end
 
     it "raises an error if command does not exist" do
       command = Command.new('/usr/bin/does_not_exist' )
-      expect{command.send(:check_path)}.to raise_error CommandNotFound
+
+      silence( :stderr ) do
+        expect{command.send(:check_path)}.to raise_error CommandNotFound
+      end
     end
 
     it "raises an error if command is not a file" do
       command = Command.new('/tmp' )
-      expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
+
+      silence( :stderr ) do
+        expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
+      end
     end
 
   end
