@@ -27,11 +27,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'aruba'
   s.add_development_dependency 'fuubar'
-  s.add_development_dependency 'yard'
-  s.add_development_dependency 'redcarpet'
-  s.add_development_dependency 'github-markup'
-  s.add_development_dependency 'tmrb'
-  s.add_development_dependency 'travis-lint'
-  s.add_development_dependency 'awesome_print'
-  s.add_development_dependency 'activesupport'
+  s.add_development_dependency 'erubis'
 end

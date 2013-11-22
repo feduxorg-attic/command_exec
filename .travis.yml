@@ -2,6 +2,6 @@ language: ruby
 rvm:
   - 1.9.3
 script: bundle exec rake test:travis_specs
-bundler_args: --without debug
+bundler_args: --without local
 env:
   - CI=true
