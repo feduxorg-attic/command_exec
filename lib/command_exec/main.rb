@@ -3,13 +3,9 @@ module CommandExec
   @logger = FeduxOrg::Stdlib::Logging::Logger.new
 
   class << self
-    def logger
-      @logger
-    end
+    attr_accessor :logger, :search_paths
 
-    def logger=( l )
-      @logger = l
-    end
+    search_paths = ENV['PATH'].split(/:/)
   end
   
 end

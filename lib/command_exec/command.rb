@@ -95,7 +95,7 @@ module CommandExec
         :parameter          => '',
         :working_directory  => Dir.pwd,
         :log_file           => '',
-        :search_paths       => ENV['PATH'].split(':'),
+        :search_paths       => CommandExec.search_paths,
         :error_detection_on => [:return_code],
         :error_indicators   => {
           :allowed_return_code         => [0],
@@ -153,7 +153,6 @@ module CommandExec
     #
     # @return [String] fully qualified path to command
     def resolve_path(name,*search_paths)
-      search_paths ||= ['/bin', '/usr/bin']
       search_paths = search_paths.flatten
 
       if name.kind_of? Symbol
