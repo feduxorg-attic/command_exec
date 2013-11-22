@@ -1,6 +1,7 @@
 language: ruby
-gemfile: gemfiles/Gemfile.travis
 rvm:
   - 1.9.3
-#  - 1.9.2
 script: bundle exec rake test:travis_specs
+bundler_args: --without debug
+env:
+  - CI=true
