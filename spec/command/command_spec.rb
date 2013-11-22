@@ -3,23 +3,36 @@
 require 'spec_helper'
 
 describe Command do
-  let(:lib_logger) {Logger.new(StringIO.new)}
-  #let(:logger) {Logger.new($stdout)}
-  let(:lib_log_level) {:info}
-  let(:command) { Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
+  let( :lib_logger ) do
+    lib_logger = double( 'LibLogger' )
+    allow( lib_logger ).to receive( :debug )
+    allow( lib_logger ).to receive( :info )
+    allow( lib_logger ).to receive( :warn )
+    allow( lib_logger ).to receive( :error )
+    allow( lib_logger ).to receive( :mode= )
 
-  context :public_api do
-    test_dir = File.expand_path('test_data', File.dirname(__FILE__))
+    lib_logger
+  end
+
+  let(:command) do
+    Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' )
+  end
+
+  before( :all ) do
+    CommandExec.search_paths = [ File.join( examples_directory, 'command' ), '/bin', '/usr/bin'  ]
+  end
+
+  context '#run' do
 
     it "supports relative paths" do
-      Dir.chdir('spec/command') do
-        command = Command.new('test_data/true_test')
-        expect(command.path).to eq(File.join(test_dir, 'true_test'))
+      Dir.chdir( examples_directory ) do
+        command = Command.new('command/true_test')
+        expect(command.path).to eq( File.join( examples_directory, 'command', 'true_test' ) )
       end
 
-      Dir.chdir test_dir do
+      Dir.chdir( File.join( examples_directory, 'command' ) ) do
         command = Command.new('./true_test')
-        expect(command.path).to eq(File.join(test_dir, 'true_test'))
+        expect(command.path).to eq(File.join( examples_directory, 'command', 'true_test'))
       end
 
       Dir.chdir '/tmp/' do
@@ -36,8 +49,8 @@ describe Command do
     end
 
     it 'offers an option to change $PATH for the command execution' do
-      command = Command.new(:echo_test, search_paths: [test_dir])
-      expect(command.path).to eq(File.join(test_dir, 'echo_test'))
+      command = Command.new(:echo_test, search_paths: [ File.join( examples_directory, 'command' ) ])
+      expect(command.path).to eq(File.join( examples_directory, 'command', 'echo_test'))
     end
 
     it "checks if exec is executable" do
@@ -82,7 +95,7 @@ describe Command do
     it "offers the possibility to change the working directory of the process without any side effects" do
       expect(command.working_directory).to eq('/tmp')
 
-      #no side effects
+      #no side effects: the working directory of rspec is the same as before
       lambda { command.run }
 
       expect(Dir.pwd).to eq(File.expand_path('../..', File.dirname(__FILE__)))
@@ -96,75 +109,65 @@ describe Command do
     end
 
     it "runs programms" do
-      command = Command.new(:echo, :parameter => "output", :lib_log_level => :silent )
-      command.run
-      expect(command.result.status).to eq(:success)
+      silence( :stdout ) do
+        command = Command.new(:echo, :parameter => "output" )
+        command.run
+
+        expect(command.result.status).to eq(:success)
+      end
+
     end
 
     it "execute existing programs" do
-      command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b", :lib_log_level => :silent  )
-      expect(command.result.status).to eq(:success)
+      silence( :stdout ) do
+        command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b"  )
+        expect(command.result.status).to eq(:success)
+      end
     end
 
     it "is very verbose and returns a lot of output" do
-      bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :debug)
-
-      expect(bucket.string['DEBUG']).to_not eq(nil)
+      Command.execute(:echo, :parameter => "output", lib_logger => lib_logger ) 
     end
 
     it "is silent and returns no output" do
       # if you choose the system runner output of commands will be not suppressed"
-      bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :silent)
+      logger = double( 'LocalLogger')
+      allow( logger ).to receive( :debug )
+      allow( logger ).to receive( :info )
+      allow( logger ).to receive( :warn )
+      allow( logger ).to receive( :error )
+      expect( logger ).to receive( :mode= ).with( :silent )
 
-      expect(bucket.string).to eq("")
-    end
-
-    it "supports other log levels as well" do
-      bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
-
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :info)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :warn)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :error)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :fatal)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :unknown)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :garbage_sasdfasf)
+      Command.execute(:echo, :parameter => "output", :lib_logger => logger, :lib_log_level => :silent)
     end
 
     it "use a log file if given" do
       application_log_file = create_temp_file_with('command_exec_test', 'TEXT IN LOG') 
 
-      bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
-
-      command = Command.new(:logger_test ,
-                            :lib_logger => lib_logger ,
-                            :log_file => application_log_file ,
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
+      command = Command.new(:logger_test,
+                            :lib_logger => lib_logger,
+                            :log_file => application_log_file
+                           )
+      command.run
     end
 
     it "outputs only warnings when told to output those" do
       bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
+      lib_logger = FeduxOrg::Stdlib::Logging::Logger.new( Logger.new( bucket ) )
 
-      command = Command.new(:logger_test ,
-                            :lib_logger => lib_logger ,
+      command = Command.new(:logger_test,
+                            :lib_logger => lib_logger,
                             :lib_log_level => :warn,
-                            :log_file => '/tmp/i_do_not_exist.log',
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__))).run
+                            :log_file => '/tmp/i_do_not_exist.log'
+                           )
+      command.run
 
       expect(bucket.string['WARN']).to_not eq(nil)
     end
 
     it "considers status for error handling (default 0)" do
       command = Command.new(:exit_status_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                            )
       command.run
@@ -173,9 +176,7 @@ describe Command do
 
     it "considers status for error handling (single value as array)" do
       command = Command.new(:exit_status_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0] })
       command.run
@@ -184,9 +185,7 @@ describe Command do
 
     it "considers status for error handling (single value as symbol)" do
       command = Command.new(:exit_status_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [0] })
       command.run
@@ -195,18 +194,14 @@ describe Command do
 
     it "considers status for error handling (single value)" do
       command = Command.new(:exit_status_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '0',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0,2] })
       command.run
       expect(command.result.status).to eq(:success)
 
       command = Command.new(:exit_status_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '2',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0,2] })
       command.run
@@ -215,8 +210,6 @@ describe Command do
 
     it "considers stderr for error handling" do
       command = Command.new(:stderr_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stderr, 
                             :error_indicators => { :forbidden_words_in_stderr => %w{error} })
       command.run
@@ -225,8 +218,6 @@ describe Command do
 
     it "considers stderr for error handling but can make exceptions" do
       command = Command.new(:stderr_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stderr, 
                             :error_indicators => { :forbidden_words_in_stderr => %w{error}, :allowed_words_in_stderr =>  ["error. execution failed"]})
       command.run
@@ -235,8 +226,6 @@ describe Command do
 
     it "considers stdout for error handling" do
       command = Command.new(:stdout_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stdout, 
                             :error_indicators => { :forbidden_words_in_stdout => %w{error} })
       command.run
@@ -247,8 +236,6 @@ describe Command do
     it "removes newlines from stdout" do
       #same for stderr
       command = Command.new(:stdout_multiple_lines_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stdout, 
                             :error_indicators => { :forbidden_words_in_stdout => %w{error} })
       command.run
@@ -259,8 +246,6 @@ describe Command do
       temp_file = create_temp_file_with('log_file_test', 'error, huh, what goes on' )
 
       command = Command.new(:log_file_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :log_file => temp_file,
                             :error_detection_on => :log_file, 
                             :error_indicators => { :forbidden_words_in_log_file => %w{error} })
@@ -270,8 +255,6 @@ describe Command do
 
     it "returns the result of command execution as process object (defaults to :return_process_information)" do
       command = Command.new(:output_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -280,8 +263,6 @@ describe Command do
 
     it "returns the result of command execution as process object" do
       command = Command.new(:output_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :return_process_information,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -291,8 +272,6 @@ describe Command do
 
     it "does nothing on error if told so" do
       command = Command.new(:raise_error_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :nothing,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -302,16 +281,12 @@ describe Command do
 
     it "raises an exception" do
       command = Command.new(:raise_error_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       expect{command.run}.to raise_error(CommandExec::Exceptions::CommandExecutionFailed)
 
       command = Command.new(:not_raise_error_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -320,16 +295,12 @@ describe Command do
 
     it "throws an error" do
       command = Command.new(:throw_error_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       expect{command.run}.to throw_symbol(:command_execution_failed)
 
       command = Command.new(:not_throw_error_test, 
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -339,8 +310,6 @@ describe Command do
     it "support open3 as runner" do
       #implicit via default value (open3)
       command = Command.new(:runner_open3_test,
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -348,9 +317,7 @@ describe Command do
 
       #or explicit
       command = Command.new(:runner_open3_test,
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :run_via => :open3,
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -359,9 +326,7 @@ describe Command do
 
     it "support system as runner" do
       command = Command.new(:runner_system_test,
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :run_via => :system,
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -370,9 +335,7 @@ describe Command do
 
     it "has a default runner: open3" do
       command = Command.new(:runner_system_test,
-                            :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :run_via => :unknown_runner,
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -395,27 +358,28 @@ describe Command do
 
   context :private_api do
     it "raises an error if command is not executable" do
-      command = Command.new('/etc/passwd', lib_log_level: :silent)
-      expect{command.send(:check_path)}.to raise_error CommandNotExecutable
+      command = Command.new('/etc/passwd' )
+
+      silence( :stderr ) do
+        expect{command.send(:check_path)}.to raise_error CommandNotExecutable
+      end
     end
 
     it "raises an error if command does not exist" do
-      command = Command.new('/usr/bin/does_not_exist', lib_log_level: :silent)
-      expect{command.send(:check_path)}.to raise_error CommandNotFound
+      command = Command.new('/usr/bin/does_not_exist' )
+
+      silence( :stderr ) do
+        expect{command.send(:check_path)}.to raise_error CommandNotFound
+      end
     end
 
     it "raises an error if command is not a file" do
-      command = Command.new('/tmp', lib_log_level: :silent)
-      expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
+      command = Command.new('/tmp' )
+
+      silence( :stderr ) do
+        expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
+      end
     end
 
-    it "finds errors in string" do
-      expect(command.send(:error_occured?, ['error'] , [], ['long string witherrorinside'] )).to eq(true)
-      expect(command.send(:error_occured?, ['error', 'inside'] , [], ['long string with error inside'] )).to eq(true)
-      expect(command.send(:error_occured?, ['error'] , [], ['long string with no erro"r" inside'] )).to eq(false)
-
-      expect(command.send(:error_occured?, ['error'] , ['long string with error inside but an exception defined'], ['long string with error inside but an exception defined'] )).to eq(false)
-      expect(command.send(:error_occured?, ['error'] , ['substring exception defined'], ['long string with error inside but a substring exception defined'] )).to eq(false)
-    end
   end
 end

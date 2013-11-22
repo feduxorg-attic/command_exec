@@ -91,49 +91,50 @@ module CommandExec
 
       @name = name
       @opts = {
-        :options => '',
-        :parameter => '',
-        :working_directory => Dir.pwd,
-        :log_file => '',
-        :search_paths => ENV['PATH'].split(':'),
+        :options            => '',
+        :parameter          => '',
+        :working_directory  => Dir.pwd,
+        :log_file           => '',
+        :search_paths       => CommandExec.search_paths,
         :error_detection_on => [:return_code],
-        :error_indicators => {
-          :allowed_return_code => [0],
-          :forbidden_return_code => [],
-          #
-          :allowed_words_in_stderr => [],
-          :forbidden_words_in_stderr => [],
-          #
-          :allowed_words_in_stdout => [],
-          :forbidden_words_in_stdout => [],
-          #
-          :allowed_words_in_log_file => [],
+        :error_indicators   => {
+          :allowed_return_code         => [0],
+          :forbidden_return_code       => [],
+          :allowed_words_in_stderr     => [],
+          :forbidden_words_in_stderr   => [],
+          :allowed_words_in_stdout     => [],
+          :forbidden_words_in_stdout   => [],
+          :allowed_words_in_log_file   => [],
           :forbidden_words_in_log_file => [],
         },
-        :on_error_do => :nothing,
-        :run_via => :open3,
-        :lib_logger => Logger.new($stderr),
+        :on_error_do   => :nothing,
+        :run_via       => :open3,
+        :lib_logger    => nil,
         :lib_log_level => :info,
       }.deep_merge opts
 
-      @logger = @opts[:lib_logger] 
-      configure_logging 
+        if @opts[:lib_logger].nil?
+          @logger = CommandExec.logger
+        else
+          @logger = @opts[:lib_logger]
+        end
+        @logger.mode = @opts[ :lib_log_level ]
 
-      @logger.debug @opts
+        @logger.debug @opts
 
-      @options = @opts[:options]
-      @path = resolve_path @name, @opts[:search_paths]
-      @parameter = @opts[:parameter]
-      @log_file = @opts[:log_file]
+        @options = @opts[:options]
+        @path = resolve_path @name, @opts[:search_paths]
+        @parameter = @opts[:parameter]
+        @log_file = @opts[:log_file]
 
-      *@error_detection_on = @opts[:error_detection_on]
-      @error_indicators = @opts[:error_indicators]
-      @on_error_do = @opts[:on_error_do]
+        *@error_detection_on = @opts[:error_detection_on]
+        @error_indicators = @opts[:error_indicators]
+        @on_error_do = @opts[:on_error_do]
 
-      @run_via = @opts[:run_via]
+        @run_via = @opts[:run_via]
 
-      @working_directory = @opts[:working_directory] 
-      @result = nil
+        @working_directory = @opts[:working_directory] 
+        @result = nil
     end
 
     private
@@ -152,7 +153,6 @@ module CommandExec
     #
     # @return [String] fully qualified path to command
     def resolve_path(name,*search_paths)
-      search_paths ||= ['/bin', '/usr/bin']
       search_paths = search_paths.flatten
 
       if name.kind_of? Symbol
@@ -163,7 +163,7 @@ module CommandExec
 
       path
     end
-    
+
     # Check if executable exists, if it's executable and is a file
     #
     # @raise [CommandExec::Exceptions::CommandNotFound] if command does not exist
@@ -184,32 +184,6 @@ module CommandExec
         @logger.fatal("Command '#{@name}' not a file.")
         raise Exceptions::CommandIsNotAFile, "Command '#{@name}' not a file."
       end
-    end
-
-    # Set appropriate log level
-    def configure_logging
-      case @opts[:lib_log_level]
-      when :debug
-        @logger.level = Logger::DEBUG
-      when :error
-        @logger.level = Logger::ERROR
-      when :fatal
-        @logger.level = Logger::FATAL
-      when :info
-        @logger.level = Logger::INFO
-      when :unknown
-        @logger.level = Logger::UNKNOWN
-      when :warn
-        @logger.level = Logger::WARN
-      when :silent
-        @logger.level = Logger::SILENT
-      else
-        @logger.level = Logger::INFO
-      end
-
-      @logger.debug "Logger configured with log level #{@logger.level}"
-
-      nil
     end
 
     public
@@ -297,45 +271,40 @@ module CommandExec
       end
 
       process.end_time = Time.now
+      error_detector = ErrorDetector.new
 
-        if @error_detection_on.include?(:return_code)
-          if not @error_indicators[:allowed_return_code].include? process.return_code or 
-                 @error_indicators[:forbidden_return_code].include? process.return_code
+      if @error_detection_on.include?(:return_code)
+        error_detector.check_for process.return_code, :not_contains, @error_indicators[:allowed_return_code], tag: :return_code
+        error_detector.check_for process.return_code, :contains_any, @error_indicators[:forbidden_return_code], tag: :return_code unless @error_indicators[:forbidden_return_code].blank?
+      end
 
-            @logger.debug "Error detection on return code found an error"
-            process.status = :failed 
-            process.reason_for_failure = :return_code
-          end
+      if @error_detection_on.include?(:stderr)
+        error_detector.check_for process.stderr , :contains_any_as_substring, @error_indicators[:forbidden_words_in_stderr], exceptions: @error_indicators[:allowed_words_in_stderr], tag: :stderr
+      end
+
+      if @error_detection_on.include?(:stdout)
+        error_detector.check_for process.stdout, :contains_any_as_substring, @error_indicators[:forbidden_words_in_stdout], exceptions: @error_indicators[:allowed_words_in_stdout], tag: :stdout
+      end
+
+      if @error_detection_on.include?(:log_file)
+        error_detector.check_for process.log_file, :contains_any_as_substring, @error_indicators[:forbidden_words_in_log_file], exceptions: @error_indicators[:allowed_words_in_log_file], tag: :log_file
+      end
+
+      if error_detector.found_error?
+        process.status = :failed
+        process.reason_for_failure = error_detector.failed_sample.tag
+
+        case process.reason_for_failure
+        when :stderr
+          @logger.debug "Error detection on stderr found an error"
+        when :stdout
+          @logger.debug "Error detection on stdout found an error"
+        when :return_code
+          @logger.debug 'Error detection on return code found an error'
+        when :log_file
+          @logger.debug "Error detection on log file found an error"
         end
 
-        if @error_detection_on.include?(:stderr) and not process.status == :failed
-          if error_occured?( @error_indicators[:forbidden_words_in_stderr], @error_indicators[:allowed_words_in_stderr], process.stderr)
-            @logger.debug "Error detection on stderr found an error"
-            process.status = :failed 
-            process.reason_for_failure = :stderr
-          end
-        end
-
-        if @error_detection_on.include?(:stdout) and not process.status == :failed
-          if error_occured?( @error_indicators[:forbidden_words_in_stdout], @error_indicators[:allowed_words_in_stdout], process.stdout)
-            @logger.debug "Error detection on stdout found an error"
-            process.status = :failed 
-            process.reason_for_failure = :stdout
-          end
-        end
-
-        if @error_detection_on.include?(:log_file) and not process.status == :failed
-          if error_occured?( @error_indicators[:forbidden_words_in_log_file], @error_indicators[:allowed_words_in_log_file], process.log_file)
-            @logger.debug "Error detection on log file found an error"
-            process.status = :failed 
-            process.reason_for_failure = :log_file
-          end
-        end
-
-        @logger.debug "Result of command run #{process.status}"
-
-      @result = process
-      if process.status == :failed
         case @on_error_do
         when :nothing
           #nothing
@@ -347,45 +316,10 @@ module CommandExec
           #nothing
         end
       end
-    end
 
-    # Find error in data
-    #
-    # @param [Array,String] forbidden_word 
-    #   what are the forbidden words which indidcate an error
-    #
-    # @param [Array,String] exception
-    #  Is there any exception from that forbidden words, maybe a string
-    #  which contains the forbidden word, but is no error?
-    #
-    # @param [Array,String] data
-    #   Where to look for errors.
-    #
-    # @return [Boolean] Returns true if it finds an error
-    def error_occured?(forbidden_word, exception, data )
-      error_found = false
-      *forbidden_word = forbidden_word
-      *exception = exception
-      *data = data
+      @logger.debug "Result of command run #{process.status}"
 
-      return false if forbidden_word.blank?
-      return false if data.blank?
-
-      forbidden_word.each do |word|
-        data.each do |line|
-          line.strip!
-
-          #line includes word -> error
-          #exception does not include line/substring of line -> error, if
-          #  includes line/substring of line -> no error
-          if line.include? word and exception.find{ |e| line[e] }.blank?
-            error_found = true
-            break
-          end
-        end
-      end
-
-      error_found
+      @result = process
     end
 
     # Run a command 

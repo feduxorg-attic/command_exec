@@ -1,7 +1,4 @@
-#encoding: utf-8
-
 #main CommandExec
 module CommandExec
-  # version of the library
-  VERSION = '0.1.3'
+  VERSION = '0.2.1'
 end
