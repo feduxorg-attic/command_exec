@@ -13,7 +13,7 @@ module CommandExec
     end
 
     def found_error?
-      not @comparator.success?
+      @comparator.success?
     end
 
     def failed_sample

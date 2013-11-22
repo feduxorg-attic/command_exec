@@ -274,22 +274,21 @@ module CommandExec
       error_detector = ErrorDetector.new
 
       if @error_detection_on.include?(:return_code)
-        error_detector.check_for @error_indicators[:allowed_return_code],   :contains_all, process.return_code, tag: :return_code
-        error_detector.check_for @error_indicators[:forbidden_return_code], :not_contains, process.return_code, tag: :return_code
+        error_detector.check_for process.return_code, :not_contains, @error_indicators[:allowed_return_code], tag: :return_code
+        error_detector.check_for process.return_code, :contains_any, @error_indicators[:forbidden_return_code], tag: :return_code unless @error_indicators[:forbidden_return_code].blank?
       end
 
       if @error_detection_on.include?(:stderr)
-        error_detector.check_for @error_indicators[:forbidden_words_in_stderr], :not_contains, process.stderr, exceptions: @error_indicators[:allowed_words_in_stderr], tag: :stderr
+        error_detector.check_for process.stderr , :contains_any_as_substring, @error_indicators[:forbidden_words_in_stderr], exceptions: @error_indicators[:allowed_words_in_stderr], tag: :stderr
       end
 
       if @error_detection_on.include?(:stdout)
-        error_detector.check_for @error_indicators[:forbidden_words_in_stdout], :not_contains, process.stdout, exceptions: @error_indicators[:allowed_words_in_stdout], tag: :stdout
+        error_detector.check_for process.stdout, :contains_any_as_substring, @error_indicators[:forbidden_words_in_stdout], exceptions: @error_indicators[:allowed_words_in_stdout], tag: :stdout
       end
 
       if @error_detection_on.include?(:log_file)
-        error_detector.check_for @error_indicators[:forbidden_words_in_log_file], :not_contains, process.log_file, exceptions: @error_indicators[:allowed_words_in_log_file], tag: :log_file
+        error_detector.check_for process.log_file, :contains_any_as_substring, @error_indicators[:forbidden_words_in_log_file], exceptions: @error_indicators[:allowed_words_in_log_file], tag: :log_file
       end
-
 
       if error_detector.found_error?
         process.status = :failed
