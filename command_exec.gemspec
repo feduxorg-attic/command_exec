@@ -20,4 +20,18 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'smart_colored'
   s.add_runtime_dependency 'activesupport'
   s.add_runtime_dependency 'xml-simple'
+  s.add_runtime_dependency 'the_array_comparator', '>=0.5.0'
+  s.add_runtime_dependency 'fedux_org-stdlib'
+
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'aruba'
+  s.add_development_dependency 'fuubar'
+  s.add_development_dependency 'yard'
+  s.add_development_dependency 'redcarpet'
+  s.add_development_dependency 'github-markup'
+  s.add_development_dependency 'tmrb'
+  s.add_development_dependency 'travis-lint'
+  s.add_development_dependency 'awesome_print'
+  s.add_development_dependency 'activesupport'
 end
