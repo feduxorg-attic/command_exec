@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    command_exec (0.2.0)
+    command_exec (0.2.1)
       activesupport
       fedux_org-stdlib
       smart_colored
