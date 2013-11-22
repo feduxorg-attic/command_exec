@@ -118,7 +118,7 @@ module CommandExec
         else
           @logger = @opts[:lib_logger]
         end
-        @logger.mode = :lib_log_level
+        @logger.mode = @opts[ :lib_log_level ]
 
         @logger.debug @opts
 

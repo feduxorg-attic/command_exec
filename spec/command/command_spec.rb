@@ -3,10 +3,20 @@
 require 'spec_helper'
 
 describe Command do
-  let(:lib_logger) {Logger.new(StringIO.new)}
-  #let(:logger) {Logger.new($stdout)}
-  let(:lib_log_level) {:info}
-  let(:command) { Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' ) }
+  let( :lib_logger ) do
+    lib_logger = double( 'Logger' )
+    allow( lib_logger ).to receive( :debug )
+    allow( lib_logger ).to receive( :info )
+    allow( lib_logger ).to receive( :warn )
+    allow( lib_logger ).to receive( :error )
+    allow( lib_logger ).to receive( :mode= )
+
+    lib_logger
+  end
+
+  let(:command) do
+    Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' )
+  end
 
   context '#run' do
 
@@ -120,11 +130,11 @@ describe Command do
 
     it "is silent and returns no output" do
       # if you choose the system runner output of commands will be not suppressed"
-      bucket = StringIO.new
-      lib_logger = Logger.new(bucket)
-      Command.execute(:echo, :lib_logger => lib_logger ,:parameter => "output", :lib_log_level => :silent)
+      logger = double( 'Logger')
+      expect( logger ).to receive( :mode= ).with( :silent )
+      CommandExec.logger = logger
 
-      expect(bucket.string).to eq("")
+      Command.execute(:echo, :parameter => "output", :lib_log_level => :silent)
     end
 
     it "supports other log levels as well" do
