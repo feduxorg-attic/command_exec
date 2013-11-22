@@ -42,6 +42,7 @@ GEM
     debugger-ruby_core_source (1.2.4)
     diff-lcs (1.2.5)
     docile (1.1.0)
+    erubis (2.7.0)
     fedux_org-stdlib (0.1.1)
       activesupport
     ffi (1.9.3)
@@ -101,11 +102,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport
   aruba
   awesome_print
   command_exec!
   debugger
+  erubis
   fuubar
   github-markup
   pry
