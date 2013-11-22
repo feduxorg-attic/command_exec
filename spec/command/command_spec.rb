@@ -91,7 +91,7 @@ describe Command do
     it "offers the possibility to change the working directory of the process without any side effects" do
       expect(command.working_directory).to eq('/tmp')
 
-      #no side effects
+      #no side effects: the working directory of rspec is the same as before
       lambda { command.run }
 
       expect(Dir.pwd).to eq(File.expand_path('../..', File.dirname(__FILE__)))
