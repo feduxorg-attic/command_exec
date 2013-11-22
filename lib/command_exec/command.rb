@@ -293,7 +293,7 @@ module CommandExec
 
       if error_detector.found_error?
         process.status = :failed
-        process.reason_for_failure error_detector.failed_sample.tag
+        process.reason_for_failure = error_detector.failed_sample.tag
 
         case process.reason_for_failure
         when :stderr
