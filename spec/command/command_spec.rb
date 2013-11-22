@@ -178,7 +178,6 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                            )
       command.run
@@ -189,7 +188,6 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0] })
       command.run
@@ -200,7 +198,6 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '1',
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [0] })
       command.run
@@ -211,7 +208,6 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '0',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0,2] })
       command.run
@@ -220,7 +216,6 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :parameter => '2',
-                            :lib_log_level => :silent,
                             :error_detection_on => [:return_code], 
                             :error_indicators => { :allowed_return_code => [0,2] })
       command.run
@@ -230,7 +225,6 @@ describe Command do
     it "considers stderr for error handling" do
       command = Command.new(:stderr_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stderr, 
                             :error_indicators => { :forbidden_words_in_stderr => %w{error} })
       command.run
@@ -240,7 +234,6 @@ describe Command do
     it "considers stderr for error handling but can make exceptions" do
       command = Command.new(:stderr_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stderr, 
                             :error_indicators => { :forbidden_words_in_stderr => %w{error}, :allowed_words_in_stderr =>  ["error. execution failed"]})
       command.run
@@ -250,7 +243,6 @@ describe Command do
     it "considers stdout for error handling" do
       command = Command.new(:stdout_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stdout, 
                             :error_indicators => { :forbidden_words_in_stdout => %w{error} })
       command.run
@@ -262,7 +254,6 @@ describe Command do
       #same for stderr
       command = Command.new(:stdout_multiple_lines_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :stdout, 
                             :error_indicators => { :forbidden_words_in_stdout => %w{error} })
       command.run
@@ -274,7 +265,6 @@ describe Command do
 
       command = Command.new(:log_file_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :log_file => temp_file,
                             :error_detection_on => :log_file, 
                             :error_indicators => { :forbidden_words_in_log_file => %w{error} })
@@ -285,7 +275,6 @@ describe Command do
     it "returns the result of command execution as process object (defaults to :return_process_information)" do
       command = Command.new(:output_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -295,7 +284,6 @@ describe Command do
     it "returns the result of command execution as process object" do
       command = Command.new(:output_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :return_process_information,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -306,7 +294,6 @@ describe Command do
     it "does nothing on error if told so" do
       command = Command.new(:raise_error_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :nothing,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -317,7 +304,6 @@ describe Command do
     it "raises an exception" do
       command = Command.new(:raise_error_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -325,7 +311,6 @@ describe Command do
 
       command = Command.new(:not_raise_error_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -335,7 +320,6 @@ describe Command do
     it "throws an error" do
       command = Command.new(:throw_error_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -343,7 +327,6 @@ describe Command do
 
       command = Command.new(:not_throw_error_test, 
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
@@ -354,7 +337,6 @@ describe Command do
       #implicit via default value (open3)
       command = Command.new(:runner_open3_test,
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -364,7 +346,6 @@ describe Command do
       command = Command.new(:runner_open3_test,
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :run_via => :open3,
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -375,7 +356,6 @@ describe Command do
       command = Command.new(:runner_system_test,
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :run_via => :system,
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
@@ -386,7 +366,6 @@ describe Command do
       command = Command.new(:runner_system_test,
                             :search_paths => File.expand_path('test_data', File.dirname(__FILE__)),
                             :run_via => :unknown_runner,
-                            :lib_log_level => :silent,
                             :error_detection_on => :return_code, 
                             :error_indicators => { :allowed_return_code => [ 0 ]})
       command.run
