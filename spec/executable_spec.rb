@@ -1,6 +1,22 @@
 require 'spec_helper'
 
-describe Executable, :focus do
+describe Executable do
+
+  context '#absolute_path' do
+    it "resolves name if is not full qualified" do
+      exec = Executable.new( 'which' )
+      expect( exec.absolute_path ).to eq( '/usr/bin/which' )
+    end
+
+    it "resolves path based on PWD if is symbol", :focus do
+      file = create_file( 'which', '', 0755 )
+      exec = Executable.new( :which )
+
+      switch_to_working_directory do
+        expect( exec.absolute_path ).to eq( file )
+      end
+    end
+  end
 
   context '#exists?' do
     it "succeeds if file exists" do

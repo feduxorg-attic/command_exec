@@ -3,7 +3,11 @@ module CommandExec
 
     private
 
-    attr_reader :path
+    include FeduxOrg::Stdlib::Command::Which
+
+    # @!attribute [r] path
+    #   path to executable
+    attr_reader :path, :search_paths
 
     public
 
@@ -11,11 +15,21 @@ module CommandExec
     #
     # @param [ Path ] path
     #   path to executable
-    def initialize( path )
-      @path = path
+    def initialize( path, search_paths=CommandExec.search_paths )
+      @path         = path
+      @search_paths = search_paths
     end
 
-    # Does the file exists
+    # Absolute path to executable
+    #
+    # @return [String] absolute path to executable
+    def absolute_path
+      return which( path, Dir.getwd ) if path.kind_of? Symbol
+
+      which( path, search_paths )
+    end
+
+    # Does the path exists
     # 
     # @return [true,false] result of check
     def exists?
@@ -29,7 +43,7 @@ module CommandExec
       File.executable? path
     end
 
-    # Is the provided string a file
+    # Is the provided string a path
     # 
     # @return [true,false] result of check
     def file?

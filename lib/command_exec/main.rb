@@ -1,11 +1,10 @@
 module CommandExec
 
-  @logger = FeduxOrg::Stdlib::Logging::Logger.new
+  @logger       = FeduxOrg::Stdlib::Logging::Logger.new
+  @search_paths = ENV['PATH'].split(/:/)
 
   class << self
     attr_accessor :logger, :search_paths
-
-    search_paths = ENV['PATH'].split(/:/)
 
     def root_directory
       File.expand_path( '../../../', __FILE__ )

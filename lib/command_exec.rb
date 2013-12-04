@@ -12,6 +12,7 @@ require 'active_support/core_ext/hash/deep_merge'
 require 'active_support/core_ext/hash/conversions'
 
 require 'fedux_org/stdlib/logging/logger'
+require 'fedux_org/stdlib/command/which'
 
 require 'the_array_comparator'
 
