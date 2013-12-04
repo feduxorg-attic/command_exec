@@ -36,5 +36,6 @@ require 'command_exec/exceptions'
 require 'command_exec/error_detector'
 require 'command_exec/command'
 require 'command_exec/process'
+require 'command_exec/executable'
 
 module CommandExec; end
