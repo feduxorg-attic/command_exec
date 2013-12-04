@@ -2,13 +2,21 @@ require 'spec_helper'
 
 describe Executable, :focus do
 
-  context '#file?' do
-    it "succeeds if file exists and really is a file" do
-      exec = Executable.new( '/usr/bin/which' )
-      expect( exec ).to be_file
+  context '#exists?' do
+    it "succeeds if file exists" do
+      file = create_file( 'file' )
+      exec = Executable.new( file )
+      expect( exec ).to be_exists
     end
 
     it "fails if file does not exist" do
+      exec = Executable.new( 'asdf' )
+      expect( exec ).not_to be_file
+    end
+  end
+
+  context '#file?' do
+    it "succeeds if file exists and really is a file" do
       exec = Executable.new( '/usr/bin/which' )
       expect( exec ).to be_file
     end

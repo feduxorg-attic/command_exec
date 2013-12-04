@@ -15,6 +15,13 @@ module CommandExec
       @path = path
     end
 
+    # Does the file exists
+    # 
+    # @return [true,false] result of check
+    def exists?
+      File.exists? path
+    end
+
     # Is the path executable
     # 
     # @return [true,false] result of check
