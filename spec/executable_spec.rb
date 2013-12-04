@@ -41,10 +41,33 @@ describe Executable, :focus do
     end
   end
 
-  context '#valid?' do
-    it "succeeds if is a file and executable" do
+  context '#validate' do
+    it "does nothing if all tests pass" do
       exec = Executable.new( '/usr/bin/which' )
-      expect( exec ).to be_valid
+      expect { exec.validate }.not_to raise_error
+    end
+
+    it "raises an exception if exist-test fails" do
+      exec = Executable.new( 'asdf')
+      silence( :stderr ) do
+        expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandNotFound
+      end
+    end
+
+    it "raises an exception if file-test fails" do
+      dir = create_directory( 'directory' )
+      exec = Executable.new( dir )
+      silence( :stderr ) do
+        expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandIsNotAFile
+      end
+    end
+
+    it "raises an exception if executable-test fails" do
+      file = create_file( 'file' )
+      exec = Executable.new( file )
+      silence( :stderr ) do
+        expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandNotExecutable
+      end
     end
   end
 end
