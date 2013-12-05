@@ -29,6 +29,12 @@ describe Executable do
       exec = Executable.new( 'asdf' )
       expect( exec ).not_to be_file
     end
+
+    it "works with symbols as well" do
+      file = create_file( 'file' )
+      exec = Executable.new( file.to_sym )
+      expect( exec ).to be_exists
+    end
   end
 
   context '#file?' do
@@ -42,7 +48,12 @@ describe Executable do
       exec = Executable.new( dir )
       expect( exec ).not_to be_file
     end
-  end
+ 
+    it "supports symbols as well" do
+      dir = create_directory( 'directory' )
+      exec = Executable.new( dir.to_sym )
+      expect( exec ).not_to be_file
+    end end
 
   context '#executable?' do
     it "succeeds if file is executable" do
@@ -53,6 +64,12 @@ describe Executable do
     it "fails if file is not executable" do
       file = create_file( 'blub ' )
       exec = Executable.new( file )
+      expect( exec ).not_to be_executable
+    end
+
+    it "supports symbols as well" do
+      file = create_file( 'blub ' )
+      exec = Executable.new( file.to_sym )
       expect( exec ).not_to be_executable
     end
   end

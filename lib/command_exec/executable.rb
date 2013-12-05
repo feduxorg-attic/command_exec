@@ -24,7 +24,7 @@ module CommandExec
     #
     # @return [String] absolute path to executable
     def absolute_path
-      return which( path, Dir.getwd ) if path.kind_of? Symbol
+      return which( path.to_s, Dir.getwd ) if path.kind_of? Symbol
 
       which( path, search_paths )
     end
@@ -33,21 +33,21 @@ module CommandExec
     # 
     # @return [true,false] result of check
     def exists?
-      File.exists? path
+      File.exists? path.to_s
     end
 
     # Is the path executable
     # 
     # @return [true,false] result of check
     def executable?
-      File.executable? path
+      File.executable? path.to_s
     end
 
     # Is the provided string a path
     # 
     # @return [true,false] result of check
     def file?
-      File.file? path
+      File.file? path.to_s
     end
 
     # Validate executable
