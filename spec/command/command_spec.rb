@@ -22,19 +22,22 @@ describe Command do
     CommandExec.search_paths = [ File.join( examples_directory, 'command' ), '/bin', '/usr/bin'  ]
   end
 
-  context '#run' do
-
+  context '#path' do
     it "supports relative paths" do
       Dir.chdir( examples_directory ) do
         command = Command.new('command/true_test')
         expect(command.path).to eq( File.join( examples_directory, 'command', 'true_test' ) )
       end
+    end
 
+    it "supports relative paths with dot" do
       Dir.chdir( File.join( examples_directory, 'command' ) ) do
         command = Command.new('./true_test')
         expect(command.path).to eq(File.join( examples_directory, 'command', 'true_test'))
       end
+    end
 
+    it "supports absolute paths" do
       Dir.chdir '/tmp/' do
         command = Command.new('../bin/true')
         expect(command.path).to eq('/bin/true')
@@ -52,46 +55,40 @@ describe Command do
       command = Command.new(:echo_test, search_paths: [ File.join( examples_directory, 'command' ) ])
       expect(command.path).to eq(File.join( examples_directory, 'command', 'echo_test'))
     end
+  end
 
-    it "checks if exec is executable" do
-      command = Command.new('/bin/true')
-      expect(command.executable?).to eq(true)
-
-      command = Command.new('/etc/passwd')
-      expect(command.executable?).to eq(false)
-    end
-
-    it "checks if exec exists" do
-      command = Command.new('/bin/true')
-      expect(command.exists?).to eq(true)
-
-      command = Command.new('/usr/bin/does_not_exist')
-      expect(command.exists?).to eq(false)
-    end
-
-    it "checks if exec is valid (exists, executable, type = file)" do
-      #does not exist
-      command = Command.new('/usr/bin/does_not_exist')
-      expect(command.valid?).to eq(false)
-
-      #is a directory not a file
-      command = Command.new('/tmp')
-      expect(command.valid?).to eq(false)
-
-      #exists and is executable and is a file
-      command = Command.new('/bin/true')
-      expect(command.valid?).to eq(true)
-    end
-
+  context '#parameter' do
     it "has parameter" do
       command = Command.new(:true, :parameter=>'parameter')
       expect(command.parameter).to eq('parameter')
     end
+  end
 
+  context '#options' do
     it "has options" do
       expect(command.options).to eq('')
     end
+  end
 
+  context '#to_s' do
+    it "can be used to construct a command string, which can be executed" do
+      environment('PATH' => '/bin') {
+        command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
+        expect(command.to_s).to eq("/bin/true -a -b index.tex blub.tex")
+      }
+    end
+  end
+
+  context '#execute' do
+    it "execute existing programs" do
+      silence( :stdout ) do
+        command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b"  )
+        expect(command.result.status).to eq(:success)
+      end
+    end
+  end
+
+  context '#run' do
     it "offers the possibility to change the working directory of the process without any side effects" do
       expect(command.working_directory).to eq('/tmp')
 
@@ -101,13 +98,6 @@ describe Command do
       expect(Dir.pwd).to eq(File.expand_path('../..', File.dirname(__FILE__)))
     end
 
-    it "can be used to construct a command string, which can be executed" do
-      environment('PATH' => '/bin') {
-        command = Command.new(:true, :parameter => "index.tex blub.tex", :options => "-a -b")
-        expect(command.to_s).to eq("/bin/true -a -b index.tex blub.tex")
-      }
-    end
-
     it "runs programms" do
       silence( :stdout ) do
         command = Command.new(:echo, :parameter => "output" )
@@ -115,18 +105,11 @@ describe Command do
 
         expect(command.result.status).to eq(:success)
       end
-
-    end
-
-    it "execute existing programs" do
-      silence( :stdout ) do
-        command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b"  )
-        expect(command.result.status).to eq(:success)
-      end
     end
 
     it "is very verbose and returns a lot of output" do
-      Command.execute(:echo, :parameter => "output", lib_logger => lib_logger ) 
+      command = Command.new(:echo, :parameter => "output", lib_logger => lib_logger ) 
+      command.run
     end
 
     it "is silent and returns no output" do
@@ -138,7 +121,8 @@ describe Command do
       allow( logger ).to receive( :error )
       expect( logger ).to receive( :mode= ).with( :silent )
 
-      Command.execute(:echo, :parameter => "output", :lib_logger => logger, :lib_log_level => :silent)
+      command = Command.new(:echo, :parameter => "output", :lib_logger => logger, :lib_log_level => :silent)
+      command.run
     end
 
     it "use a log file if given" do
@@ -232,7 +216,7 @@ describe Command do
       expect(command.result.status).to eq(:failed)
     end
 
-    
+
     it "removes newlines from stdout" do
       #same for stderr
       command = Command.new(:stdout_multiple_lines_test, 
@@ -351,35 +335,8 @@ describe Command do
                                            :forbidden_words_in_stdout => %w{ error }
                                          },
                                         )
-                                        command.run
-                                        expect(command.result.status).to eq(:failed)
+      command.run
+      expect(command.result.status).to eq(:failed)
     end
-  end
-
-  context :private_api do
-    it "raises an error if command is not executable" do
-      command = Command.new('/etc/passwd' )
-
-      silence( :stderr ) do
-        expect{command.send(:check_path)}.to raise_error CommandNotExecutable
-      end
-    end
-
-    it "raises an error if command does not exist" do
-      command = Command.new('/usr/bin/does_not_exist' )
-
-      silence( :stderr ) do
-        expect{command.send(:check_path)}.to raise_error CommandNotFound
-      end
-    end
-
-    it "raises an error if command is not a file" do
-      command = Command.new('/tmp' )
-
-      silence( :stderr ) do
-        expect{command.send(:check_path)}.to raise_error CommandIsNotAFile
-      end
-    end
-
   end
 end

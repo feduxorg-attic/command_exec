@@ -4,11 +4,11 @@ describe Executable do
 
   context '#absolute_path' do
     it "resolves name if is not full qualified" do
-      exec = Executable.new( 'which' )
+      exec = Executable.new( 'which', '/usr/bin' )
       expect( exec.absolute_path ).to eq( '/usr/bin/which' )
     end
 
-    it "resolves path based on PWD if is symbol", :focus do
+    it "resolves path based on PWD if is symbol" do
       file = create_file( 'which', '', 0755 )
       exec = Executable.new( :which )
 

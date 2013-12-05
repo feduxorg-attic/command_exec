@@ -87,9 +87,8 @@ module CommandExec
     #   :debug, :info, :warn, :error, :fatal, :unknown. Additionally the
     #   :silent-option is understood: do not output anything (@see README for
     #   further information).
-    def initialize(name,opts={})
+    def initialize(cmd,opts={})
 
-      @name = name
       @opts = {
         :options            => '',
         :parameter          => '',
@@ -113,6 +112,9 @@ module CommandExec
         :lib_log_level => :info,
       }.deep_merge opts
 
+        @executable = Executable.new( cmd, @opts[:search_paths] )
+        @executable.validate
+
         if @opts[:lib_logger].nil?
           @logger = CommandExec.logger
         else
@@ -123,7 +125,7 @@ module CommandExec
         @logger.debug @opts
 
         @options = @opts[:options]
-        @path = resolve_path @name, @opts[:search_paths]
+        @path = @executable.absolute_path
         @parameter = @opts[:parameter]
         @log_file = @opts[:log_file]
 
@@ -138,81 +140,6 @@ module CommandExec
     end
 
     private
-
-    # Find path to cmd
-    #
-    # @param [String] name 
-    #   Name of command. It accepts :cmd, 'cmd', 'rel_path/cmd' or
-    #   '/fq_path/to/cmd'. When :cmd is used it searches 'search_paths' for the
-    #   executable. Whenn 'cmd' is used it looks for cmd in local dir. The same
-    #   happens when 'rel_path/cmd' is used. A full qualified path
-    #   '/fq_path/to/cmd' is used as normal.
-    # 
-    # @param [Array] search_paths
-    #   Where to look for executables
-    #
-    # @return [String] fully qualified path to command
-    def resolve_path(name,*search_paths)
-      search_paths = search_paths.flatten
-
-      if name.kind_of? Symbol
-        path = search_paths.map{ |p| File.join(p, name.to_s) }.find {|p| File.exists? p } || ""
-      else
-        path = File.expand_path(name)
-      end
-
-      path
-    end
-
-    # Check if executable exists, if it's executable and is a file
-    #
-    # @raise [CommandExec::Exceptions::CommandNotFound] if command does not exist
-    # @raise [CommandExec::Exceptions::CommandNotExecutable] if command is not executable
-    # @raise [CommandExec::Exceptions::CommandIsNotAFile] if command is not a file
-    def check_path
-      unless exists?
-        @logger.fatal("Command '#{@name}' not found.")
-        raise Exceptions::CommandNotFound , "Command '#{@name}' not found."
-      end
-
-      unless executable?
-        @logger.fatal("Command '#{@name}' not executable.")
-        raise Exceptions::CommandNotExecutable , "Command '#{@name}' not executable."
-      end
-
-      unless file?
-        @logger.fatal("Command '#{@name}' not a file.")
-        raise Exceptions::CommandIsNotAFile, "Command '#{@name}' not a file."
-      end
-    end
-
-    public
-
-    #Is executable valid
-    def valid?
-      exists? and executable? and file?
-    end
-
-    # Does the command exist?
-    # 
-    # @return [True,False] result of check
-    def exists?
-      File.exists? @path
-    end
-
-    # Is the command executable
-    # 
-    # @return [True,False] result of check
-    def executable?
-      File.executable? @path
-    end
-
-    # Is the provided string a file
-    # 
-    # @return [True,False] result of check
-    def file?
-      File.file? @path
-    end
 
     # Output the textual representation of a command
     #
