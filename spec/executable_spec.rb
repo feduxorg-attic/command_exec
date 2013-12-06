@@ -108,25 +108,19 @@ describe Executable do
 
     it "raises an exception if exist-test fails" do
       exec = Executable.new( 'asdf')
-      silence( :stderr ) do
-        expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandNotFound
-      end
+      expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandNotFound
     end
 
     it "raises an exception if file-test fails" do
       dir = create_directory( 'directory' )
       exec = Executable.new( dir )
-      silence( :stderr ) do
-        expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandIsNotAFile
-      end
+      expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandIsNotAFile
     end
 
     it "raises an exception if executable-test fails" do
       file = create_file( 'file' )
       exec = Executable.new( file )
-      silence( :stderr ) do
-        expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandNotExecutable
-      end
+      expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandNotExecutable
     end
   end
 end

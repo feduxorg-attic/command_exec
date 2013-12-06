@@ -113,7 +113,16 @@ module CommandExec
       }.deep_merge opts
 
         @executable = Executable.new( cmd, @opts[:search_paths] )
-        @executable.validate
+
+        begin
+          @executable.validate
+        rescue Exceptions::CommandNotFound
+          CommandExec.logger.fatal("Executable \"#{path}\" cannot be found.")
+        rescue Exceptions::CommandIsNotAFile
+          CommandExec.logger.fatal("Path '#{path}' is not a file.")
+        rescue Exceptions::CommandNotExecutable
+          CommandExec.logger.fatal("Path '#{path}' is not executable.")
+        end
 
         if @opts[:lib_logger].nil?
           @logger = CommandExec.logger

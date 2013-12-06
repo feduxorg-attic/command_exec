@@ -59,20 +59,9 @@ module CommandExec
     # @raise [CommandExec::Exceptions::CommandNotExecutable] if command is not executable
     # @raise [CommandExec::Exceptions::CommandIsNotAFile] if command is not a file
     def validate
-      unless exists?
-        CommandExec.logger.fatal("Executable \"#{path}\" cannot be found.")
-        raise Exceptions::CommandNotFound , "Command '#{path}' not found."
-      end
-
-      unless file?
-        CommandExec.logger.fatal("Path '#{path}' is not a file.")
-        raise Exceptions::CommandIsNotAFile, "Command '#{path}' not a file."
-      end
-
-      unless executable?
-        CommandExec.logger.fatal("Path '#{path}' is not executable.")
-        raise Exceptions::CommandNotExecutable , "Command '#{path}' not executable."
-      end
+        raise Exceptions::CommandNotFound , "Command '#{path}' not found." unless exists?
+        raise Exceptions::CommandIsNotAFile, "Command '#{path}' not a file." unless file?
+        raise Exceptions::CommandNotExecutable , "Command '#{path}' not executable." unless executable?
     end
   end
 end
