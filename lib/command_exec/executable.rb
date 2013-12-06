@@ -1,3 +1,5 @@
+require 'pathname'
+
 module CommandExec
   class Executable
 
@@ -22,32 +24,33 @@ module CommandExec
 
     # Absolute path to executable
     #
-    # @return [String] absolute path to executable
+    # @return [String] absolute path to executable, '' if lookup failed
     def absolute_path
-      return which( path.to_s, Dir.getwd ) if path.kind_of? Symbol
+      return which( path, search_paths ).to_s   if path.kind_of? Symbol
+      return which( path, Dir.getwd ).to_s if Pathname.new( path.to_s ).relative?
 
-      which( path, search_paths )
+      path.to_s
     end
 
     # Does the path exists
     # 
     # @return [true,false] result of check
     def exists?
-      File.exists? path.to_s
+      File.exists? absolute_path
     end
 
     # Is the path executable
     # 
     # @return [true,false] result of check
     def executable?
-      File.executable? path.to_s
+      File.executable? absolute_path
     end
 
     # Is the provided string a path
     # 
     # @return [true,false] result of check
     def file?
-      File.file? path.to_s
+      File.file? absolute_path
     end
 
     # Validate executable
