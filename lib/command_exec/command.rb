@@ -5,6 +5,12 @@ module CommandExec
   # Run commands
   class Command
 
+    private
+
+    attr_reader :path
+
+    public
+
     # @!attribute [rw] log_file
     #   Set/Get log file for command
     #
@@ -18,12 +24,9 @@ module CommandExec
     # @!attribute [r] result
     #   Return the result of command execution
     #
-    # @!attribute [r] path
-    #   Return path to the executable of the command
-    #
     # @!attribute [r] working_directory
     #   Return the working directory of the command
-    attr_reader :result, :path, :working_directory
+    attr_reader :result, :working_directory
 
     # Create a new command to execute
     #
@@ -158,7 +161,7 @@ module CommandExec
     # @return [String] command in text form
     def to_s
       cmd = ''
-      cmd += @path
+      cmd += path
       cmd += @options.blank? ? "" : " #{@options}"
       cmd += @parameter.blank? ? "" : " #{@parameter}"
 
