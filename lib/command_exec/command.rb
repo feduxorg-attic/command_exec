@@ -39,6 +39,9 @@ module CommandExec
     # @option opts [String] :options ('')
     #   options for the command
     #
+    # @option opts [String] :secure_path (false)
+    #   delete all ../ from command path
+    #
     # @option opts [String] :working_directory (current working directory)
     #   working_directory for the command
     #
@@ -93,6 +96,7 @@ module CommandExec
     def initialize(cmd,opts={})
 
       @opts = {
+        :secure_path        => false,
         :options            => '',
         :parameter          => '',
         :working_directory  => Dir.pwd,
