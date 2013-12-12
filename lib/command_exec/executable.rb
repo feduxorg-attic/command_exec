@@ -12,7 +12,7 @@ module CommandExec
     #   path to executable
     def initialize( local_path, options = {} )
       @path          = local_path
-      @path_resolver = PathResolver.new( search_paths: determine_search_paths( local_path , options ) )
+      @path_resolver = PathResolver.new( search_paths: options[ :search_paths ] )
       @path_cleaner  = PathCleaner.new
 
       after_init
@@ -29,11 +29,6 @@ module CommandExec
     private
 
     def after_init; end
-
-    def determine_search_paths( local_path, hash )
-      return SearchPath.new( local_path ).to_a if hash[ :search_paths ].blank?
-      Array( hash.fetch( :search_paths , SearchPath.new( local_path ).to_a ) )
-    end
 
   end
 end

@@ -101,7 +101,7 @@ module CommandExec
         :parameter          => '',
         :working_directory  => Dir.pwd,
         :log_file           => '',
-        :search_paths       => [],
+        :search_paths       => nil,
         :error_detection_on => [:return_code],
         :error_indicators   => {
           :allowed_return_code         => [0],
@@ -120,7 +120,7 @@ module CommandExec
       }.deep_merge opts
 
         if @opts[ :secure_path ]
-          @executable = SecuredExecutable.new( cmd, search_paths: @opts[:search_paths] )
+          @executable = SecuredExecutable.new( cmd, search_paths: SearchPaths.new( @opts[:search_paths] || cmd ) )
         else
           @executable = SimpleExecutable.new( cmd, search_paths: @opts[:search_paths] )
         end
