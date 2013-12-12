@@ -113,19 +113,9 @@ module CommandExec
       }.deep_merge opts
 
         if @opts[ :secure_path ]
-          @executable = Executable.new( cmd, search_paths: @opts[:search_paths] )
+          @executable = SimpleExecutable.new( cmd, search_paths: @opts[:search_paths] )
         else
           @executable = SecuredExecutable.new( cmd, search_paths: @opts[:search_paths] )
-        end
-
-        begin
-          @executable.validate
-        rescue Exceptions::CommandNotFound
-          CommandExec.logger.fatal("Executable \"#{path}\" cannot be found.")
-        rescue Exceptions::CommandIsNotAFile
-          CommandExec.logger.fatal("Path '#{path}' is not a file.")
-        rescue Exceptions::CommandNotExecutable
-          CommandExec.logger.fatal("Path '#{path}' is not executable.")
         end
 
         if @opts[:lib_logger].nil?
@@ -138,7 +128,18 @@ module CommandExec
         @logger.debug @opts
 
         @options = @opts[:options]
-        @path = @executable.absolute_path
+
+        begin
+          @path = @executable.absolute_path
+        rescue Exceptions::CommandNotFound => e
+          CommandExec.logger.fatal( e.message )
+        rescue Exceptions::CommandIsNotAFile => e
+          CommandExec.logger.fatal( e.message )
+        rescue Exceptions::CommandNotExecutable => e
+          CommandExec.logger.fatal( e.message )
+        end
+
+
         @parameter = @opts[:parameter]
         @log_file = @opts[:log_file]
 

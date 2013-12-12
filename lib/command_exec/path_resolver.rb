@@ -79,9 +79,9 @@ module CommandExec
         raise Exception::CommandNotFound if cmd.blank?
 
         if Pathname.new( cmd ).absolute? 
-          raise Exception::CommandNotFound, cmd        unless File.exists? cmd
-          raise Exception::CommandIsNotAFile, cmd      unless File.file? cmd
-          raise Exception::CommandIsNotExecutable, cmd  unless File.executable? cmd
+          raise Exception::CommandNotFound, "Command '#{cmd}' not found search paths: #{ search_paths.join(", ") }\"." unless File.exists? cmd
+          raise Exception::CommandIsNotAFile, "Command '#{cmd}' is not a file."          unless File.file? cmd
+          raise Exception::CommandIsNotExecutable, "Command '#{cmd}' is not executable." unless File.executable? cmd
 
           return cmd
         end
@@ -89,13 +89,13 @@ module CommandExec
         search_paths.each do |path|
           extensions.each do |ext|
             file = File.join( path, "#{cmd}#{ext}" )
-            raise Exception::CommandIsNotAFile, file      if File.exists? file and not File.file? file
-            raise Exception::CommandIsNotExecutable, file if File.exists? file and not File.executable? file
+            raise Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file and not File.file? file
+            raise Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists? file and not File.executable? file
             return file if File.executable? file
           end
         end
 
-        raise Exception::CommandNotFound
+        raise Exception::CommandNotFound, "Command '#{cmd}' not found in search paths: #{search_paths.join( ", ") }\"."
       end
     end
 
