@@ -22,7 +22,7 @@ module CommandExec
     # @return [String]
     #   The absolute path to the command
     def absolute_path( cmd )
-      resolver.which( cmd )
+      resolver.absolute_path( cmd )
     end
 
     private
