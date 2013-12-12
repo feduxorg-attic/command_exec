@@ -179,8 +179,6 @@ module CommandExec
       process.log_file = @log_file if @log_file
       process.status = :success
 
-      check_path
-
       process.start_time = Time.now
 
       case @run_via
