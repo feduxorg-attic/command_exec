@@ -13,13 +13,8 @@ module CommandExec
 
       search_paths = options[:search_paths]
       extensions   = options[:extensions]
-      raise_error  = options[:raise_error]
 
-      if raise_error
-        @resolver = ResolverWithExceptions.new( Array( search_paths ), Array( extensions ) )
-      else
-        @resolver = ResolverWithNil.new( Array( search_paths ), Array( extensions ) )
-      end
+      @resolver = Resolver.new( Array( search_paths ), Array( extensions ) )
     end
 
     # Find the absolute path to cmd
@@ -48,31 +43,57 @@ module CommandExec
 
     def default_options
       {
-        raise_error:  false,
         search_paths: default_search_paths,
         extensions:   default_extensions,
       }
     end
 
     class BaseResolver
+    end
+
+    # Class to handle path resolve and raise exception on command no found
+    class Resolver
       attr_reader :search_paths, :extensions
       private     :search_paths, :extensions
 
+      # Create new resolver
+      #
+      # @param [Array] search_paths
+      #   List of search paths 
+      #
+      # @param [Array] extension
+      #   List of file extension
       def initialize( search_paths, extensions )
         @search_paths = search_paths
         @extensions   = extensions
       end
-    end
 
-    # Class to handle path resolve and raise exception on command no found
-    class ResolverWithExceptions < BaseResolver
-      def which( cmd )
+      # Try to determine absolute path for command 
+      #
+      # @param [String] cmd
+      #   Command or absolute/relative path to command
+      #  
+      # @return [String]
+      #  Path to command 
+      #
+      # @raise [Exception::CommandNotFound]
+      #   raised if `cmd` is blank or does not exist
+      def absolute_path( cmd )
         raise Exception::CommandNotFound if cmd.blank?
-        return cmd if Pathname.new( cmd ).absolute? and File.executable? cmd
+
+        if Pathname.new( cmd ).absolute? 
+          raise Exception::CommandNotFound, cmd        unless File.exists? cmd
+          raise Exception::CommandIsNotAFile, cmd      unless File.file? cmd
+          raise Exception::CommandIsNotExecutable, cmd  unless File.executable? cmd
+
+          return cmd
+        end
 
         search_paths.each do |path|
           extensions.each do |ext|
             file = File.join( path, "#{cmd}#{ext}" )
+            raise Exception::CommandIsNotAFile, file      if File.exists? file and not File.file? file
+            raise Exception::CommandIsNotExecutable, file if File.exists? file and not File.executable? file
             return file if File.executable? file
           end
         end
@@ -81,21 +102,5 @@ module CommandExec
       end
     end
 
-    # Class to handle path resolve and return nil on command no found
-    class ResolverWithNil < BaseResolver
-      def which( cmd )
-        return nil if cmd.blank?
-        return cmd if Pathname.new( cmd ).absolute? and File.executable? cmd
-
-        search_paths.each do |path|
-          extensions.each do |ext|
-            file = File.join( path, "#{cmd}#{ext}" )
-            return file if File.executable? file
-          end
-        end
-
-        nil
-      end
-    end
   end
 end
