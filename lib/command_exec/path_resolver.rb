@@ -48,9 +48,6 @@ module CommandExec
       }
     end
 
-    class BaseResolver
-    end
-
     # Class to handle path resolve and raise exception on command no found
     class Resolver
       attr_reader :search_paths, :extensions
