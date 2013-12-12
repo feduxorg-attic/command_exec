@@ -17,6 +17,9 @@ require 'fedux_org/stdlib/command/which'
 require 'command_exec/search_path'
 require 'command_exec/path_resolver'
 require 'command_exec/path_cleaner'
+require 'command_exec/executable'
+require 'command_exec/secured_executable'
+require 'command_exec/simple_executable'
 
 require 'the_array_comparator'
 
@@ -41,6 +44,5 @@ require 'command_exec/exceptions'
 require 'command_exec/error_detector'
 require 'command_exec/command'
 require 'command_exec/process'
-require 'command_exec/executable'
 
 module CommandExec; end

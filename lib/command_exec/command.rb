@@ -113,9 +113,9 @@ module CommandExec
       }.deep_merge opts
 
         if @opts[ :secure_path ]
-          @executable = SimpleExecutable.new( cmd, search_paths: @opts[:search_paths] )
-        else
           @executable = SecuredExecutable.new( cmd, search_paths: @opts[:search_paths] )
+        else
+          @executable = SimpleExecutable.new( cmd, search_paths: @opts[:search_paths] )
         end
 
         if @opts[:lib_logger].nil?
