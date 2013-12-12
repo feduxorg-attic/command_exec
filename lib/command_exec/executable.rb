@@ -27,26 +27,21 @@ module CommandExec
       @path_resolver.absolute_path( @path_cleaner.cleanup( path ) )
     end
 
-    # Does the path exists
-    # 
-    # @return [true,false] result of check
+    private
+
     def exists?
       File.exists? absolute_path
     end
 
-    # Is the path executable
-    # 
-    # @return [true,false] result of check
     def executable?
       File.executable? absolute_path
     end
 
-    # Is the provided string a path
-    # 
-    # @return [true,false] result of check
     def file?
       File.file? absolute_path
     end
+
+    public
 
     # Validate executable
     #
@@ -54,9 +49,9 @@ module CommandExec
     # @raise [CommandExec::Exceptions::CommandNotExecutable] if command is not executable
     # @raise [CommandExec::Exceptions::CommandIsNotAFile] if command is not a file
     def validate
-        raise Exceptions::CommandNotFound , "Command '#{path}' not found." unless exists?
-        raise Exceptions::CommandIsNotAFile, "Command '#{path}' not a file." unless file?
-        raise Exceptions::CommandNotExecutable , "Command '#{path}' not executable." unless executable?
+      raise Exceptions::CommandNotFound , "Command '#{path}' not found." unless exists?
+      raise Exceptions::CommandIsNotAFile, "Command '#{path}' not a file." unless file?
+      raise Exceptions::CommandIsNotExecutable , "Command '#{path}' not executable." unless executable?
     end
 
     private
