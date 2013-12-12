@@ -9,11 +9,13 @@ module CommandExec
     public
 
     def initialize( cmd = nil )
-      if cmd.nil?
+      if cmd.blank?
         @paths = default_path
       elsif cmd.kind_of? Symbol
         @paths = default_path
-      elsif Pathname.new( cmd ).absolute?
+      elsif cmd.kind_of? Array
+        @paths = cmd
+      elsif Pathname.new( cmd.to_s ).absolute?
         @paths = default_path
       else
         @paths = current_directory
@@ -33,6 +35,8 @@ module CommandExec
     public
 
     def to_a(separator=':')
+      return paths if paths.kind_of? Array
+
       paths.split( separator )
     end
 

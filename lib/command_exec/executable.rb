@@ -31,6 +31,7 @@ module CommandExec
     def after_init; end
 
     def determine_search_paths( local_path, hash )
+      return SearchPath.new( local_path ).to_a if hash[ :search_paths ].blank?
       Array( hash.fetch( :search_paths , SearchPath.new( local_path ).to_a ) )
     end
 

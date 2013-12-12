@@ -1,11 +1,12 @@
 require 'spec_helper'
 
 describe SearchPath do
-  context '#new' do
 
-    it 'uses ENV[\'PATH\'] if nil' do
+  context '#to_a' do
+    it 'uses ENV[\'PATH\'] if blank' do
       isolated_environment 'PATH' => '/bin' do
         expect( SearchPath.new.to_a ).to eq( [ '/bin' ] )
+        expect( SearchPath.new( [ ] ).to_a ).to eq( [ '/bin' ] )
       end
     end
 
@@ -24,9 +25,13 @@ describe SearchPath do
         expect( SearchPath.new( '/usr/bin/which' ).to_a ).to eq( [ '/bin' ] )
       end
     end
-  end
 
-  context '#to_a' do
+    it 'uses Array if Array is given and not blank' do
+      isolated_environment 'PATH' => '/bin' do
+        expect( SearchPath.new( [ '/usr/bin' ] ).to_a ).to eq( [ '/usr/bin' ] )
+      end
+    end
+
     it 'splits up at ":" by default' do
       isolated_environment 'PATH' => '/bin:/usr/bin' do
         expect( SearchPath.new.to_a ).to eq( [ '/bin', '/usr/bin' ] )

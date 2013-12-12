@@ -1,7 +1,7 @@
 module CommandExec
 
   @logger       = FeduxOrg::Stdlib::Logging::Logger.new
-  @search_paths = ENV['PATH'].split(/:/)
+  @search_paths = []
 
   class << self
     attr_accessor :logger, :search_paths

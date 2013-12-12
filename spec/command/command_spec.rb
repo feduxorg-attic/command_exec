@@ -23,10 +23,17 @@ describe Command do
   end
 
   context '#path' do
-    it "supports relative paths" do
-      Dir.chdir( examples_directory ) do
-        command = Command.new('command/true_test')
-        expect(command.path).to eq( File.join( examples_directory, 'command', 'true_test' ) )
+    it "supports relative paths", :focus do
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/which bash
+      exit 1
+      EOS
+
+      file = create_file( 'cmd', content, 0755 )
+
+      switch_to_working_directory do
+        command = Command.new( 'cmd' )
+        expect{ command.run }.not_to raise_error
       end
     end
 

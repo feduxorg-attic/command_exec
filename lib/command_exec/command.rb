@@ -101,7 +101,7 @@ module CommandExec
         :parameter          => '',
         :working_directory  => Dir.pwd,
         :log_file           => '',
-        :search_paths       => CommandExec.search_paths,
+        :search_paths       => [],
         :error_detection_on => [:return_code],
         :error_indicators   => {
           :allowed_return_code         => [0],
