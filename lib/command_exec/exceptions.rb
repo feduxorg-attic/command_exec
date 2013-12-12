@@ -13,7 +13,7 @@ module CommandExec
     #
     # @example Counter measure for this error
     #   chmod +x <executable>
-    class CommandNotExecutable < RuntimeError; end
+    class CommandIsNotExecutable < RuntimeError; end
     
     # Class used to indicate that a command 
     # is not a file
