@@ -1,15 +1,10 @@
 module CommandExec
   class Executable
 
-    private
-
-    include FeduxOrg::Stdlib::Command::Which
-
     # @!attribute [r] path
     #   path to executable
     attr_reader :path
-
-    public
+    private     :path
 
     # Create executable
     #
