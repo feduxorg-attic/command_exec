@@ -1,5 +1,3 @@
-require 'pathname'
-
 module CommandExec
   class Executable
 
@@ -9,7 +7,7 @@ module CommandExec
 
     # @!attribute [r] path
     #   path to executable
-    attr_reader :path, :search_paths
+    attr_reader :path
 
     public
 
@@ -17,19 +15,21 @@ module CommandExec
     #
     # @param [ Path ] path
     #   path to executable
-    def initialize( path, search_paths=CommandExec.search_paths )
-      @path         = path
-      @search_paths = search_paths
+    def initialize( p, options = {} )
+      @path          = p
+      @path_resolver = PathResolver.new( search_paths( p , options ) )
+      @path_cleaner  = PathCleaner.new
+
+      after_init
     end
+
+    def after_init; end
 
     # Absolute path to executable
     #
     # @return [String] absolute path to executable, '' if lookup failed
     def absolute_path
-      return which( path, search_paths ).to_s   if path.kind_of? Symbol
-      return which( path, Dir.getwd ).to_s if Pathname.new( path.to_s ).relative?
-
-      path.to_s
+      @path_resolver.absolute_path( @path_cleaner.cleanup( path ) )
     end
 
     # Does the path exists
@@ -63,5 +63,12 @@ module CommandExec
         raise Exceptions::CommandIsNotAFile, "Command '#{path}' not a file." unless file?
         raise Exceptions::CommandNotExecutable , "Command '#{path}' not executable." unless executable?
     end
+
+    private
+
+    def search_paths( p, options )
+      Array( options.fetch( :search_paths , SearchPath.new( p ).to_a ) )
+    end
+
   end
 end

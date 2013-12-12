@@ -112,7 +112,11 @@ module CommandExec
         :lib_log_level => :info,
       }.deep_merge opts
 
-        @executable = Executable.new( cmd, @opts[:search_paths] )
+        if @opts[ :secure_path ]
+          @executable = Executable.new( cmd, search_paths: @opts[:search_paths] )
+        else
+          @executable = SecuredExecutable.new( cmd, search_paths: @opts[:search_paths] )
+        end
 
         begin
           @executable.validate
@@ -147,8 +151,6 @@ module CommandExec
         @working_directory = @opts[:working_directory] 
         @result = nil
     end
-
-    private
 
     # Output the textual representation of a command
     #

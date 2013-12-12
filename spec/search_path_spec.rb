@@ -18,6 +18,12 @@ describe SearchPath do
         expect( SearchPath.new( :cmd ).to_a ).to eq( [ '/bin' ] )
       end
     end
+
+    it 'uses ENV[\'PATH\'] if path is absolute' do
+      isolated_environment 'PATH' => '/bin' do
+        expect( SearchPath.new( '/usr/bin/which' ).to_a ).to eq( [ '/bin' ] )
+      end
+    end
   end
 
   context '#to_a' do

@@ -1,3 +1,5 @@
+require 'pathname'
+
 module CommandExec
   class SearchPath
     private
@@ -10,6 +12,8 @@ module CommandExec
       if cmd.nil?
         @paths = default_path
       elsif cmd.kind_of? Symbol
+        @paths = default_path
+      elsif Pathname.new( cmd ).absolute?
         @paths = default_path
       else
         @paths = current_directory

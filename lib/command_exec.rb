@@ -5,6 +5,7 @@ require 'json'
 require 'psych'
 require 'xmlsimple'
 require 'open3'
+require 'pathname'
 
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/string/filters'
@@ -13,6 +14,9 @@ require 'active_support/core_ext/hash/conversions'
 
 require 'fedux_org/stdlib/logging/logger'
 require 'fedux_org/stdlib/command/which'
+require 'command_exec/search_path'
+require 'command_exec/path_resolver'
+require 'command_exec/path_cleaner'
 
 require 'the_array_comparator'
 

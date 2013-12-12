@@ -2,50 +2,9 @@ require 'spec_helper'
 
 describe Executable do
 
-  context '#absolute_path' do
-    it "resolves name if is full qualified" do
-      exec = Executable.new( '/usr/bin/which' )
-      expect( exec.absolute_path ).to eq( '/usr/bin/which' )
-    end
-
-    it "resolves path based on PATH if is symbol" do
-      file = create_file( 'which', '', 0755 )
-      exec = Executable.new( :which, working_directory )
-
-      switch_to_working_directory do
-        expect( exec.absolute_path ).to eq( file )
-      end
-    end
-
-    it "resolves executables only" do
-      file1 = create_file( 'file1', '', 0644 )
-      file2 = create_file( 'file2', '', 0755 )
-
-      exec1 = Executable.new( 'file1' )
-      exec2 = Executable.new( 'file2' )
-
-      switch_to_working_directory do
-        expect( exec1 ).not_to be_exists
-        expect( exec2 ).to be_exists
-      end
-
-    end
-
-    it "resolves path based on PWD if is a string and a relative path (it does not start with \"/\")" do
-      file = create_file( 'file', '', 0755 )
-
-      exec = Executable.new( 'file' )
-
-      switch_to_working_directory do
-        expect( exec ).to be_exists
-      end
-
-    end
-  end
-
   context '#exists?' do
     it "succeeds if file exists" do
-      file = create_file( 'file' )
+      file = create_file( 'file', '', 0755 )
       exec = Executable.new( file )
       expect( exec ).to be_exists
     end
@@ -57,7 +16,7 @@ describe Executable do
 
     it "works with symbols as well" do
       file = create_file( 'file', '' , 0755 )
-      exec = Executable.new( :file , working_directory )
+      exec = Executable.new( :file, search_paths: working_directory )
       expect( exec ).to be_exists
     end
 
@@ -77,7 +36,7 @@ describe Executable do
  
     it "supports symbols as well" do
       dir = create_file( 'file', '', 0755 )
-      exec = Executable.new( :file, working_directory )
+      exec = Executable.new( :file, search_paths: working_directory )
       expect( exec ).to be_file
     end end
 
@@ -88,15 +47,24 @@ describe Executable do
     end
 
     it "fails if file is not executable" do
-      file = create_file( 'blub' )
+      file = create_file( 'blub', '', 0644 )
       exec = Executable.new( file )
       expect( exec ).not_to be_executable
     end
 
     it "supports symbols as well" do
       file = create_file( 'blub', '', 0755 )
-      exec = Executable.new( :blub, working_directory )
+      exec = Executable.new( :blub, search_paths: working_directory )
       expect( exec ).to be_executable
+    end
+  end
+
+  context '#absolute_path' do
+    it "returns absolute path to command" do
+      exec = Executable.new( :which )
+      isolated_environment 'PATH' => '/usr/bin' do
+        expect( exec.absolute_path ).to eq( '/usr/bin/which' )
+      end
     end
   end
 
@@ -118,7 +86,7 @@ describe Executable do
     end
 
     it "raises an exception if executable-test fails" do
-      file = create_file( 'file' )
+      file = create_file( 'file', '', 0644 )
       exec = Executable.new( file )
       expect { exec.validate }.to raise_error CommandExec::Exceptions::CommandNotExecutable
     end
