@@ -140,10 +140,13 @@ module CommandExec
           @path = @executable.absolute_path
         rescue Exceptions::CommandNotFound => e
           CommandExec.logger.fatal( e.message )
+          raise
         rescue Exceptions::CommandIsNotAFile => e
           CommandExec.logger.fatal( e.message )
+          raise
         rescue Exceptions::CommandNotExecutable => e
           CommandExec.logger.fatal( e.message )
+          raise
         end
 
 
