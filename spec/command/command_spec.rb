@@ -38,29 +38,60 @@ describe Command do
     end
 
     it "supports relative paths with dot" do
-      Dir.chdir( File.join( examples_directory, 'command' ) ) do
-        command = Command.new('./true_test')
-        expect(command.path).to eq(File.join( examples_directory, 'command', 'true_test'))
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/which bash
+      exit 1
+      EOS
+
+      file = create_file( 'cmd', content, 0755 )
+
+      switch_to_working_directory do
+        command = Command.new( './cmd' )
+        expect{ command.run }.not_to raise_error
       end
     end
 
     it "supports absolute paths" do
-      Dir.chdir '/tmp/' do
-        command = Command.new('../bin/true')
-        expect(command.path).to eq('/bin/true')
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/which bash
+      exit 1
+      EOS
+
+      file = create_file( 'cmd', content, 0755 )
+
+      switch_to_working_directory do
+        command = Command.new( file )
+        expect{ command.run }.not_to raise_error
       end
     end
 
     it 'searches $PATH to find the command' do 
-      environment({ 'PATH' => '/bin' }) do
-        command = Command.new(:true)
-        expect(command.path).to eq("/bin/true")
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/which bash
+      exit 1
+      EOS
+
+      file = create_file( 'cmd', content, 0755 )
+
+      with_environment 'PATH' => working_directory do
+        command = Command.new( :cmd )
+        expect{ command.run }.not_to raise_error
       end
+
     end
 
-    it 'offers an option to change $PATH for the command execution' do
-      command = Command.new(:echo_test, search_paths: [ File.join( examples_directory, 'command' ) ])
-      expect(command.path).to eq(File.join( examples_directory, 'command', 'echo_test'))
+    it 'offers an option to change search path PATH for the command execution', :focus do
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/which bash
+      exit 1
+      EOS
+
+      file = create_file( 'cmd', content, 0755 )
+
+      in_working_directory do
+        command = Command.new( :cmd, search_paths: [ working_directory ] )
+        expect{ command.run }.not_to raise_error
+      end
     end
   end
 
