@@ -18,9 +18,9 @@ describe Command do
     Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' )
   end
 
-  before( :all ) do
-    CommandExec.search_paths = [ File.join( examples_directory, 'command' ), '/bin', '/usr/bin'  ]
-  end
+  #before( :all ) do
+  #  #CommandExec.search_paths = [ File.join( examples_directory, 'command' ), '/bin', '/usr/bin'  ]
+  #end
 
   context '#path' do
     it "supports relative paths", :focus do
