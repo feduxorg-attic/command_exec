@@ -11,3 +11,5 @@ def in_directory( directory, &block )
   end
 end
 
+alias :in_working_directory :switch_to_working_directory 
+
