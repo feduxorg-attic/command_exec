@@ -135,13 +135,7 @@ module CommandExec
 
         begin
           @path = @executable.absolute_path
-        rescue Exceptions::CommandNotFound => e
-          CommandExec.logger.fatal( e.message )
-          raise
-        rescue Exceptions::CommandIsNotAFile => e
-          CommandExec.logger.fatal( e.message )
-          raise
-        rescue Exceptions::CommandNotExecutable => e
+        rescue [ Exceptions::CommandNotFound, Exceptions::CommandIsNotAFile, Exceptions::CommandIsNotExecutable ]  => e
           CommandExec.logger.fatal( e.message )
           raise
         end
@@ -252,7 +246,7 @@ module CommandExec
         when :nothing
           # nothing
         when :raise_error
-          raise CommandExec::Exceptions::CommandExecutionFailed, "An error occured. Please check for reason via command.reason_for_failure and/or command.stdout, comand.stderr, command.log_file, command.return_code"
+          fail CommandExec::Exceptions::CommandExecutionFailed, "An error occured. Please check for reason via command.reason_for_failure and/or command.stdout, comand.stderr, command.log_file, command.return_code"
         when :throw_error
           throw :command_execution_failed 
         else

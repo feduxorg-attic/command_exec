@@ -78,12 +78,12 @@ module CommandExec
       # @raise [Exception::CommandNotFound]
       #   raised if `cmd` is blank or does not exist
       def absolute_path( cmd )
-        raise Exception::CommandNotFound if cmd.blank?
+        fail Exception::CommandNotFound if cmd.blank?
 
         if Pathname.new( cmd ).absolute? 
-          raise Exception::CommandNotFound, "Command '#{cmd}' not found search paths: #{ search_paths.join(", ") }\"." unless File.exists? cmd
-          raise Exception::CommandIsNotAFile, "Command '#{cmd}' is not a file."          unless File.file? cmd
-          raise Exception::CommandIsNotExecutable, "Command '#{cmd}' is not executable." unless File.executable? cmd
+          fail Exception::CommandNotFound, "Command '#{cmd}' not found search paths: #{ search_paths.join(", ") }\"." unless File.exists? cmd
+          fail Exception::CommandIsNotAFile, "Command '#{cmd}' is not a file."          unless File.file? cmd
+          fail Exception::CommandIsNotExecutable, "Command '#{cmd}' is not executable." unless File.executable? cmd
 
           return cmd
         end
@@ -91,13 +91,13 @@ module CommandExec
         search_paths.each do |path|
           extensions.each do |ext|
             file = File.join( path, "#{cmd}#{ext}" )
-            raise Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file && !File.file?( file )
-            raise Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists? file && !File.executable?(file)
+            fail Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file && !File.file?( file )
+            fail Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists? file && !File.executable?(file)
             return file if File.executable? file
           end
         end
 
-        raise Exception::CommandNotFound, "Command '#{cmd}' not found in search paths: #{search_paths.join( ", ") }\"."
+        fail Exception::CommandNotFound, "Command '#{cmd}' not found in search paths: #{search_paths.join( ", ") }\"."
       end
     end
   end

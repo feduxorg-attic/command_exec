@@ -75,7 +75,7 @@ RescueException:
   Enabled: false
 
 SignalException:
-  Enabled: false
+  Enabled: true
 
 SpaceAfterComma:
   Enabled: false
