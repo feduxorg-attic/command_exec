@@ -28,4 +28,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'aruba'
   s.add_development_dependency 'fuubar'
   s.add_development_dependency 'erubis'
+  s.add_development_dependency 'rubocop'
 end
