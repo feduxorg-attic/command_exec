@@ -1,10 +1,10 @@
-#encoding: utf-8
+# encoding: utf-8
 
-#Main
+# Main
 module CommandExec
-  #Formatting output
+  # Formatting output
   module Formatter
-    #Style as json string
+    # Style as json string
     class JSON < CommandExec::Formatter::Hash
       # convert the prepared output to json
       #

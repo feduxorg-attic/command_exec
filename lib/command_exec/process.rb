@@ -1,5 +1,5 @@
-#encoding: utf-8
-#Main
+# encoding: utf-8
+# Main
 module CommandExec
   # The class used to save the data about
   # the executed command

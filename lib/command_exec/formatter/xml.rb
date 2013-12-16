@@ -1,10 +1,10 @@
-#encoding: utf-8
+# encoding: utf-8
 
-#Main
+# Main
 module CommandExec
-  #Formatting output
+  # Formatting output
   module Formatter
-    #Style as xml string
+    # Style as xml string
     class XML < CommandExec::Formatter::Hash
       # convert the prepared output to a xml string
       #

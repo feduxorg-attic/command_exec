@@ -1,10 +1,10 @@
-#encoding: utf-8
+# encoding: utf-8
 
-#Main
+# Main
 module CommandExec
-  #Formatting output
+  # Formatting output
   module Formatter
-    #Style hash
+    # Style hash
     class Hash
       include FieldHelper
 

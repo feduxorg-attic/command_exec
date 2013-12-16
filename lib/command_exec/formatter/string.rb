@@ -1,10 +1,10 @@
-#encoding: utf-8
+# encoding: utf-8
 
-#Main
+# Main
 module CommandExec
-  #Formatting output
+  # Formatting output
   module Formatter
-    #Style as simple string
+    # Style as simple string
     class String < CommandExec::Formatter::Array
       # convert the prepared output to single string
       #

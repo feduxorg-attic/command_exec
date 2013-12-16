@@ -1,9 +1,9 @@
 # encoding: utf-8
-#Main
+# Main
 module CommandExec
-  #Formatting output
+  # Formatting output
   module Formatter
-    #Style array
+    # Style array
     class Array
       include FieldHelper
       # @!attribute [r] output

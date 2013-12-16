@@ -1,5 +1,5 @@
-#encoding: utf-8
-#Main
+# encoding: utf-8
+# Main
 module CommandExec
   # Shared methods for fields
   module FieldHelper

@@ -51,10 +51,10 @@ IndentationWidth:
   Enabled: true
 
 Lambda:
-  Enabled: false
+  Enabled: true
 
 LeadingCommentSpace:
-  Enabled: false
+  Enabled: true
 
 LineLength:
   Enabled: false

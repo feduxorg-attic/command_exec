@@ -250,13 +250,13 @@ module CommandExec
 
         case @on_error_do
         when :nothing
-          #nothing
+          # nothing
         when :raise_error
           raise CommandExec::Exceptions::CommandExecutionFailed, "An error occured. Please check for reason via command.reason_for_failure and/or command.stdout, comand.stderr, command.log_file, command.return_code"
         when :throw_error
           throw :command_execution_failed 
         else
-          #nothing
+          # nothing
         end
       end
 
@@ -267,7 +267,7 @@ module CommandExec
 
     # Run a command 
     #
-    # @see #initialize
+    # @see # initialize
     def self.execute(name,opts={})
       command = new(name,opts)
       command.run
