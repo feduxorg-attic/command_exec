@@ -1,5 +1,5 @@
+# encoding: utf-8
 module CommandExec
-
   @logger       = FeduxOrg::Stdlib::Logging::Logger.new
   @search_paths = nil
 
@@ -10,5 +10,4 @@ module CommandExec
       File.expand_path( '../../../', __FILE__ )
     end
   end
-  
 end

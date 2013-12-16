@@ -1,21 +1,20 @@
 # encoding: utf-8
-
 # Main
 module CommandExec
   # Classed concerning pdflatex exceptions
   module Exceptions
-    # Class used to indicate that a command 
+    # Class used to indicate that a command
     # could not be found in file system
     class CommandNotFound < RuntimeError; end
     
-    # Class used to indicate that a command 
+    # Class used to indicate that a command
     # is not flagged as executable
     #
     # @example Counter measure for this error
     #   chmod +x <executable>
     class CommandIsNotExecutable < RuntimeError; end
     
-    # Class used to indicate that a command 
+    # Class used to indicate that a command
     # is not a file
     class CommandIsNotAFile < RuntimeError; end
     

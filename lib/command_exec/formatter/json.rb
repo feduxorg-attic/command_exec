@@ -6,7 +6,6 @@ module CommandExec
   module Formatter
     #Style as json string
     class JSON < CommandExec::Formatter::Hash
-
       # convert the prepared output to json
       #
       # @param [Array,Symbol) fields

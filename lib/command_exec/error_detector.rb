@@ -1,15 +1,13 @@
-#encoding: utf-8
+# encoding: utf-8
 module CommandExec
-
-  #detect errors
+  # detect errors
   class ErrorDetector
-
-    def initialize(comparator=TheArrayComparator::Comparator.new)
+    def initialize(comparator = TheArrayComparator::Comparator.new)
       @comparator = comparator
     end
 
-    def check_for( *args )
-      @comparator.add_check( *args )
+    def check_for(*args)
+      @comparator.add_check(*args)
     end
 
     def found_error?
@@ -19,6 +17,5 @@ module CommandExec
     def failed_sample
       @comparator.result.failed_sample
     end
-
   end
 end

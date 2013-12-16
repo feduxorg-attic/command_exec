@@ -1,6 +1,6 @@
+# encoding: utf-8
 module CommandExec
   class Executable
-
     # @!attribute [r] path
     #   path to executable
     attr_reader :path, :path_resolver, :path_cleaner
@@ -18,7 +18,6 @@ module CommandExec
       after_init
     end
 
-
     # Absolute path to executable
     #
     # @return [String] absolute path to executable, '' if lookup failed
@@ -29,6 +28,5 @@ module CommandExec
     private
 
     def after_init; end
-
   end
 end

@@ -4,6 +4,5 @@
 module CommandExec
   # Run commands
   class Runner
-
   end
 end

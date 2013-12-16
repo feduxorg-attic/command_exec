@@ -1,17 +1,13 @@
 #encoding: utf-8
-
 #Main
 module CommandExec
   # The class used to save the data about
   # the executed command
   class Process
-
     include FieldHelper
-
     # @!attribute [rw] executable
     #   Set/Get the executable of the command
     attr_accessor :executable 
-
     # @!attribute [r] status
     #   Get the status of the command
     #
@@ -100,21 +96,21 @@ module CommandExec
     # @param [String] filename
     #   the name of the log file
     def log_file=(filename=nil)
-        if filename.blank?
-          file = StringIO.new 
-          @logger.debug "No file name for log file given. Using empty String"
-        else
-          begin
-            file = File.open(filename)
-            @logger.debug "read logfile \"#{file}\" "
-          rescue Errno::ENOENT
-            file = StringIO.new
-            @logger.warn "Logfile #{filename} not found!"
-          rescue Exception => e
-            file = StringIO.new
-            @logger.warn "An error happen while reading log_file \"#{filename}\": #{e.message}"
-          end
+      if filename.blank?
+        file = StringIO.new 
+        @logger.debug "No file name for log file given. Using empty String"
+      else
+        begin
+          file = File.open(filename)
+          @logger.debug "read logfile \"#{file}\" "
+        rescue Errno::ENOENT
+          file = StringIO.new
+          @logger.warn "Logfile #{filename} not found!"
+        rescue Exception => e
+          file = StringIO.new
+          @logger.warn "An error happen while reading log_file \"#{filename}\": #{e.message}"
         end
+      end
 
       @log_file = file.readlines.map(&:chomp)
     end
@@ -214,7 +210,6 @@ module CommandExec
     # @param [Formatter] formatter
     #   the formatter which is used to format the output
     def output(*fields,formatter)
-
       fields.flatten.each do |f|
         formatter.public_send(f, available_fields[f])
       end
@@ -291,4 +286,3 @@ module CommandExec
     end
   end
 end
-

@@ -6,7 +6,6 @@ module CommandExec
   module Formatter
     #Style as xml string
     class XML < CommandExec::Formatter::Hash
-
       # convert the prepared output to a xml string
       #
       # @param [Array,Symbol) fields

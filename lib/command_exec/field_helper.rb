@@ -1,10 +1,8 @@
 #encoding: utf-8
-
 #Main
 module CommandExec
   # Shared methods for fields
   module FieldHelper
-
     # Initialize helper
     #
     # will be used from array and hash via super call although there's no
@@ -63,16 +61,16 @@ module CommandExec
     #   variable
     def available_fields
       {
-        :status => @status,
-        :return_code => @return_code,
-        :stderr => @stderr,
-        :stdout => @stdout,
-        :log_file => @log_file,
-        :pid => @pid,
-        :reason_for_failure => @reason_for_failure,
-        :executable => @executable,
-        :start_time => @start_time,
-        :end_time => @end_time,
+        status: @status,
+        return_code: @return_code,
+        stderr: @stderr,
+        stdout: @stdout,
+        log_file: @log_file,
+        pid: @pid,
+        reason_for_failure: @reason_for_failure,
+        executable: @executable,
+        start_time: @start_time,
+        end_time: @end_time,
       }
     end
 
@@ -110,7 +108,6 @@ module CommandExec
     #   `:success` and `FAILED` (in bold and red) if status is `:failed`.
     #
     def prepare_status(value,options={})
-
       case value.to_s
       when 'success'
         @status[0] = message_success(color: options[:color])

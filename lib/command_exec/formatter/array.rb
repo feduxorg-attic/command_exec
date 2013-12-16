@@ -1,21 +1,17 @@
 # encoding: utf-8
-
 #Main
 module CommandExec
   #Formatting output
   module Formatter
     #Style array
     class Array
-
       include FieldHelper
-
       # @!attribute [r] output
       #   return the formatted output
       attr_reader :output
       # @!attribute [w] logger
       #   set the logger after object creation
       attr_writer :logger
-
       # Create new array formatter
       # 
       # @param [Hash] options
@@ -64,7 +60,7 @@ module CommandExec
       #
       # @return [Number] the maxium header length
       def max_header_length
-        @max_header_length ||= @headers_options[:names].values.inject(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
+        @max_header_length ||= @headers_options[:names].values.reduce(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
       end
 
       # Align header names
@@ -80,7 +76,6 @@ module CommandExec
       #
       # @return [String] the aligned header name
       def halign(name, max_length, orientation)
-
         name = name.to_s
 
         case orientation
@@ -134,8 +129,8 @@ module CommandExec
         fields = default_fields if fields.blank?
 
         fields.each do |var|
-          out << format_header(var,@headers_options) if @headers_options[:show] = true and available_fields.has_key?(var)
-          out += available_fields[var] if available_fields.has_key?(var)
+          out << format_header(var,@headers_options) if @headers_options[:show] = true && available_fields.key?(var)
+          out += available_fields[var] if available_fields.key?(var)
         end
 
         out

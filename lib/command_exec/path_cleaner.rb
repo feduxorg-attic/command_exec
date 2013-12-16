@@ -1,3 +1,4 @@
+# encoding: utf-8
 module CommandExec
   class PathCleaner
     def initialize( options={} )
@@ -11,7 +12,7 @@ module CommandExec
     end
 
     def cleanup( path )
-      @cleaners.inject( path ) do |result, c|
+      @cleaners.reduce( path ) do |result, c|
         c.process( result )
       end
     end
@@ -50,6 +51,5 @@ module CommandExec
         path.to_s.gsub( %r{\.\./} , '' )
       end
     end
-
   end
 end

@@ -6,7 +6,6 @@ module CommandExec
   module Formatter
     #Style as simple string
     class String < CommandExec::Formatter::Array
-
       # convert the prepared output to single string
       #
       # @param [Array,Symbol) fields

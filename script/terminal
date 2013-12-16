@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
-
+# encoding: utf-8
 require 'tmrb'
 
 tmux = TmRb::Multiplexer.new
 #creates an empty window
 tmux.new_session(session_name: 'command_exec')
 
-tmux.new_window(:name => 'code', :command => "zsh -c 'vim -p lib/**/*.rb'")
-tmux.new_window(:name => 'spec', :command => "zsh -c 'vim -p spec/**/*.rb'")
-tmux.new_window(:name => 'features', :command => "zsh -c 'vim -p features/**/*.{rb,feature}'")
+tmux.new_window(name: 'code',     command: "zsh -c 'vim -p lib/**/*.rb'")
+tmux.new_window(name: 'spec',     command: "zsh -c 'vim -p spec/**/*.rb'")
+tmux.new_window(name: 'features', command: "zsh -c 'vim -p features/**/*.{rb,feature}'")
 tmux.start

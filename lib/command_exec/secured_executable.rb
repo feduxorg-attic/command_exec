@@ -1,6 +1,6 @@
+# encoding: utf-8
 module CommandExec
   class SecuredExecutable < Executable
-
     private
 
     # Hook executed after init

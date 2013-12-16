@@ -1,10 +1,8 @@
 # encoding: utf-8
-
 # Classes concerning command execution
 module CommandExec
   # Run commands
   class Command
-
     private
 
     attr_reader :path
@@ -65,14 +63,14 @@ module CommandExec
     #   For each option you can provide a single word or an Array of words.
     #
     #   ```
-    #   :allowed_return_code => [0],
-    #   :forbidden_return_code => [],
-    #   :allowed_words_in_stderr => [],
-    #   :forbidden_words_in_stderr => [],
-    #   :allowed_words_in_stdout => [],
-    #   :forbidden_words_in_stdout => [],
-    #   :allowed_words_in_log_file => [],
-    #   :forbidden_words_in_log_file => [],
+    #   allowed_return_code: [0],
+    #   forbidden_return_code: [],
+    #   allowed_words_in_stderr: [],
+    #   forbidden_words_in_stderr: [],
+    #   allowed_words_in_stdout: [],
+    #   forbidden_words_in_stdout: [],
+    #   allowed_words_in_log_file: [],
+    #   forbidden_words_in_log_file: [],
     #   ```
     #
     # @option opts [Symbol] :on_error_do
@@ -94,29 +92,28 @@ module CommandExec
     #   :silent-option is understood: do not output anything (@see README for
     #   further information).
     def initialize(cmd,opts={})
-
       @opts = {
-        :secure_path        => false,
-        :options            => '',
-        :parameter          => '',
-        :working_directory  => Dir.pwd,
-        :log_file           => '',
-        :search_paths       => CommandExec.search_paths,
-        :error_detection_on => [:return_code],
-        :error_indicators   => {
-          :allowed_return_code         => [0],
-          :forbidden_return_code       => [],
-          :allowed_words_in_stderr     => [],
-          :forbidden_words_in_stderr   => [],
-          :allowed_words_in_stdout     => [],
-          :forbidden_words_in_stdout   => [],
-          :allowed_words_in_log_file   => [],
-          :forbidden_words_in_log_file => [],
+        secure_path:        false,
+        options:            '',
+        parameter:          '',
+        working_directory:  Dir.pwd,
+        log_file:           '',
+        search_paths:       CommandExec.search_paths,
+        error_detection_on: [:return_code],
+        error_indicators:   {
+          allowed_return_code:         [0],
+          forbidden_return_code:       [],
+          allowed_words_in_stderr:     [],
+          forbidden_words_in_stderr:   [],
+          allowed_words_in_stdout:     [],
+          forbidden_words_in_stdout:   [],
+          allowed_words_in_log_file:   [],
+          forbidden_words_in_log_file: [],
         },
-        :on_error_do   => :nothing,
-        :run_via       => :open3,
-        :lib_logger    => nil,
-        :lib_log_level => :info,
+        on_error_do:   :nothing,
+        run_via:       :open3,
+        lib_logger:    nil,
+        lib_log_level: :info,
       }.deep_merge opts
 
         if @opts[ :secure_path ]
@@ -148,7 +145,6 @@ module CommandExec
           CommandExec.logger.fatal( e.message )
           raise
         end
-
 
         @parameter = @opts[:parameter]
         @log_file = @opts[:log_file]
@@ -186,7 +182,7 @@ module CommandExec
     #   occured and `command_exec` should throw an error (which you can catch)
     #   in the case of an error
     def run
-      process = CommandExec::Process.new(:lib_logger => @logger)
+      process = CommandExec::Process.new(lib_logger: @logger)
       process.log_file = @log_file if @log_file
       process.status = :success
 
@@ -194,7 +190,7 @@ module CommandExec
 
       case @run_via
       when :open3
-        Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
+        Open3::popen3(to_s, chdir: @working_directory) do |stdin, stdout, stderr, wait_thr|
           process.stdout = stdout.readlines.map(&:chomp)
           process.stderr = stderr.readlines.map(&:chomp)
           process.pid = wait_thr.pid
@@ -209,7 +205,7 @@ module CommandExec
           process.return_code = $?.exitstatus
         end
       else
-        Open3::popen3(to_s, :chdir => @working_directory) do |stdin, stdout, stderr, wait_thr|
+        Open3::popen3(to_s, chdir: @working_directory) do |stdin, stdout, stderr, wait_thr|
           process.stdout = stdout.readlines.map(&:chomp)
           process.stderr = stderr.readlines.map(&:chomp)
           process.pid = wait_thr.pid

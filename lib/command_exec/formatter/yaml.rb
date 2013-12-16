@@ -6,7 +6,6 @@ module CommandExec
   module Formatter
     #Style as yaml string
     class YAML < CommandExec::Formatter::Hash
-
       # convert the prepared output to a yaml string
       #
       # @param [Array,Symbol) fields

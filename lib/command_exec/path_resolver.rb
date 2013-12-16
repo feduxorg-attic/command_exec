@@ -1,6 +1,8 @@
+# encoding: utf-8
+# Command exec
 module CommandExec
+  # Path Resolver class
   class PathResolver
-
     attr_reader :resolver
     private     :resolver
 
@@ -89,8 +91,8 @@ module CommandExec
         search_paths.each do |path|
           extensions.each do |ext|
             file = File.join( path, "#{cmd}#{ext}" )
-            raise Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file and not File.file? file
-            raise Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists? file and not File.executable? file
+            raise Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file && !File.file?( file )
+            raise Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists? file && !File.executable?(file)
             return file if File.executable? file
           end
         end
@@ -98,6 +100,5 @@ module CommandExec
         raise Exception::CommandNotFound, "Command '#{cmd}' not found in search paths: #{search_paths.join( ", ") }\"."
       end
     end
-
   end
 end

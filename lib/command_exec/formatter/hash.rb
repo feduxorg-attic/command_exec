@@ -6,7 +6,6 @@ module CommandExec
   module Formatter
     #Style hash
     class Hash
-
       include FieldHelper
 
       # @!attribute [r] output
@@ -55,7 +54,7 @@ module CommandExec
         fields = default_fields if fields.blank?
 
         fields.each do |f|
-          out[f] = available_fields[f] if available_fields.has_key?(f)
+          out[f] = available_fields[f] if available_fields.key?(f)
         end
 
         out

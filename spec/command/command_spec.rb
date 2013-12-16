@@ -22,8 +22,8 @@ describe Command do
   #  #CommandExec.search_paths = [ File.join( examples_directory, 'command' ), '/bin', '/usr/bin'  ]
   #end
 
-  context '#path' do
-    it "supports relative paths", :focus do
+  context '#run' do
+    it "supports relative paths" do
       content = <<-EOS.strip_heredoc
       #!/usr/bin/which bash
       exit 1
@@ -80,7 +80,7 @@ describe Command do
 
     end
 
-    it 'offers an option to change search path PATH for the command execution', :focus do
+    it 'offers an option to change search path PATH for the command execution' do
       content = <<-EOS.strip_heredoc
       #!/usr/bin/which bash
       exit 1
@@ -88,10 +88,22 @@ describe Command do
 
       file = create_file( 'cmd', content, 0755 )
 
-      in_working_directory do
-        command = Command.new( :cmd, search_paths: [ working_directory ] )
-        expect{ command.run }.not_to raise_error
-      end
+      command = Command.new( :cmd, search_paths: [ working_directory ] )
+      expect{ command.run }.not_to raise_error
+    end
+
+    it 'accepts options for command', :focus do
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/which bash
+      echo $1 >&2
+      exit 1
+      EOS
+
+      file = create_file( 'cmd', content, 0755 )
+
+      command = Command.new( :cmd, options: 'hello world', search_paths: [ working_directory ] )
+      result = command.run
+      expect( result.stdout ).to eq( 'hello world' )
     end
   end
 
