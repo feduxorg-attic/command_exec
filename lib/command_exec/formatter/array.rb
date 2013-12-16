@@ -60,7 +60,7 @@ module CommandExec
       #
       # @return [Number] the maxium header length
       def max_header_length
-        @max_header_length ||= @headers_options[:names].values.reduce(0) { |max_length, name|  max_length < name.length ? name.length : max_length }
+        @max_header_length ||= @headers_options[:names].values.reduce(0) { |a,e|  a < e.length ? e.length : a }
       end
 
       # Align header names

@@ -63,10 +63,10 @@ MethodLength:
   Enabled: false
 
 Not:
-  Enabled: false
+  Enabled: true
 
 ReduceArguments:
-  Enabled: false
+  Enabled: true
 
 RegexpLiteral:
   Enabled: false
