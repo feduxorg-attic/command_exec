@@ -11,10 +11,10 @@ module CommandExec
       # @param [Array,Symbol) fields
       #   the fields which should be outputted
       #
-      # @return [String] 
+      # @return [String]
       #   the output formatted as a xml string
       def output(*fields)
-        Psych.dump prepare_output(fields.flatten) 
+        Psych.dump prepare_output(fields.flatten)
       end
     end
   end

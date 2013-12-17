@@ -6,22 +6,22 @@ module CommandExec
     # Class used to indicate that a command
     # could not be found in file system
     class CommandNotFound < RuntimeError; end
-    
+
     # Class used to indicate that a command
     # is not flagged as executable
     #
     # @example Counter measure for this error
     #   chmod +x <executable>
     class CommandIsNotExecutable < RuntimeError; end
-    
+
     # Class used to indicate that a command
     # is not a file
     class CommandIsNotAFile < RuntimeError; end
-    
+
     # Class used to indicate that a command run
-    # ended with a failure 
+    # ended with a failure
     class CommandExecutionFailed < RuntimeError; end
-    
+
     # Class used to indicate that a logfile
     # could not be found in file system
     class LogfileNotFound < RuntimeError; end

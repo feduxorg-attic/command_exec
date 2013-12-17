@@ -77,3 +77,9 @@ SpecialGlobalVars:
 StringLiterals:
   Enabled: true
 
+TrailingBlankLines:
+  Enabled: true
+
+TrailingWhitespace:
+  Enabled: true
+

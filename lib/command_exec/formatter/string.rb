@@ -11,7 +11,7 @@ module CommandExec
       # @param [Array,Symbol) fields
       #   the fields which should be outputted
       #
-      # @return [String] 
+      # @return [String]
       #   the output formatted as simple string
       def output(*fields)
         prepare_output(fields.flatten).join("\n")

@@ -77,7 +77,7 @@ module CommandExec
     # Return the default fields for output
     #
     # @return [Array] the names of the fields which should be outputted by
-    #   default 
+    #   default
     def default_fields
       [:status,
        :return_code,
@@ -89,9 +89,9 @@ module CommandExec
        :executable,
        :start_time,
        :end_time,
-      ] 
+      ]
     end
-    
+
     # Set the status of the command
     #
     # @param [String,Symbol] value
@@ -103,7 +103,7 @@ module CommandExec
     # @option options [True,False] :color
     #   Should the output be colored
     #
-    # @return [Array] 
+    # @return [Array]
     #   the formatted status. It returns `OK` (in bold and green) if status is
     #   `:success` and `FAILED` (in bold and red) if status is `:failed`.
     #
@@ -132,7 +132,7 @@ module CommandExec
     def message_success(options = {})
       message = 'OK'
 
-      if options[:color] 
+      if options[:color]
         return message.green.bold
       else
         return message
@@ -151,7 +151,7 @@ module CommandExec
     def message_failure(options)
       message = 'FAILED'
 
-      if options[:color] 
+      if options[:color]
         return message.red.bold
       else
         return message
@@ -173,7 +173,7 @@ module CommandExec
     # Set the return code of the command
     #
     # @param value [Number,String]
-    #   Set the return code(s) of the command. 
+    #   Set the return code(s) of the command.
     #
     # @return [Array] the return code
     def return_code(value)
@@ -205,7 +205,7 @@ module CommandExec
     # Set the pid of the command
     #
     # @param value [Number,String]
-    #   Set the pid of the command. 
+    #   Set the pid of the command.
     #
     # @return [Array]
     def pid(value)
@@ -216,14 +216,14 @@ module CommandExec
 
     # Set the reason for failure
     #
-    # @param content [Array, String] 
+    # @param content [Array, String]
     #   Set the reason for failure.
     #
     # @return [Array]
     def reason_for_failure(*content)
       @reason_for_failure += content.flatten
     end
-      
+
     # Set the path to the executable of the command
     #
     # @param [String] value
@@ -234,8 +234,8 @@ module CommandExec
     def executable(value)
       @executable[0] = value
     end
-    
-    # Set the start time of command execution 
+
+    # Set the start time of command execution
     #
     # @param [Time] value
     #  the start time  of command execution
@@ -245,8 +245,8 @@ module CommandExec
     def start_time(value)
       @start_time[0] = value
     end
-    
-    # Set the end time of command execution 
+
+    # Set the end time of command execution
     #
     # @param [Time] value
     #  the end time  of command execution

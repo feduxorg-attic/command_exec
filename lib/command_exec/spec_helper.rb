@@ -5,7 +5,7 @@ require 'active_support/core_ext/kernel/reporting'
 module CommandExec
   # Helpers for specs
   module SpecHelper
-    # Capture stderr 
+    # Capture stderr
     #
     # @param [Block] block
     def capture_stderr(&block)
@@ -29,7 +29,7 @@ module CommandExec
     #   Options for environment manipulation
     #
     # @option options [True,False] :clear
-    #   Should the environment clear before merge? 
+    #   Should the environment clear before merge?
     #
     # @yield Block which should be executed
     def environment(env = {}, options = {}, &block)
@@ -52,7 +52,7 @@ module CommandExec
     # @param [String] content
     #   the content which should be written to the file
     #
-    # @return [String] 
+    # @return [String]
     #   the path to the temporary file
     def create_temp_file_with(base_name, content)
       file = Tempfile.new(base_name)

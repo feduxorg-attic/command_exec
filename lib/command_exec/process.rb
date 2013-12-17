@@ -7,7 +7,7 @@ module CommandExec
     include FieldHelper
     # @!attribute [rw] executable
     #   Set/Get the executable of the command
-    attr_accessor :executable 
+    attr_accessor :executable
     # @!attribute [r] status
     #   Get the status of the command
     #
@@ -97,7 +97,7 @@ module CommandExec
     #   the name of the log file
     def log_file=(filename = nil)
       if filename.blank?
-        file = StringIO.new 
+        file = StringIO.new
         @logger.debug 'No file name for log file given. Using empty String'
       else
         begin
@@ -167,23 +167,23 @@ module CommandExec
     # Set the exit status of the command
     #
     # @param [Number,String] value
-    #   the exit status of the command 
+    #   the exit status of the command
     def return_code=(value)
       @return_code = value
     end
-    
+
     # Set the path to the executable
     #
     # @param [Number,String] value
-    #   the path to the executable of the command 
+    #   the path to the executable of the command
     def executable=(value)
       @executable = value
     end
-      
+
     # Set the start time of the command execution
     #
     # @param [Number,String] value
-    #   the path to the executable of the command 
+    #   the path to the executable of the command
     def start_time=(value)
       @start_time = value
     end
@@ -191,7 +191,7 @@ module CommandExec
     # Set the end time of the command execution
     #
     # @param [Number,String] value
-    #   the path to the executable of the command 
+    #   the path to the executable of the command
     def end_time=(value)
       @end_time = value
     end
@@ -200,7 +200,7 @@ module CommandExec
       end_time - start_time
     end
 
-    private 
+    private
 
     # Generate formatted output
     #
@@ -217,7 +217,7 @@ module CommandExec
       formatter.output(fields.flatten)
     end
 
-    public 
+    public
 
     # Output process data as array
     #

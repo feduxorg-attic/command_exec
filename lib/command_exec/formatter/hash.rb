@@ -18,7 +18,7 @@ module CommandExec
       public
 
       # Create new hash formatter
-      # 
+      #
       # @param [Hash] options
       #   Options for formatter
       #
@@ -46,7 +46,7 @@ module CommandExec
       # @param [Array] fields
       #   which fields should be outputted
       #
-      # @return [Hash] 
+      # @return [Hash]
       #   the formatted output
       def prepare_output(fields = [])
         out = {}
@@ -67,7 +67,7 @@ module CommandExec
       # @param [Array,Symbol) fields
       #   the fields which should be outputted
       #
-      # @return [Hash] 
+      # @return [Hash]
       #   the formatted output
       def output(*fields)
         prepare_output(fields.flatten)

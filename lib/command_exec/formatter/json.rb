@@ -11,10 +11,10 @@ module CommandExec
       # @param [Array,Symbol) fields
       #   the fields which should be outputted
       #
-      # @return [String] 
+      # @return [String]
       #   the output formatted as json string
       def output(*fields)
-        ::JSON.generate prepare_output(fields.flatten) 
+        ::JSON.generate prepare_output(fields.flatten)
       end
     end
   end

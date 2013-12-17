@@ -28,10 +28,10 @@ module CommandExec
 
     # Create a new command to execute
     #
-    # @param [Symbol] name 
+    # @param [Symbol] name
     #   name of command
     #
-    # @param [optional,Hash] opts 
+    # @param [optional,Hash] opts
     #   options for the command
     #
     # @option opts [String] :options ('')
@@ -54,7 +54,7 @@ module CommandExec
     #   available options are :return_code, :stderr, :stdout, :log_file.
     #   You can use one or more of them.
     #
-    # @option opts [Hash] :error_indicators 
+    # @option opts [Hash] :error_indicators
     #   what keywords etc. should be considered as errors.
     #
     #   You can define allowed or forbidden keywords or exit codes.
@@ -87,7 +87,7 @@ module CommandExec
     #   of the Ruby `Logger`-class.
     #
     # @option opts [Symbol] :lib_log_level
-    #   What information should handled by the logger: 
+    #   What information should handled by the logger:
     #   :debug, :info, :warn, :error, :fatal, :unknown. Additionally the
     #   :silent-option is understood: do not output anything (@see README for
     #   further information).
@@ -149,7 +149,7 @@ module CommandExec
 
         @run_via = @opts[:run_via]
 
-        @working_directory = @opts[:working_directory] 
+        @working_directory = @opts[:working_directory]
         @result = nil
     end
 
@@ -171,7 +171,7 @@ module CommandExec
     #
     # @raise [CommandExec::Exceptions::CommandExecutionFailed] if an error
     #   occured and `command_exec` should raise an exception in the case of an
-    #   error. 
+    #   error.
     # @throw [:command_execution_failed] if an error
     #   occured and `command_exec` should throw an error (which you can catch)
     #   in the case of an error
@@ -248,7 +248,7 @@ module CommandExec
         when :raise_error
           fail CommandExec::Exceptions::CommandExecutionFailed, 'An error occured. Please check for reason via command.reason_for_failure and/or command.stdout, comand.stderr, command.log_file, command.return_code'
         when :throw_error
-          throw :command_execution_failed 
+          throw :command_execution_failed
         else
           # nothing
         end
@@ -259,7 +259,7 @@ module CommandExec
       @result = process
     end
 
-    # Run a command 
+    # Run a command
     #
     # @see # initialize
     def self.execute(name, opts = {})

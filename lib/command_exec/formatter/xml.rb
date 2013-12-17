@@ -11,7 +11,7 @@ module CommandExec
       # @param [Array,Symbol) fields
       #   the fields which should be outputted
       #
-      # @return [String] 
+      # @return [String]
       #   the output formatted as a xml string
       def output(*fields)
         XmlSimple.xml_out(prepare_output(fields.flatten), 'RootName' => 'command', 'NoAttr' => true)

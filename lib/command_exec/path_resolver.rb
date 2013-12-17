@@ -58,7 +58,7 @@ module CommandExec
       # Create new resolver
       #
       # @param [Array] search_paths
-      #   List of search paths 
+      #   List of search paths
       #
       # @param [Array] extension
       #   List of file extension
@@ -67,20 +67,20 @@ module CommandExec
         @extensions   = extensions
       end
 
-      # Try to determine absolute path for command 
+      # Try to determine absolute path for command
       #
       # @param [String] cmd
       #   Command or absolute/relative path to command
-      #  
+      #
       # @return [String]
-      #  Path to command 
+      #  Path to command
       #
       # @raise [Exception::CommandNotFound]
       #   raised if `cmd` is blank or does not exist
       def absolute_path(cmd)
         fail Exception::CommandNotFound if cmd.blank?
 
-        if Pathname.new(cmd).absolute? 
+        if Pathname.new(cmd).absolute?
           fail Exception::CommandNotFound, "Command '#{cmd}' not found search paths: #{ search_paths.join(", ") }\"." unless File.exists? cmd
           fail Exception::CommandIsNotAFile, "Command '#{cmd}' is not a file."          unless File.file? cmd
           fail Exception::CommandIsNotExecutable, "Command '#{cmd}' is not executable." unless File.executable? cmd

@@ -13,7 +13,7 @@ module CommandExec
       #   set the logger after object creation
       attr_writer :logger
       # Create new array formatter
-      # 
+      #
       # @param [Hash] options
       #   Options for formatter
       #
@@ -31,11 +31,11 @@ module CommandExec
       # @option options [Symbol] :logger
       #   Logger to output information. Needs to have the same interface like
       #   the ruby `Logger`-class.
-      #   
+      #
       def initialize(options = {})
         @options = {
           headers: {
-            names: {}, 
+            names: {},
             prefix: '=' * 5,
             suffix: '=' * 5,
             halign: :center,
@@ -54,7 +54,7 @@ module CommandExec
         prepare_status(value, color: true)
       end
 
-      private 
+      private
 
       # Get the maximum length over all headers
       #
@@ -67,7 +67,7 @@ module CommandExec
       #
       # @param [String] name
       #   the name which should be aligned
-      # 
+      #
       # @param max_length [Number]
       #   the maximum length which is used to align the name
       #
@@ -98,7 +98,7 @@ module CommandExec
       # @param [Hash] options
       #   used to change format options like `prefix`, `suffix` etc. after the
       #   creation of the `Formatter::Array`-object. Those options defined at the
-      #   creation of the `Formatter`-object are default and can be overwritten 
+      #   creation of the `Formatter`-object are default and can be overwritten
       #   using this `Hash`.
       #
       # @return [String] the formatted header
@@ -120,7 +120,7 @@ module CommandExec
       # @param [Array] fields
       #   which fields should be outputted
       #
-      # @return [Array] 
+      # @return [Array]
       #   the formatted output
       def prepare_output(fields = [])
         out = []
@@ -143,7 +143,7 @@ module CommandExec
       # @param [Array,Symbol) fields
       #   the fields which should be outputted
       #
-      # @return [Array] 
+      # @return [Array]
       #   the formatted output
       def output(*fields)
         prepare_output(fields.flatten)
