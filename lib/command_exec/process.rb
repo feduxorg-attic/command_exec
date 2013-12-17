@@ -63,7 +63,7 @@ module CommandExec
     #
     # @option options [Symbol] status
     #   execution was successful, failed
-    def initialize(options={})
+    def initialize(options = {})
       @options = {
         lib_logger: Logger.new($stderr),
         stderr: [],
@@ -95,7 +95,7 @@ module CommandExec
     #
     # @param [String] filename
     #   the name of the log file
-    def log_file=(filename=nil)
+    def log_file=(filename = nil)
       if filename.blank?
         file = StringIO.new 
         @logger.debug "No file name for log file given. Using empty String"
@@ -209,7 +209,7 @@ module CommandExec
     #
     # @param [Formatter] formatter
     #   the formatter which is used to format the output
-    def output(*fields,formatter)
+    def output(*fields, formatter)
       fields.flatten.each do |f|
         formatter.public_send(f, available_fields[f])
       end
@@ -226,7 +226,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::Array.new)
     #   the formatter which is used the format the output
-    def to_a(fields=default_fields, formatter=Formatter::Array.new)
+    def to_a(fields = default_fields, formatter = Formatter::Array.new)
       output(fields, formatter)
     end
 
@@ -237,7 +237,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::Hash.new)
     #   the formatter which is used the format the output
-    def to_h(fields=default_fields, formatter=Formatter::Hash.new)
+    def to_h(fields = default_fields, formatter = Formatter::Hash.new)
       output(fields, formatter)
     end
 
@@ -248,7 +248,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::String.new)
     #   the formatter which is used the format the output
-    def to_s(fields=default_fields, formatter=Formatter::String.new)
+    def to_s(fields = default_fields, formatter = Formatter::String.new)
       output(fields, formatter)
     end
 
@@ -259,7 +259,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::XML.new)
     #   the formatter which is used the format the output
-    def to_xml(fields=default_fields, formatter=Formatter::XML.new)
+    def to_xml(fields = default_fields, formatter = Formatter::XML.new)
       output(fields, formatter)
     end
 
@@ -270,7 +270,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::JSON.new)
     #   the formatter which is used the format the output
-    def to_json(fields=default_fields, formatter=Formatter::JSON.new)
+    def to_json(fields = default_fields, formatter = Formatter::JSON.new)
       output(fields, formatter)
     end
 
@@ -281,7 +281,7 @@ module CommandExec
     #
     # @param [Formatter] formatter (Formatter::YAML.new)
     #   the formatter which is used the format the output
-    def to_yaml(fields=default_fields, formatter=Formatter::YAML.new)
+    def to_yaml(fields = default_fields, formatter = Formatter::YAML.new)
       output(fields, formatter)
     end
   end

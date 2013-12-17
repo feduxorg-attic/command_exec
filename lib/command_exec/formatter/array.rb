@@ -32,7 +32,7 @@ module CommandExec
       #   Logger to output information. Needs to have the same interface like
       #   the ruby `Logger`-class.
       #   
-      def initialize(options={})
+      def initialize(options = {})
         @options = {
           headers: {
             names: {}, 
@@ -60,7 +60,7 @@ module CommandExec
       #
       # @return [Number] the maxium header length
       def max_header_length
-        @max_header_length ||= @headers_options[:names].values.reduce(0) { |a,e|  a < e.length ? e.length : a }
+        @max_header_length ||= @headers_options[:names].values.reduce(0) { |a, e|  a < e.length ? e.length : a }
       end
 
       # Align header names
@@ -102,7 +102,7 @@ module CommandExec
       #   using this `Hash`.
       #
       # @return [String] the formatted header
-      def format_header(header,options={})
+      def format_header(header, options = {})
         opts = @headers_options.deep_merge options
 
         output=""
@@ -122,14 +122,14 @@ module CommandExec
       #
       # @return [Array] 
       #   the formatted output
-      def prepare_output(fields=[])
+      def prepare_output(fields = [])
         out = []
         fields = fields.flatten
 
         fields = default_fields if fields.blank?
 
         fields.each do |var|
-          out << format_header(var,@headers_options) if @headers_options[:show] = true && available_fields.key?(var)
+          out << format_header(var, @headers_options) if @headers_options[:show] = true && available_fields.key?(var)
           out += available_fields[var] if available_fields.key?(var)
         end
 

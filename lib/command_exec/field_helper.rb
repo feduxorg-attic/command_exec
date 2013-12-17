@@ -107,7 +107,7 @@ module CommandExec
     #   the formatted status. It returns `OK` (in bold and green) if status is
     #   `:success` and `FAILED` (in bold and red) if status is `:failed`.
     #
-    def prepare_status(value,options={})
+    def prepare_status(value, options = {})
       case value.to_s
       when 'success'
         @status[0] = message_success(color: options[:color])
@@ -129,7 +129,7 @@ module CommandExec
     #   should the message return in color
     #
     # @return [String] the message
-    def message_success(options={})
+    def message_success(options = {})
       message = 'OK'
 
       if options[:color] 

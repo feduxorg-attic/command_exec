@@ -32,7 +32,7 @@ module CommandExec
     #   Should the environment clear before merge? 
     #
     # @yield Block which should be executed
-    def environment(env={},options={},&block)
+    def environment(env = {}, options = {}, &block)
       previous_environment, environment = ENV.to_hash, env
       ENV.clear if options[:clear] == true
       ENV.update(environment)

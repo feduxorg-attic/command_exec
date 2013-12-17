@@ -91,7 +91,7 @@ module CommandExec
     #   :debug, :info, :warn, :error, :fatal, :unknown. Additionally the
     #   :silent-option is understood: do not output anything (@see README for
     #   further information).
-    def initialize(cmd,opts={})
+    def initialize(cmd, opts = {})
       @opts = {
         secure_path:        false,
         options:            '',
@@ -262,8 +262,8 @@ module CommandExec
     # Run a command 
     #
     # @see # initialize
-    def self.execute(name,opts={})
-      command = new(name,opts)
+    def self.execute(name, opts = {})
+      command = new(name, opts)
       command.run
 
       command

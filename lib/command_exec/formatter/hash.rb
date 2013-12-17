@@ -25,7 +25,7 @@ module CommandExec
       # @option options [Symbol] :logger
       #   Logger to output information. Needs to have the same interface like
       #   the ruby `Logger`-class.
-      def initialize(options={})
+      def initialize(options = {})
         @options = {
           logger: Logger.new($stdout),
         }.deep_merge options
@@ -48,7 +48,7 @@ module CommandExec
       #
       # @return [Hash] 
       #   the formatted output
-      def prepare_output(fields=[])
+      def prepare_output(fields = [])
         out = {}
 
         fields = default_fields if fields.blank?

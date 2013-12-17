@@ -1,7 +1,7 @@
 # encoding: utf-8
 module CommandExec
   class PathCleaner
-    def initialize( options={} )
+    def initialize(options = {})
       options = default_options.merge options
 
       @cleaners = []

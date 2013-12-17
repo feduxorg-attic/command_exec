@@ -9,7 +9,7 @@ module CommandExec
 
     public
 
-    def initialize( cmd = nil )
+    def initialize(cmd = nil)
       if cmd.blank?
         @paths = default_path
       elsif cmd.kind_of? Symbol
@@ -35,13 +35,13 @@ module CommandExec
 
     public
 
-    def to_a(separator=':')
+    def to_a(separator = ':')
       return paths if paths.kind_of? Array
 
       paths.split( separator )
     end
 
-    def to_s(connector=',')
+    def to_s(connector = ',')
       to_a.join( connector )
     end
   end
