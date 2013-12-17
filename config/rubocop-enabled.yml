@@ -83,3 +83,6 @@ TrailingBlankLines:
 TrailingWhitespace:
   Enabled: true
 
+TrivialAccessors:
+  Enabled: true
+

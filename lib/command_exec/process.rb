@@ -7,7 +7,17 @@ module CommandExec
     include FieldHelper
     # @!attribute [rw] executable
     #   Set/Get the executable of the command
-    attr_accessor :executable
+    #
+    # @!attribute [rw] return_code
+    #   Set/Get the exit status of the command
+    #
+    # @!attribute [rw] start_time
+    #   Set/Get the start time of the command execution
+    #
+    # @!attribute [rw] end_time
+    #   Set/Get the end time of the command execution
+    attr_accessor :executable, :return_code, :start_time, :end_time
+
     # @!attribute [r] status
     #   Get the status of the command
     #
@@ -25,13 +35,7 @@ module CommandExec
     #
     # @!attribute [r] pid
     #   Get the pid of the command
-    #
-    # @!attribute [r] start_time
-    #   Return the time when the execution of the command started
-    #
-    # @!attribute [r] end_time
-    #   Return the time when the execution of the command finished
-    attr_reader :status, :log_file, :stdout, :stderr, :reason_for_failure, :return_code, :pid, :start_time, :end_time
+    attr_reader :status, :log_file, :stdout, :stderr, :reason_for_failure, :pid
 
     # Create a process object
     #
@@ -162,38 +166,6 @@ module CommandExec
     #   added at the end.
     def reason_for_failure=(content)
       @reason_for_failure << content.to_s
-    end
-
-    # Set the exit status of the command
-    #
-    # @param [Number,String] value
-    #   the exit status of the command
-    def return_code=(value)
-      @return_code = value
-    end
-
-    # Set the path to the executable
-    #
-    # @param [Number,String] value
-    #   the path to the executable of the command
-    def executable=(value)
-      @executable = value
-    end
-
-    # Set the start time of the command execution
-    #
-    # @param [Number,String] value
-    #   the path to the executable of the command
-    def start_time=(value)
-      @start_time = value
-    end
-
-    # Set the end time of the command execution
-    #
-    # @param [Number,String] value
-    #   the path to the executable of the command
-    def end_time=(value)
-      @end_time = value
     end
 
     def run_time
