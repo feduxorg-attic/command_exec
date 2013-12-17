@@ -1,0 +1,58 @@
+
+Alias:
+  Enabled: true
+
+AlignParameters:
+  Enabled: true
+
+AndOr:
+  Enabled: true
+
+Blocks:
+  Enabled: true
+
+BracesAroundHashParameters:
+  Enabled: true
+
+CollectionMethods:
+  Enabled: true
+
+EmptyLines:
+  Enabled: true
+
+EmptyLinesAroundBody:
+  Enabled: true
+
+Encoding:
+  Enabled: true
+
+HashMethods:
+  Enabled: true
+
+HashSyntax:
+  Enabled: true
+
+IndentationWidth:
+  Enabled: true
+
+Lambda:
+  Enabled: true
+
+LeadingCommentSpace:
+  Enabled: true
+
+Not:
+  Enabled: true
+
+ReduceArguments:
+  Enabled: true
+
+SignalException:
+  Enabled: true
+
+SpaceAfterComma:
+  Enabled: true
+
+SpaceAroundBlockBraces:
+  Enabled: true
+

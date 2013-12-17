@@ -1,0 +1,23 @@
+ClassLength:
+  Enabled: false
+
+ColonMethodCall:
+  Enabled: false
+
+Documentation:
+  Enabled: false
+
+LineLength:
+  Enabled: false
+
+MethodLength:
+  Enabled: false
+
+RegexpLiteral:
+  Enabled: false
+
+RescueException:
+  Enabled: false
+
+CyclomaticComplexity:
+  Enabled: false
