@@ -10,21 +10,21 @@ module CommandExec
     #
     # @param [String] cmd
     #   The command which needs to be found in path
-    def initialize( options = {} )
+    def initialize(options = {})
       options      = default_options.merge options
 
       search_paths = options[:search_paths]
       extensions   = options[:extensions]
 
-      @resolver = Resolver.new( Array( search_paths ), Array( extensions ) )
+      @resolver = Resolver.new(Array(search_paths), Array(extensions))
     end
 
     # Find the absolute path to cmd
     #
     # @return [String]
     #   The absolute path to the command
-    def absolute_path( cmd )
-      resolver.absolute_path( cmd )
+    def absolute_path(cmd)
+      resolver.absolute_path(cmd)
     end
 
     private
@@ -37,7 +37,7 @@ module CommandExec
     end
 
     def default_extensions
-      exts = ENV['PATHEXT'].to_s.split( /;/ )
+      exts = ENV['PATHEXT'].to_s.split(/;/)
 
       return [''] if exts.blank?
       exts
@@ -62,7 +62,7 @@ module CommandExec
       #
       # @param [Array] extension
       #   List of file extension
-      def initialize( search_paths, extensions )
+      def initialize(search_paths, extensions)
         @search_paths = search_paths
         @extensions   = extensions
       end
@@ -77,10 +77,10 @@ module CommandExec
       #
       # @raise [Exception::CommandNotFound]
       #   raised if `cmd` is blank or does not exist
-      def absolute_path( cmd )
+      def absolute_path(cmd)
         fail Exception::CommandNotFound if cmd.blank?
 
-        if Pathname.new( cmd ).absolute? 
+        if Pathname.new(cmd).absolute? 
           fail Exception::CommandNotFound, "Command '#{cmd}' not found search paths: #{ search_paths.join(", ") }\"." unless File.exists? cmd
           fail Exception::CommandIsNotAFile, "Command '#{cmd}' is not a file."          unless File.file? cmd
           fail Exception::CommandIsNotExecutable, "Command '#{cmd}' is not executable." unless File.executable? cmd
@@ -90,14 +90,14 @@ module CommandExec
 
         search_paths.each do |path|
           extensions.each do |ext|
-            file = File.join( path, "#{cmd}#{ext}" )
-            fail Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file && !File.file?( file )
+            file = File.join(path, "#{cmd}#{ext}")
+            fail Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file && !File.file?(file)
             fail Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists? file && !File.executable?(file)
             return file if File.executable? file
           end
         end
 
-        fail Exception::CommandNotFound, "Command '#{cmd}' not found in search paths: #{search_paths.join( ", ") }\"."
+        fail Exception::CommandNotFound, "Command '#{cmd}' not found in search paths: #{search_paths.join(", ") }\"."
       end
     end
   end

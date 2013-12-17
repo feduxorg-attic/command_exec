@@ -5,7 +5,7 @@ module CommandExec
 
     # Hook executed after init
     def after_init
-      @path_cleaner  = PathCleaner.new( secure_path: true, simple: true, pathname: true )
+      @path_cleaner  = PathCleaner.new(secure_path: true, simple: true, pathname: true)
     end
   end
 end

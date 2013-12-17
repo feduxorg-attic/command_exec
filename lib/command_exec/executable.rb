@@ -22,7 +22,7 @@ module CommandExec
     #
     # @return [String] absolute path to executable, '' if lookup failed
     def absolute_path
-      path_resolver.absolute_path(path_cleaner.cleanup( path.to_s ))
+      path_resolver.absolute_path(path_cleaner.cleanup(path.to_s))
     end
 
     private

@@ -65,3 +65,9 @@ SpaceAroundOperators:
 SpaceInsideBrackets:
   Enabled: true
 
+SpaceInsideHashLiteralBraces:
+  Enabled: true
+
+SpaceInsideParens:
+  Enabled: true
+

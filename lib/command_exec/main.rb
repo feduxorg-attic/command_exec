@@ -7,7 +7,7 @@ module CommandExec
     attr_accessor :logger, :search_paths
 
     def root_directory
-      File.expand_path( '../../../', __FILE__ )
+      File.expand_path('../../../', __FILE__)
     end
   end
 end

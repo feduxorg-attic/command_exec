@@ -16,7 +16,7 @@ module CommandExec
         @paths = default_path
       elsif cmd.kind_of? Array
         @paths = cmd
-      elsif Pathname.new( cmd.to_s ).absolute?
+      elsif Pathname.new(cmd.to_s).absolute?
         @paths = default_path
       else
         @paths = current_directory
@@ -38,11 +38,11 @@ module CommandExec
     def to_a(separator = ':')
       return paths if paths.kind_of? Array
 
-      paths.split( separator )
+      paths.split(separator)
     end
 
     def to_s(connector = ',')
-      to_a.join( connector )
+      to_a.join(connector)
     end
   end
 end

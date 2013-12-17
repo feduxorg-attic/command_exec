@@ -117,9 +117,9 @@ module CommandExec
       }.deep_merge opts
 
         if @opts[:secure_path]
-          @executable = SecuredExecutable.new( cmd, search_paths: SearchPath.new( @opts[:search_paths] || cmd ).to_a )
+          @executable = SecuredExecutable.new(cmd, search_paths: SearchPath.new(@opts[:search_paths] || cmd).to_a)
         else
-          @executable = SimpleExecutable.new( cmd, search_paths: SearchPath.new( @opts[:search_paths] || cmd ).to_a  )
+          @executable = SimpleExecutable.new(cmd, search_paths: SearchPath.new(@opts[:search_paths] || cmd).to_a)
         end
 
         if @opts[:lib_logger].nil?
@@ -136,7 +136,7 @@ module CommandExec
         begin
           @path = @executable.absolute_path
         rescue [Exceptions::CommandNotFound, Exceptions::CommandIsNotAFile, Exceptions::CommandIsNotExecutable]  => e
-          CommandExec.logger.fatal( e.message )
+          CommandExec.logger.fatal(e.message)
           raise
         end
 
