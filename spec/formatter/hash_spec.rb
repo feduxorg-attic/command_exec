@@ -17,7 +17,7 @@ describe Formatter::Hash do
 
     it "prepares output for given fields" do
       @formatter.stderr("output of stderr")
-      expect(@formatter.send(:prepare_output, [ :stderr ])).to eq({:stderr=>["output of stderr"]})
+      expect(@formatter.send(:prepare_output, [:stderr])).to eq({:stderr=>["output of stderr"]})
     end
 
   end
@@ -52,9 +52,9 @@ describe Formatter::Hash do
     end
 
     it "outputs status" do
-      expect(@formatter.status(:failed)).to eq([ "FAILED"])
+      expect(@formatter.status(:failed)).to eq(["FAILED"])
       expect(@formatter.status(:success)).to eq(["OK"])
-      expect(@formatter.status(:unknown)).to eq([ "FAILED"])
+      expect(@formatter.status(:unknown)).to eq(["FAILED"])
     end
 
     it "outputs status as single value (no data is appended)" do
@@ -65,11 +65,11 @@ describe Formatter::Hash do
 
     it "supports status as string as well" do
       expect(@formatter.status('failed')).to eq(["FAILED"])
-      expect(@formatter.status('success')).to eq([ "OK"])
+      expect(@formatter.status('success')).to eq(["OK"])
     end
 
     it "accepts a reason for a failure" do
-      expect(@formatter.reason_for_failure('error in stdout found')).to eq([ "error in stdout found" ])
+      expect(@formatter.reason_for_failure('error in stdout found')).to eq(["error in stdout found"])
     end
 
     it "output only wanted values" do
@@ -82,21 +82,21 @@ describe Formatter::Hash do
       @formatter.reason_for_failure('great an error occured')
       @formatter.executable('/usr/bin/true')
 
-      expect(@formatter.output(:stderr)).to eq(stderr: [ "output of stderr" ])
-      expect(@formatter.output).to eq(status: [ "FAILED"],
-                                      return_code: [ "output of return code"],
-                                      stderr: [ "output of stderr"],
-                                      stdout: [ "output of stdout"],
-                                      log_file: [ "output of log file"],
-                                      pid: [ "4711" ],
-                                      reason_for_failure: [ 'great an error occured'],
-                                      executable: [ '/usr/bin/true'],
+      expect(@formatter.output(:stderr)).to eq(stderr: ["output of stderr"])
+      expect(@formatter.output).to eq(status: ["FAILED"],
+                                      return_code: ["output of return code"],
+                                      stderr: ["output of stderr"],
+                                      stdout: ["output of stdout"],
+                                      log_file: ["output of log file"],
+                                      pid: ["4711"],
+                                      reason_for_failure: ['great an error occured'],
+                                      executable: ['/usr/bin/true'],
                                       start_time: [],
                                       end_time: [],
                                      )
       expect(@formatter.output(:stdout,:stderr)).to eq(
-                                                       stdout: [ "output of stdout"],
-                                                       stderr: [ "output of stderr"],
+                                                       stdout: ["output of stdout"],
+                                                       stderr: ["output of stderr"],
                                                       )
     end
 
@@ -109,8 +109,8 @@ describe Formatter::Hash do
       @formatter.executable('/usr/bin/true')
 
       expect(@formatter.output([:stdout,:stderr])).to eq(
-                                                       stdout: [ "output of stdout"],
-                                                       stderr: [ "output of stderr"],
+                                                       stdout: ["output of stdout"],
+                                                       stderr: ["output of stderr"],
                                                       )
     end
   end

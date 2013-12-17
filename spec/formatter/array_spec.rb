@@ -110,7 +110,7 @@ describe Formatter::Array do
 
     it "supports status as string as well" do
       expect(@formatter.status('failed')).to eq(["\e[1;31mFAILED\e[0m"])
-      expect(@formatter.status('success')).to eq([ "\e[1;32mOK\e[0m"])
+      expect(@formatter.status('success')).to eq(["\e[1;32mOK\e[0m"])
     end
 
     it "supports blank headers" do
@@ -172,7 +172,7 @@ describe Formatter::Array do
     end
 
     it "accepts a reason for a failure" do
-      expect(@formatter.reason_for_failure('error in stdout found')).to eq([ "error in stdout found" ])
+      expect(@formatter.reason_for_failure('error in stdout found')).to eq(["error in stdout found"])
     end
 
     it "outputs only wanted values (given as array)" do

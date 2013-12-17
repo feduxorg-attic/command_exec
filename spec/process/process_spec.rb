@@ -196,8 +196,8 @@ describe CommandExec::Process do
         pid: ['4711'],
         reason_for_failure: ['great an error occured'],
         executable: ['/usr/bin/true'],
-        start_time: [ start_time ],
-        end_time: [ end_time],
+        start_time: [start_time],
+        end_time: [end_time],
       })
     end
 

@@ -19,7 +19,7 @@ describe Command do
   end
 
   #before(:all)do
-  #  #CommandExec.search_paths = [ File.join(examples_directory, 'command'), '/bin', '/usr/bin'  ]
+  #  #CommandExec.search_paths = [File.join(examples_directory, 'command'), '/bin', '/usr/bin']
   #end
 
   context '#run' do
@@ -88,7 +88,7 @@ describe Command do
 
       file = create_file('cmd', content, 0755)
 
-      command = Command.new(:cmd, search_paths: [ working_directory ])
+      command = Command.new(:cmd, search_paths: [working_directory])
       expect{ command.run }.not_to raise_error
     end
 
@@ -101,7 +101,7 @@ describe Command do
 
       file = create_file('cmd', content, 0755)
 
-      command = Command.new(:cmd, options: 'hello world', search_paths: [ working_directory ])
+      command = Command.new(:cmd, options: 'hello world', search_paths: [working_directory])
       result = command.run
       expect(result.stdout).to eq('hello world')
     end
@@ -290,7 +290,7 @@ describe Command do
     it "returns the result of command execution as process object (defaults to :return_process_information)" do
       command = Command.new(:output_test, 
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       command.run
       expect(command.result.class).to eq(CommandExec::Process)
     end
@@ -299,7 +299,7 @@ describe Command do
       command = Command.new(:output_test, 
                             :on_error_do => :return_process_information,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       command.run
       expect(command.result.class).to eq(CommandExec::Process)
     end
@@ -308,7 +308,7 @@ describe Command do
       command = Command.new(:raise_error_test, 
                             :on_error_do => :nothing,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       expect{command.run}.to_not raise_error
       expect{command.run}.to_not throw_symbol
     end
@@ -317,13 +317,13 @@ describe Command do
       command = Command.new(:raise_error_test, 
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       expect{command.run}.to raise_error(CommandExec::Exceptions::CommandExecutionFailed)
 
       command = Command.new(:not_raise_error_test, 
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       expect{command.run}.to_not raise_error
     end
 
@@ -331,13 +331,13 @@ describe Command do
       command = Command.new(:throw_error_test, 
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       expect{command.run}.to throw_symbol(:command_execution_failed)
 
       command = Command.new(:not_throw_error_test, 
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       expect{command.run}.to_not throw_symbol
     end
 
@@ -345,7 +345,7 @@ describe Command do
       #implicit via default value (open3)
       command = Command.new(:runner_open3_test,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
 
@@ -353,7 +353,7 @@ describe Command do
       command = Command.new(:runner_open3_test,
                             :run_via => :open3,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
     end
@@ -362,7 +362,7 @@ describe Command do
       command = Command.new(:runner_system_test,
                             :run_via => :system,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
     end
@@ -371,7 +371,7 @@ describe Command do
       command = Command.new(:runner_system_test,
                             :run_via => :unknown_runner,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [ 0 ]})
+                            :error_indicators => { :allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
     end
