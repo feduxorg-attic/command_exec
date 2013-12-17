@@ -1,9 +1,3 @@
-SpaceAroundOperators:
-  Enabled: true
-
-SpaceInsideBrackets:
-  Enabled: false
-
 SpaceInsideHashLiteralBraces:
   Enabled: false
 

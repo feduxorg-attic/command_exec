@@ -58,3 +58,10 @@ SpaceAroundBlockBraces:
 
 SpaceAroundEqualsInParameterDefault:
   Enabled: true
+
+SpaceAroundOperators:
+  Enabled: true
+
+SpaceInsideBrackets:
+  Enabled: true
+

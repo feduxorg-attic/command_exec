@@ -10,9 +10,9 @@ module CommandExec
     #
     # @param [ Path ] path
     #   path to executable
-    def initialize( local_path, options = {} )
+    def initialize(local_path, options = {})
       @path          = local_path
-      @path_resolver = PathResolver.new( search_paths: options[ :search_paths ] )
+      @path_resolver = PathResolver.new(search_paths: options[:search_paths])
       @path_cleaner  = PathCleaner.new
 
       after_init
@@ -22,7 +22,7 @@ module CommandExec
     #
     # @return [String] absolute path to executable, '' if lookup failed
     def absolute_path
-      path_resolver.absolute_path( path_cleaner.cleanup( path.to_s ) )
+      path_resolver.absolute_path(path_cleaner.cleanup( path.to_s ))
     end
 
     private
