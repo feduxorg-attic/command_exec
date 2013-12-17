@@ -16,15 +16,15 @@ describe Formatter::Array do
     end
 
     it "formats headers and modifies prefix" do
-      expect(@formatter.send(:format_header,:status, prefix: '-' * 5 )).to eq("-----       STATUS       =====")
+      expect(@formatter.send(:format_header,:status, prefix: '-' * 5)).to eq("-----       STATUS       =====")
     end
 
     it "formats headers and modifies suffix" do
-      expect(@formatter.send(:format_header,:status, suffix: '-' * 5 )).to eq("=====       STATUS       -----")
+      expect(@formatter.send(:format_header,:status, suffix: '-' * 5)).to eq("=====       STATUS       -----")
     end
 
     it "formats headers and modifies suffix/prefix" do
-      expect(@formatter.send(:format_header,:status, prefix: '#' * 5, suffix: '-' * 5 )).to eq("#####       STATUS       -----")
+      expect(@formatter.send(:format_header,:status, prefix: '#' * 5, suffix: '-' * 5)).to eq("#####       STATUS       -----")
     end
 
     it "leaves out nil prefix/suffix" do
@@ -114,7 +114,7 @@ describe Formatter::Array do
     end
 
     it "supports blank headers" do
-      formatter = Formatter::Array.new(headers: { names: { return_code: "" } } )
+      formatter = Formatter::Array.new(headers: { names: { return_code: "" } })
       formatter.return_code("output of return code")
       expect(formatter.output(:return_code)).to eq(["" , "output of return code"])
     end

@@ -3,23 +3,23 @@
 require 'spec_helper'
 
 describe Command do
-  let( :lib_logger ) do
-    lib_logger = double( 'LibLogger' )
-    allow( lib_logger ).to receive( :debug )
-    allow( lib_logger ).to receive( :info )
-    allow( lib_logger ).to receive( :warn )
-    allow( lib_logger ).to receive( :error )
-    allow( lib_logger ).to receive( :mode= )
+  let(:lib_logger)do
+    lib_logger = double('LibLogger')
+    allow(lib_logger).to receive(:debug)
+    allow(lib_logger).to receive(:info)
+    allow(lib_logger).to receive(:warn)
+    allow(lib_logger).to receive(:error)
+    allow(lib_logger).to receive(:mode=)
 
     lib_logger
   end
 
   let(:command) do
-    Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp' )
+    Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp')
   end
 
-  #before( :all ) do
-  #  #CommandExec.search_paths = [ File.join( examples_directory, 'command' ), '/bin', '/usr/bin'  ]
+  #before(:all)do
+  #  #CommandExec.search_paths = [ File.join(examples_directory, 'command'), '/bin', '/usr/bin'  ]
   #end
 
   context '#run' do
@@ -29,10 +29,10 @@ describe Command do
       exit 1
       EOS
 
-      file = create_file( 'cmd', content, 0755 )
+      file = create_file('cmd', content, 0755)
 
       switch_to_working_directory do
-        command = Command.new( 'cmd' )
+        command = Command.new('cmd')
         expect{ command.run }.not_to raise_error
       end
     end
@@ -43,10 +43,10 @@ describe Command do
       exit 1
       EOS
 
-      file = create_file( 'cmd', content, 0755 )
+      file = create_file('cmd', content, 0755)
 
       switch_to_working_directory do
-        command = Command.new( './cmd' )
+        command = Command.new('./cmd')
         expect{ command.run }.not_to raise_error
       end
     end
@@ -57,10 +57,10 @@ describe Command do
       exit 1
       EOS
 
-      file = create_file( 'cmd', content, 0755 )
+      file = create_file('cmd', content, 0755)
 
       switch_to_working_directory do
-        command = Command.new( file )
+        command = Command.new(file)
         expect{ command.run }.not_to raise_error
       end
     end
@@ -71,10 +71,10 @@ describe Command do
       exit 1
       EOS
 
-      file = create_file( 'cmd', content, 0755 )
+      file = create_file('cmd', content, 0755)
 
       with_environment 'PATH' => working_directory do
-        command = Command.new( :cmd )
+        command = Command.new(:cmd)
         expect{ command.run }.not_to raise_error
       end
 
@@ -86,9 +86,9 @@ describe Command do
       exit 1
       EOS
 
-      file = create_file( 'cmd', content, 0755 )
+      file = create_file('cmd', content, 0755)
 
-      command = Command.new( :cmd, search_paths: [ working_directory ] )
+      command = Command.new(:cmd, search_paths: [ working_directory ])
       expect{ command.run }.not_to raise_error
     end
 
@@ -99,11 +99,11 @@ describe Command do
       exit 1
       EOS
 
-      file = create_file( 'cmd', content, 0755 )
+      file = create_file('cmd', content, 0755)
 
-      command = Command.new( :cmd, options: 'hello world', search_paths: [ working_directory ] )
+      command = Command.new(:cmd, options: 'hello world', search_paths: [ working_directory ])
       result = command.run
-      expect( result.stdout ).to eq( 'hello world' )
+      expect(result.stdout).to eq('hello world')
     end
   end
 
@@ -131,8 +131,8 @@ describe Command do
 
   context '#execute' do
     it "execute existing programs" do
-      silence( :stdout ) do
-        command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b"  )
+      silence(:stdout)do
+        command = Command.execute(:echo, :parameter => "output", :options => "-- -a -b")
         expect(command.result.status).to eq(:success)
       end
     end
@@ -149,8 +149,8 @@ describe Command do
     end
 
     it "runs programms" do
-      silence( :stdout ) do
-        command = Command.new(:echo, :parameter => "output" )
+      silence(:stdout)do
+        command = Command.new(:echo, :parameter => "output")
         command.run
 
         expect(command.result.status).to eq(:success)
@@ -158,18 +158,18 @@ describe Command do
     end
 
     it "is very verbose and returns a lot of output" do
-      command = Command.new(:echo, :parameter => "output", lib_logger => lib_logger ) 
+      command = Command.new(:echo, :parameter => "output", lib_logger => lib_logger)
       command.run
     end
 
     it "is silent and returns no output" do
       # if you choose the system runner output of commands will be not suppressed"
-      logger = double( 'LocalLogger')
-      allow( logger ).to receive( :debug )
-      allow( logger ).to receive( :info )
-      allow( logger ).to receive( :warn )
-      allow( logger ).to receive( :error )
-      expect( logger ).to receive( :mode= ).with( :silent )
+      logger = double('LocalLogger')
+      allow(logger).to receive(:debug)
+      allow(logger).to receive(:info)
+      allow(logger).to receive(:warn)
+      allow(logger).to receive(:error)
+      expect(logger).to receive(:mode=).with(:silent)
 
       command = Command.new(:echo, :parameter => "output", :lib_logger => logger, :lib_log_level => :silent)
       command.run
@@ -187,7 +187,7 @@ describe Command do
 
     it "outputs only warnings when told to output those" do
       bucket = StringIO.new
-      lib_logger = FeduxOrg::Stdlib::Logging::Logger.new( Logger.new( bucket ) )
+      lib_logger = FeduxOrg::Stdlib::Logging::Logger.new(Logger.new(bucket))
 
       command = Command.new(:logger_test,
                             :lib_logger => lib_logger,
@@ -277,7 +277,7 @@ describe Command do
     end
 
     it "considers log file for error handling" do
-      temp_file = create_temp_file_with('log_file_test', 'error, huh, what goes on' )
+      temp_file = create_temp_file_with('log_file_test', 'error, huh, what goes on')
 
       command = Command.new(:log_file_test, 
                             :log_file => temp_file,

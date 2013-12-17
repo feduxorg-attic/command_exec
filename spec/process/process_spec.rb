@@ -18,7 +18,7 @@ describe CommandExec::Process do
 
     it "opens a log file" do
       process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
-      tmp_file = create_temp_file_with('process.log' , 'this is content' )
+      tmp_file = create_temp_file_with('process.log' , 'this is content')
       process.log_file = tmp_file
 
       expect(process.log_file).to eq(['this is content'])
@@ -60,7 +60,7 @@ describe CommandExec::Process do
       file = '/tmp/test1234.txt'
       bucket = StringIO.new
       process = CommandExec::Process.new(lib_logger: Logger.new(bucket))
-      tmp_file = create_temp_file_with('process.log' , 'this is content' )
+      tmp_file = create_temp_file_with('process.log' , 'this is content')
       process.log_file = file
       process.log_file
 
@@ -128,7 +128,7 @@ describe CommandExec::Process do
 
       process.stderr = "output of stderr"
       process.stdout = "output of stdout"
-      process.log_file = create_temp_file_with('process.log' , 'output of log file' )
+      process.log_file = create_temp_file_with('process.log' , 'output of log file')
       process.return_code = "output of return code"
       process.status = :failed
       process.pid = 4711
@@ -175,7 +175,7 @@ describe CommandExec::Process do
 
       process.stderr = "output of stderr"
       process.stdout = "output of stdout"
-      process.log_file = create_temp_file_with('process.log' , 'output of log file' )
+      process.log_file = create_temp_file_with('process.log' , 'output of log file')
       process.return_code = "output of return code"
       process.status = :failed
       process.pid = 4711
@@ -206,7 +206,7 @@ describe CommandExec::Process do
 
       process.stderr = "output of stderr"
       process.stdout = "output of stdout"
-      process.log_file = create_temp_file_with('process.log' , 'output of log file' )
+      process.log_file = create_temp_file_with('process.log' , 'output of log file')
       process.return_code = "output of return code"
       process.status = :failed
       process.pid = 4711
@@ -248,7 +248,7 @@ describe CommandExec::Process do
 
       process.stderr = "output of stderr"
       process.stdout = "output of stdout"
-      process.log_file = create_temp_file_with('process.log' , 'output of log file' )
+      process.log_file = create_temp_file_with('process.log' , 'output of log file')
       process.return_code = "output of return code"
       process.status = :failed
       process.pid = 4711
@@ -268,7 +268,7 @@ describe CommandExec::Process do
 
       process.stderr = "this is an 'ä'"
       process.stdout = "output of stdout"
-      process.log_file = create_temp_file_with('process.log' , 'output of log file' )
+      process.log_file = create_temp_file_with('process.log' , 'output of log file')
       process.return_code = "output of return code"
       process.status = :failed
       process.pid = 4711
@@ -288,7 +288,7 @@ describe CommandExec::Process do
 
       process.stderr = "output of stderr"
       process.stdout = "output of stdout"
-      process.log_file = create_temp_file_with('process.log' , 'output of log file' )
+      process.log_file = create_temp_file_with('process.log' , 'output of log file')
       process.return_code = "output of return code"
       process.status = :failed
       process.pid = 4711
@@ -310,7 +310,7 @@ describe CommandExec::Process do
 
       process.stderr = "output of stderr"
       process.stdout = "output of stdout"
-      process.log_file = create_temp_file_with('process.log' , 'output of log file' )
+      process.log_file = create_temp_file_with('process.log' , 'output of log file')
       process.return_code = "output of return code"
       process.status = :failed
       process.pid = 4711
