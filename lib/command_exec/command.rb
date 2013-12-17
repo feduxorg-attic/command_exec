@@ -159,8 +159,8 @@ module CommandExec
     def to_s
       cmd = ''
       cmd += path
-      cmd += @options.blank? ? "" : " #{@options}"
-      cmd += @parameter.blank? ? "" : " #{@parameter}"
+      cmd += @options.blank? ? '' : " #{@options}"
+      cmd += @parameter.blank? ? '' : " #{@parameter}"
 
       @logger.debug cmd
 
@@ -233,20 +233,20 @@ module CommandExec
 
         case process.reason_for_failure
         when :stderr
-          @logger.debug "Error detection on stderr found an error"
+          @logger.debug 'Error detection on stderr found an error'
         when :stdout
-          @logger.debug "Error detection on stdout found an error"
+          @logger.debug 'Error detection on stdout found an error'
         when :return_code
           @logger.debug 'Error detection on return code found an error'
         when :log_file
-          @logger.debug "Error detection on log file found an error"
+          @logger.debug 'Error detection on log file found an error'
         end
 
         case @on_error_do
         when :nothing
           # nothing
         when :raise_error
-          fail CommandExec::Exceptions::CommandExecutionFailed, "An error occured. Please check for reason via command.reason_for_failure and/or command.stdout, comand.stderr, command.log_file, command.return_code"
+          fail CommandExec::Exceptions::CommandExecutionFailed, 'An error occured. Please check for reason via command.reason_for_failure and/or command.stdout, comand.stderr, command.log_file, command.return_code'
         when :throw_error
           throw :command_execution_failed 
         else

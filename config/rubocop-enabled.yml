@@ -74,3 +74,6 @@ SpaceInsideParens:
 SpecialGlobalVars:
   Enabled: true
 
+StringLiterals:
+  Enabled: true
+

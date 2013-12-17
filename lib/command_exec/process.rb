@@ -98,7 +98,7 @@ module CommandExec
     def log_file=(filename = nil)
       if filename.blank?
         file = StringIO.new 
-        @logger.debug "No file name for log file given. Using empty String"
+        @logger.debug 'No file name for log file given. Using empty String'
       else
         begin
           file = File.open(filename)
