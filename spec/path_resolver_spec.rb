@@ -4,7 +4,7 @@ describe PathResolver do
   context '#absolute_path' do
     it "resolves name if is full qualified" do
       cmd      = 'file'
-      file     = create_file(cmd , '' , 0755)
+      file     = create_file(cmd, '', 0755)
       resolver = PathResolver.new
       path     = resolver.absolute_path(file)
       expect(path).to eq(file)
@@ -12,7 +12,7 @@ describe PathResolver do
 
     it "resolves name if is not full qualified" do
       cmd      = 'file'
-      file     = create_file(cmd , '' , 0755)
+      file     = create_file(cmd, '', 0755)
       resolver = PathResolver.new(search_paths: [working_directory])
       path     = resolver.absolute_path(cmd)
       expect(path).to eq(file)
@@ -21,15 +21,15 @@ describe PathResolver do
     it "support the use of extensions (mind the '.')" do
       cmd      = 'file'
       extension = '.ext'
-      file     = create_file("#{cmd}#{extension}" , '' , 0755)
-      resolver = PathResolver.new(search_paths: working_directory , extensions: [extension])
+      file     = create_file("#{cmd}#{extension}", '', 0755)
+      resolver = PathResolver.new(search_paths: working_directory, extensions: [extension])
       path     = resolver.absolute_path(cmd)
       expect(path).to eq(file)
     end
 
     it "uses the PATH-environment variable by default" do
       cmd      = 'file'
-      file     = create_file(cmd , '', 0755)
+      file     = create_file(cmd, '', 0755)
 
       resolver = isolated_environment 'PATH' => working_directory do
         PathResolver.new
@@ -42,7 +42,7 @@ describe PathResolver do
     it "uses the PATHEXT-environment variable for extensions by default" do
       cmd       = 'file'
       extension = '.ext'
-      file      = create_file("#{cmd}#{extension}" , '', 0755)
+      file      = create_file("#{cmd}#{extension}", '', 0755)
 
       resolver = isolated_environment 'PATHEXT' => extension  do
         PathResolver.new(search_paths: working_directory)
@@ -79,7 +79,7 @@ describe PathResolver do
     end
 
     it "raises an exception if fully qualified path is not executable" do
-      cmd = create_file('file' , '', 0644)
+      cmd = create_file('file', '', 0644)
       resolver = PathResolver.new(search_paths: [working_directory])
       expect{ resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotExecutable
     end

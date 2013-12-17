@@ -15,7 +15,7 @@ describe Command do
   end
 
   let(:command) do
-    Command.new(:echo , :lib_logger => lib_logger, :parameter => "hello world" , :error_keywords => %q[abc def], :working_directory => '/tmp')
+    Command.new(:echo, :lib_logger => lib_logger, :parameter => "hello world", :error_keywords => %q[abc def], :working_directory => '/tmp')
   end
 
   #before(:all)do

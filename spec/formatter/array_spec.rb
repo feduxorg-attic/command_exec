@@ -28,7 +28,7 @@ describe Formatter::Array do
     end
 
     it "leaves out nil prefix/suffix" do
-      expect(@formatter.send(:format_header,:status, prefix: nil , suffix: nil)).to eq("      STATUS      ")
+      expect(@formatter.send(:format_header,:status, prefix: nil, suffix: nil)).to eq("      STATUS      ")
     end
 
     it "finds the longest header names' length" do
@@ -36,33 +36,33 @@ describe Formatter::Array do
     end
 
     it "centers header names" do
-      expect(@formatter.send(:halign, '012' , 10 , :center)).to        eq('   012    ')
-      expect(@formatter.send(:halign, '0123' , 10 , :center)).to       eq('   0123   ')
-      expect(@formatter.send(:halign, '0123456789' , 10 , :center)).to eq('0123456789')
-      expect(@formatter.send(:halign, '012' , 11 , :center)).to         eq('    012    ')
-      expect(@formatter.send(:halign, '0123' , 11 , :center)).to        eq('   0123    ')
-      expect(@formatter.send(:halign, '01234567891' , 11 , :center)).to eq('01234567891')
+      expect(@formatter.send(:halign, '012', 10, :center)).to        eq('   012    ')
+      expect(@formatter.send(:halign, '0123', 10, :center)).to       eq('   0123   ')
+      expect(@formatter.send(:halign, '0123456789', 10, :center)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012', 11, :center)).to         eq('    012    ')
+      expect(@formatter.send(:halign, '0123', 11, :center)).to        eq('   0123    ')
+      expect(@formatter.send(:halign, '01234567891', 11, :center)).to eq('01234567891')
 
       #default = center
-      expect(@formatter.send(:halign, '01234567891' , 11 , :unknown)).to eq('01234567891')
+      expect(@formatter.send(:halign, '01234567891', 11, :unknown)).to eq('01234567891')
     end
 
     it "leftify header names" do
-      expect(@formatter.send(:halign, '012' , 10 , :left)).to        eq('012       ')
-      expect(@formatter.send(:halign, '0123' , 10 , :left)).to       eq('0123      ')
-      expect(@formatter.send(:halign, '0123456789' , 10 , :left)).to eq('0123456789')
-      expect(@formatter.send(:halign, '012' , 11 , :left)).to         eq('012        ')
-      expect(@formatter.send(:halign, '0123' , 11 , :left)).to        eq('0123       ')
-      expect(@formatter.send(:halign, '01234567891' , 11 , :left)).to eq('01234567891')
+      expect(@formatter.send(:halign, '012', 10, :left)).to        eq('012       ')
+      expect(@formatter.send(:halign, '0123', 10, :left)).to       eq('0123      ')
+      expect(@formatter.send(:halign, '0123456789', 10, :left)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012', 11, :left)).to         eq('012        ')
+      expect(@formatter.send(:halign, '0123', 11, :left)).to        eq('0123       ')
+      expect(@formatter.send(:halign, '01234567891', 11, :left)).to eq('01234567891')
     end
 
     it "justify header names right" do
-      expect(@formatter.send(:halign, '012' , 10 , :right)).to        eq('       012')
-      expect(@formatter.send(:halign, '0123' , 10 , :right)).to       eq('      0123')
-      expect(@formatter.send(:halign, '0123456789' , 10 , :right)).to eq('0123456789')
-      expect(@formatter.send(:halign, '012' , 11 , :right)).to         eq('        012')
-      expect(@formatter.send(:halign, '0123' , 11 , :right)).to        eq('       0123')
-      expect(@formatter.send(:halign, '01234567891' , 11 , :right)).to eq('01234567891')
+      expect(@formatter.send(:halign, '012', 10, :right)).to        eq('       012')
+      expect(@formatter.send(:halign, '0123', 10, :right)).to       eq('      0123')
+      expect(@formatter.send(:halign, '0123456789', 10, :right)).to eq('0123456789')
+      expect(@formatter.send(:halign, '012', 11, :right)).to         eq('        012')
+      expect(@formatter.send(:halign, '0123', 11, :right)).to        eq('       0123')
+      expect(@formatter.send(:halign, '01234567891', 11, :right)).to eq('01234567891')
     end
 
   end
@@ -116,7 +116,7 @@ describe Formatter::Array do
     it "supports blank headers" do
       formatter = Formatter::Array.new(headers: {names: {return_code: ""}})
       formatter.return_code("output of return code")
-      expect(formatter.output(:return_code)).to eq(["" , "output of return code"])
+      expect(formatter.output(:return_code)).to eq(["", "output of return code"])
     end
 
     it "suppresses headers if nil" do
