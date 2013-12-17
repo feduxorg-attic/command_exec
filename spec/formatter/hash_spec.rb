@@ -12,12 +12,12 @@ describe Formatter::Hash do
 
     it "prepares output for all fields (default)" do
       @formatter.stderr("output of stderr")
-      expect(@formatter.send(:prepare_output)).to eq({:status=>[], :pid => [], :return_code=>[], :stderr=>["output of stderr"], :stdout=>[], :log_file=>[], :reason_for_failure=>[], :executable => [], :start_time => [], :end_time => []})
+      expect(@formatter.send(:prepare_output)).to eq({ :status=>[], :pid => [], :return_code=>[], :stderr=>["output of stderr"], :stdout=>[], :log_file=>[], :reason_for_failure=>[], :executable => [], :start_time => [], :end_time => [] })
     end
 
     it "prepares output for given fields" do
       @formatter.stderr("output of stderr")
-      expect(@formatter.send(:prepare_output, [:stderr])).to eq({:stderr=>["output of stderr"]})
+      expect(@formatter.send(:prepare_output, [:stderr])).to eq({ :stderr=>["output of stderr"] })
     end
 
   end

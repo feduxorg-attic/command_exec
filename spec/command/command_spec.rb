@@ -212,7 +212,7 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :parameter => '1',
                             :error_detection_on => [:return_code], 
-                            :error_indicators => { :allowed_return_code => [0] })
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:failed)
     end
@@ -221,7 +221,7 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :parameter => '1',
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0] })
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:failed)
     end
@@ -230,14 +230,14 @@ describe Command do
       command = Command.new(:exit_status_test, 
                             :parameter => '0',
                             :error_detection_on => [:return_code], 
-                            :error_indicators => { :allowed_return_code => [0,2] })
+                            :error_indicators => {:allowed_return_code => [0,2]})
       command.run
       expect(command.result.status).to eq(:success)
 
       command = Command.new(:exit_status_test, 
                             :parameter => '2',
                             :error_detection_on => [:return_code], 
-                            :error_indicators => { :allowed_return_code => [0,2] })
+                            :error_indicators => {:allowed_return_code => [0,2]})
       command.run
       expect(command.result.status).to eq(:success)
     end
@@ -245,7 +245,7 @@ describe Command do
     it "considers stderr for error handling" do
       command = Command.new(:stderr_test, 
                             :error_detection_on => :stderr, 
-                            :error_indicators => { :forbidden_words_in_stderr => %w{error} })
+                            :error_indicators => {:forbidden_words_in_stderr => %w{error}})
       command.run
       expect(command.result.status).to eq(:failed)
     end
@@ -253,7 +253,7 @@ describe Command do
     it "considers stderr for error handling but can make exceptions" do
       command = Command.new(:stderr_test, 
                             :error_detection_on => :stderr, 
-                            :error_indicators => { :forbidden_words_in_stderr => %w{error}, :allowed_words_in_stderr =>  ["error. execution failed"]})
+                            :error_indicators => {:forbidden_words_in_stderr => %w{error}, :allowed_words_in_stderr =>  ["error. execution failed"]})
       command.run
       expect(command.result.status).to eq(:success)
     end
@@ -261,7 +261,7 @@ describe Command do
     it "considers stdout for error handling" do
       command = Command.new(:stdout_test, 
                             :error_detection_on => :stdout, 
-                            :error_indicators => { :forbidden_words_in_stdout => %w{error} })
+                            :error_indicators => {:forbidden_words_in_stdout => %w{error}})
       command.run
       expect(command.result.status).to eq(:failed)
     end
@@ -271,7 +271,7 @@ describe Command do
       #same for stderr
       command = Command.new(:stdout_multiple_lines_test, 
                             :error_detection_on => :stdout, 
-                            :error_indicators => { :forbidden_words_in_stdout => %w{error} })
+                            :error_indicators => {:forbidden_words_in_stdout => %w{error}})
       command.run
       expect(command.result.stdout).to eq(["error. execution failed", "error. execution failed"])
     end
@@ -282,7 +282,7 @@ describe Command do
       command = Command.new(:log_file_test, 
                             :log_file => temp_file,
                             :error_detection_on => :log_file, 
-                            :error_indicators => { :forbidden_words_in_log_file => %w{error} })
+                            :error_indicators => {:forbidden_words_in_log_file => %w{error}})
       command.run
       expect(command.result.status).to eq(:failed)
     end
@@ -290,7 +290,7 @@ describe Command do
     it "returns the result of command execution as process object (defaults to :return_process_information)" do
       command = Command.new(:output_test, 
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.class).to eq(CommandExec::Process)
     end
@@ -299,7 +299,7 @@ describe Command do
       command = Command.new(:output_test, 
                             :on_error_do => :return_process_information,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.class).to eq(CommandExec::Process)
     end
@@ -308,44 +308,44 @@ describe Command do
       command = Command.new(:raise_error_test, 
                             :on_error_do => :nothing,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
-      expect{command.run}.to_not raise_error
-      expect{command.run}.to_not throw_symbol
+                            :error_indicators => {:allowed_return_code => [0]})
+      expect{ command.run }.to_not raise_error
+      expect{ command.run }.to_not throw_symbol
     end
 
     it "raises an exception" do
       command = Command.new(:raise_error_test, 
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
-      expect{command.run}.to raise_error(CommandExec::Exceptions::CommandExecutionFailed)
+                            :error_indicators => {:allowed_return_code => [0]})
+      expect{ command.run }.to raise_error(CommandExec::Exceptions::CommandExecutionFailed)
 
       command = Command.new(:not_raise_error_test, 
                             :on_error_do => :raise_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
-      expect{command.run}.to_not raise_error
+                            :error_indicators => {:allowed_return_code => [0]})
+      expect{ command.run }.to_not raise_error
     end
 
     it "throws an error" do
       command = Command.new(:throw_error_test, 
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
-      expect{command.run}.to throw_symbol(:command_execution_failed)
+                            :error_indicators => {:allowed_return_code => [0]})
+      expect{ command.run }.to throw_symbol(:command_execution_failed)
 
       command = Command.new(:not_throw_error_test, 
                             :on_error_do => :throw_error,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
-      expect{command.run}.to_not throw_symbol
+                            :error_indicators => {:allowed_return_code => [0]})
+      expect{ command.run }.to_not throw_symbol
     end
 
     it "support open3 as runner" do
       #implicit via default value (open3)
       command = Command.new(:runner_open3_test,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
 
@@ -353,7 +353,7 @@ describe Command do
       command = Command.new(:runner_open3_test,
                             :run_via => :open3,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
     end
@@ -362,7 +362,7 @@ describe Command do
       command = Command.new(:runner_system_test,
                             :run_via => :system,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
     end
@@ -371,7 +371,7 @@ describe Command do
       command = Command.new(:runner_system_test,
                             :run_via => :unknown_runner,
                             :error_detection_on => :return_code, 
-                            :error_indicators => { :allowed_return_code => [0]})
+                            :error_indicators => {:allowed_return_code => [0]})
       command.run
       expect(command.result.status).to eq(:success)
     end
@@ -382,7 +382,7 @@ describe Command do
                                          :parameter => "\"wow, a test. That's great.\nBut an error occured in this line\"",
                                          :error_detection_on => [:stdout],
                                          :error_indicators => {
-                                           :forbidden_words_in_stdout => %w{ error }
+                                           :forbidden_words_in_stdout => %w{error}
                                          },
                                         )
       command.run

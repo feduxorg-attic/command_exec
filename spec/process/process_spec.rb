@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe CommandExec::Process do
 
-  let(:dev_null) { StringIO.new }
+  let(:dev_null) {StringIO.new}
 
   context :private_api do; end
 
@@ -260,7 +260,7 @@ describe CommandExec::Process do
       process.start_time = start_time
       process.end_time = end_time
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time}\"],\"end_time\":[\"#{end_time}\"]}")
+      expect(process.to_json).to eq("{ \"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time }\"],\"end_time\":[\"#{end_time}\"]}")
     end
 
     it 'returns a json encoded string and supports unicode as well' do
@@ -280,7 +280,7 @@ describe CommandExec::Process do
       process.start_time = start_time
       process.end_time = end_time
 
-      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time}\"],\"end_time\":[\"#{end_time}\"]}")
+      expect(process.to_json).to eq("{ \"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an 'ä'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time }\"],\"end_time\":[\"#{end_time}\"]}")
     end
 
     it 'returns a yaml encoded string' do
@@ -302,7 +302,7 @@ describe CommandExec::Process do
 
       time_format_string = "%Y-%m-%d %H:%M:%S.%9N %:z"
 
-      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n:executable:\n- /usr/bin/true\n:start_time:\n- #{start_time.strftime(time_format_string)}\n:end_time:\n- #{end_time.strftime(time_format_string)}\n")
+      expect(process.to_yaml).to eq("---\n:status:\n- FAILED\n:return_code:\n- output of return code\n:stderr:\n- output of stderr\n:stdout:\n- output of stdout\n:log_file:\n- output of log file\n:pid:\n- '4711'\n:reason_for_failure:\n- great an error occured\n:executable:\n- /usr/bin/true\n:start_time:\n- #{ start_time.strftime(time_format_string) }\n:end_time:\n- #{end_time.strftime(time_format_string)}\n")
     end
 
     it 'returns a xml encoded string' do
@@ -322,7 +322,7 @@ describe CommandExec::Process do
       process.start_time = start_time
       process.end_time = end_time
 
-      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n  <executable>/usr/bin/true</executable>\n  <start_time>#{start_time}</start_time>\n  <end_time>#{end_time}</end_time>\n</command>\n")
+      expect(process.to_xml).to eq("<command>\n  <status>FAILED</status>\n  <return_code>output of return code</return_code>\n  <stderr>output of stderr</stderr>\n  <stdout>output of stdout</stdout>\n  <log_file>output of log file</log_file>\n  <pid>4711</pid>\n  <reason_for_failure>great an error occured</reason_for_failure>\n  <executable>/usr/bin/true</executable>\n  <start_time>#{ start_time }</start_time>\n  <end_time>#{end_time}</end_time>\n</command>\n")
     end
 
   end
