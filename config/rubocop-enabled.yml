@@ -71,3 +71,6 @@ SpaceInsideHashLiteralBraces:
 SpaceInsideParens:
   Enabled: true
 
+SpecialGlobalVars:
+  Enabled: true
+
