@@ -56,3 +56,5 @@ SpaceAfterComma:
 SpaceAroundBlockBraces:
   Enabled: true
 
+SpaceAroundEqualsInParameterDefault:
+  Enabled: true

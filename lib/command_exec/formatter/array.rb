@@ -105,7 +105,7 @@ module CommandExec
       def format_header(header, options = {})
         opts = @headers_options.deep_merge options
 
-        output=""
+        output = ""
         unless opts[:names][header] == ""
           output += "#{opts[:prefix]} " unless opts[:prefix].blank?
           output += halign(opts[:names][header], max_header_length, opts[:halign])
