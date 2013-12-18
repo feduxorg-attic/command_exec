@@ -113,7 +113,7 @@ describe Formatter::Array do
     end
 
     it 'supports blank headers' do
-      formatter = Formatter::Array.new(headers: { names: { return_code: '' } } )
+      formatter = Formatter::Array.new(headers: { names: { return_code: '' } })
       formatter.return_code('output of return code')
       expect(formatter.output(:return_code)).to eq(['', 'output of return code'])
     end
@@ -132,7 +132,7 @@ describe Formatter::Array do
       @formatter.reason_for_failure('great an error occured')
       @formatter.executable('/usr/bin/true')
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       @formatter.start_time(start_time)
       @formatter.end_time(end_time)
 

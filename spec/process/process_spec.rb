@@ -5,8 +5,6 @@ describe CommandExec::Process do
 
   let(:dev_null) { StringIO.new }
 
-  context :private_api do; end
-
   context :public_api do
 
     it 'has a executable' do
@@ -57,9 +55,10 @@ describe CommandExec::Process do
 
     it 'goes on with a warning, if log file doesn\'t exists' do
       file = '/tmp/test1234.txt'
+      create_temp_file_with('process.log', 'this is content')
+
       bucket = StringIO.new
       process = CommandExec::Process.new(lib_logger: Logger.new(bucket))
-      tmp_file = create_temp_file_with('process.log', 'this is content')
       process.log_file = file
       process.log_file
 
@@ -135,7 +134,7 @@ describe CommandExec::Process do
       process.executable = '/bin/true'
 
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       process.start_time = start_time
       process.end_time = end_time
 
@@ -182,11 +181,11 @@ describe CommandExec::Process do
       process.executable = '/usr/bin/true'
 
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       process.start_time = start_time
       process.end_time = end_time
 
-      expect(process.to_h).to eq({
+      expect(process.to_h).to eq(
         stderr: ['output of stderr'],
         stdout: ['output of stdout'],
         log_file: ['output of log file'],
@@ -197,7 +196,7 @@ describe CommandExec::Process do
         executable: ['/usr/bin/true'],
         start_time: [start_time],
         end_time: [end_time],
-      })
+      )
     end
 
     it 'returns a string version of process' do
@@ -213,7 +212,7 @@ describe CommandExec::Process do
       process.executable = '/usr/bin/true'
 
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       process.start_time = start_time
       process.end_time = end_time
 
@@ -255,7 +254,7 @@ describe CommandExec::Process do
       process.executable = '/usr/bin/true'
 
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       process.start_time = start_time
       process.end_time = end_time
 
@@ -275,7 +274,7 @@ describe CommandExec::Process do
       process.executable = '/usr/bin/true'
 
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       process.start_time = start_time
       process.end_time = end_time
 
@@ -295,7 +294,7 @@ describe CommandExec::Process do
       process.executable = '/usr/bin/true'
 
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       process.start_time = start_time
       process.end_time = end_time
 
@@ -317,7 +316,7 @@ describe CommandExec::Process do
       process.executable = '/usr/bin/true'
 
       start_time = Time.now
-      end_time= start_time + 2.seconds
+      end_time = start_time + 2.seconds
       process.start_time = start_time
       process.end_time = end_time
 

@@ -88,7 +88,7 @@ describe PathResolver do
     it 'raises an exception if fully qualified path is not a file' do
       cmd = create_directory('dir')
       resolver = PathResolver.new(search_paths: [working_directory])
-      expect{ resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotAFile
+      expect { resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotAFile
     end
 
     it 'support string search path' do
