@@ -25,7 +25,7 @@ describe Command do
   context '# run' do
     it 'supports relative paths' do
       content = <<-EOS.strip_heredoc
-      #!/usr/bin/which bash
+      #!/usr/bin/env bash
       exit 1
       EOS
 
@@ -39,7 +39,7 @@ describe Command do
 
     it 'supports relative paths with dot' do
       content = <<-EOS.strip_heredoc
-      #!/usr/bin/which bash
+      #!/usr/bin/env bash
       exit 1
       EOS
 
@@ -53,7 +53,7 @@ describe Command do
 
     it 'supports absolute paths' do
       content = <<-EOS.strip_heredoc
-      #!/usr/bin/which bash
+      #!/usr/bin/env bash
       exit 1
       EOS
 
@@ -67,7 +67,7 @@ describe Command do
 
     it 'searches $PATH to find the command' do
       content = <<-EOS.strip_heredoc
-      #!/usr/bin/which bash
+      #!/usr/bin/env bash
       exit 1
       EOS
 
@@ -82,7 +82,7 @@ describe Command do
 
     it 'offers an option to change search path PATH for the command execution' do
       content = <<-EOS.strip_heredoc
-      #!/usr/bin/which bash
+      #!/usr/bin/env bash
       exit 1
       EOS
 
@@ -92,18 +92,18 @@ describe Command do
       expect { command.run }.not_to raise_error
     end
 
-    it 'accepts options for command', :focus do
+    it 'accepts options for command' do
       content = <<-EOS.strip_heredoc
-      #!/usr/bin/which bash
-      echo $1 >&2
+      #!/usr/bin/bash
+      echo $*
       exit 1
       EOS
 
       create_file('cmd', content, 0755)
 
-      command = Command.new(:cmd, options: 'hello world', search_paths: [working_directory])
+      command = Command.new(:cmd, options: '-q hello world', search_paths: [working_directory])
       result = command.run
-      expect(result.stdout).to eq('hello world')
+      expect(result.stdout).to eq(['-q hello world'])
     end
   end
 

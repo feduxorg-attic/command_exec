@@ -15,6 +15,6 @@ describe Formatter::JSON do
     @formatter.status(:failed)
     @formatter.executable('/usr/bin/true')
 
-    expect(@formatter.output(:stdout, :stderr)).to eq('{ \"stdout\":[\"output of stdout\"],\"stderr\":[\"output of stderr\"] }')
+    expect(@formatter.output(:stdout, :stderr)).to eq('{"stdout":["output of stdout"],"stderr":["output of stderr"]}')
   end
 end
