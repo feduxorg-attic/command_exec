@@ -258,7 +258,7 @@ describe CommandExec::Process do
       process.start_time = start_time
       process.end_time = end_time
 
-      expect(process.to_json).to eq('{ \"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time }\"],\"end_time\":[\"#{end_time}\"]}')
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"output of stderr\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time }\"],\"end_time\":[\"#{end_time}\"]}")
     end
 
     it 'returns a json encoded string and supports unicode as well' do
@@ -278,7 +278,7 @@ describe CommandExec::Process do
       process.start_time = start_time
       process.end_time = end_time
 
-      expect(process.to_json).to eq('{ \"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an \'ä\'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time }\"],\"end_time\":[\"#{end_time}\"]}')
+      expect(process.to_json).to eq("{\"status\":[\"FAILED\"],\"return_code\":[\"output of return code\"],\"stderr\":[\"this is an \'ä\'\"],\"stdout\":[\"output of stdout\"],\"log_file\":[\"output of log file\"],\"pid\":[\"4711\"],\"reason_for_failure\":[\"great an error occured\"],\"executable\":[\"/usr/bin/true\"],\"start_time\":[\"#{start_time }\"],\"end_time\":[\"#{end_time}\"]}")
     end
 
     it 'returns a yaml encoded string' do
