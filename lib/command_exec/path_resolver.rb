@@ -91,8 +91,8 @@ module CommandExec
         search_paths.each do |path|
           extensions.each do |ext|
             file = File.join(path, "#{cmd}#{ext}")
-            fail Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists? file && !File.file?(file)
-            fail Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists? file && !File.executable?(file)
+            fail Exception::CommandIsNotAFile, "Command '#{file}' is not a file."          if File.exists?(file) && !File.file?(file)
+            fail Exception::CommandIsNotExecutable, "Command '#{file}' is not executable." if File.exists?(file) && !File.executable?(file)
             return file if File.executable? file
           end
         end
