@@ -16,7 +16,7 @@ describe Formatter::XML do
       @formatter.status(:failed)
       @formatter.executable('/usr/bin/true')
 
-      expect(@formatter.output(:stdout,:stderr)).to eq("<command>\n  <stdout>output of stdout</stdout>\n  <stderr>output of stderr</stderr>\n</command>\n")
+      expect(@formatter.output(:stdout, :stderr)).to eq("<command>\n  <stdout>output of stdout</stdout>\n  <stderr>output of stderr</stderr>\n</command>\n")
   end
 
   it 'outputs data as XML string (attributes with multiple values)' do
@@ -28,6 +28,6 @@ describe Formatter::XML do
       @formatter.status(:failed)
       @formatter.executable('/usr/bin/true')
 
-      expect(@formatter.output(:stdout,:stderr)).to eq("<command>\n  <stdout>output of stdout</stdout>\n  <stderr>output of stderr 1/2</stderr>\n  <stderr>output of stderr 2/2</stderr>\n</command>\n")
+      expect(@formatter.output(:stdout, :stderr)).to eq("<command>\n  <stdout>output of stdout</stdout>\n  <stderr>output of stderr 1/2</stderr>\n  <stderr>output of stderr 2/2</stderr>\n</command>\n")
   end
 end

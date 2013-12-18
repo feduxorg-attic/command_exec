@@ -94,7 +94,7 @@ describe Formatter::Hash do
                                       start_time: [],
                                       end_time: [],
                                      )
-      expect(@formatter.output(:stdout,:stderr)).to eq(
+      expect(@formatter.output(:stdout, :stderr)).to eq(
                                                        stdout: ['output of stdout'],
                                                        stderr: ['output of stderr'],
                                                       )
@@ -108,7 +108,7 @@ describe Formatter::Hash do
       @formatter.status(:failed)
       @formatter.executable('/usr/bin/true')
 
-      expect(@formatter.output([:stdout,:stderr])).to eq(
+      expect(@formatter.output([:stdout, :stderr])).to eq(
                                                        stdout: ['output of stdout'],
                                                        stderr: ['output of stderr'],
                                                       )

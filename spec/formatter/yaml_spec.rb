@@ -16,6 +16,6 @@ describe Formatter::YAML do
       @formatter.status(:failed)
       @formatter.executable('/usr/bin/true')
 
-      expect(@formatter.output(:stdout,:stderr)).to eq("---\n:stdout:\n- output of stdout\n:stderr:\n- output of stderr\n")
+      expect(@formatter.output(:stdout, :stderr)).to eq("---\n:stdout:\n- output of stdout\n:stderr:\n- output of stderr\n")
   end
 end

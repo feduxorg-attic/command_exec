@@ -11,24 +11,24 @@ describe Formatter::Array do
   context :private_api do
 
     it 'formats headers (plain)' do
-      expect(@formatter.send(:format_header,:reason_for_failure)).to eq('===== REASON FOR FAILURE =====')
-      expect(@formatter.send(:format_header,:status)).to eq('=====       STATUS       =====')
+      expect(@formatter.send(:format_header, :reason_for_failure)).to eq('===== REASON FOR FAILURE =====')
+      expect(@formatter.send(:format_header, :status)).to eq('=====       STATUS       =====')
     end
 
     it 'formats headers and modifies prefix' do
-      expect(@formatter.send(:format_header,:status, prefix: '-' * 5)).to eq('-----       STATUS       =====')
+      expect(@formatter.send(:format_header, :status, prefix: '-' * 5)).to eq('-----       STATUS       =====')
     end
 
     it 'formats headers and modifies suffix' do
-      expect(@formatter.send(:format_header,:status, suffix: '-' * 5)).to eq('=====       STATUS       -----')
+      expect(@formatter.send(:format_header, :status, suffix: '-' * 5)).to eq('=====       STATUS       -----')
     end
 
     it 'formats headers and modifies suffix/prefix' do
-      expect(@formatter.send(:format_header,:status, prefix: '#' * 5, suffix: '-' * 5)).to eq('#####       STATUS       -----')
+      expect(@formatter.send(:format_header, :status, prefix: '#' * 5, suffix: '-' * 5)).to eq('#####       STATUS       -----')
     end
 
     it 'leaves out nil prefix/suffix' do
-      expect(@formatter.send(:format_header,:status, prefix: nil, suffix: nil)).to eq('      STATUS      ')
+      expect(@formatter.send(:format_header, :status, prefix: nil, suffix: nil)).to eq('      STATUS      ')
     end
 
     it 'finds the longest header names length' do
@@ -163,7 +163,7 @@ describe Formatter::Array do
         '=====      END TIME      =====',
         end_time,
       ])
-      expect(@formatter.output(:stdout,:stderr)).to eq([
+      expect(@formatter.output(:stdout, :stderr)).to eq([
         '=====       STDOUT       =====',
         'output of stdout',
         '=====       STDERR       =====',
@@ -182,7 +182,7 @@ describe Formatter::Array do
       @formatter.return_code('output of return code')
       @formatter.status(:failed)
 
-      expect(@formatter.output([:stdout,:stderr])).to eq([
+      expect(@formatter.output([:stdout, :stderr])).to eq([
         '=====       STDOUT       =====',
         'output of stdout',
         '=====       STDERR       =====',
@@ -197,14 +197,14 @@ describe Formatter::Array do
       @formatter.return_code('output of return code')
       @formatter.status(:failed)
 
-      expect(@formatter.output([:stdout,:stderr])).to eq([
+      expect(@formatter.output([:stdout, :stderr])).to eq([
         '=====       STDOUT       =====',
         'output of stdout',
         '=====       STDERR       =====',
         'output of stderr',
       ])
 
-      expect(@formatter.output([:stderr,:stdout])).to eq([
+      expect(@formatter.output([:stderr, :stdout])).to eq([
         '=====       STDERR       =====',
         'output of stderr',
         '=====       STDOUT       =====',
