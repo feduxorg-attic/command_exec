@@ -143,7 +143,7 @@ describe Command do
       expect(command.working_directory).to eq('/tmp')
 
       # no side effects: the working directory of rspec is the same as before
-      lambda { command.run }  
+      lambda { command.run }
 
       expect(Dir.pwd).to eq(File.expand_path('../..', File.dirname(__FILE__)))
     end
@@ -382,7 +382,7 @@ describe Command do
                                          parameter: "\"wow, a test. That's great.\nBut an error occured in this line\"",
                                          error_detection_on: [:stdout],
                                          error_indicators: {
-                                           forbidden_words_in_stdout: %w{ error } 
+                                           forbidden_words_in_stdout: %w{ error }
                                          },
                                         )
       command.run
