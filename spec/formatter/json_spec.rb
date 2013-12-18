@@ -7,15 +7,15 @@ describe Formatter::JSON do
     @formatter = Formatter::JSON.new
   end
 
-  it "outputs data as json string" do
-      @formatter.stderr(["output of stderr"])
-      @formatter.stdout("output of stdout")
-      @formatter.log_file("output of log file")
-      @formatter.return_code("output of return code")
+  it 'outputs data as json string' do
+      @formatter.stderr(['output of stderr'])
+      @formatter.stdout('output of stdout')
+      @formatter.log_file('output of log file')
+      @formatter.return_code('output of return code')
       @formatter.pid(4711)
       @formatter.status(:failed)
       @formatter.executable('/usr/bin/true')
 
-      expect(@formatter.output(:stdout,:stderr)).to eq("{ \"stdout\":[\"output of stdout\"],\"stderr\":[\"output of stderr\"] }")
+      expect(@formatter.output(:stdout,:stderr)).to eq('{ \"stdout\":[\"output of stdout\"],\"stderr\":[\"output of stderr\"] }')
   end
 end
