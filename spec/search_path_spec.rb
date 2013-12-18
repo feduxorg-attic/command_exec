@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe SearchPath do
 
-  context '#to_a' do
+  context '# to_a' do
     it 'uses ENV[\'PATH\'] if blank' do
       isolated_environment 'PATH' => '/bin' do
         expect(SearchPath.new.to_a).to eq(['/bin'])
@@ -45,7 +45,7 @@ describe SearchPath do
     end
   end
 
-  context '#to_s' do
+  context '# to_s' do
     it 'returns a comma separated list by default' do
       isolated_environment 'PATH' => '/bin:/usr/bin' do
         expect(SearchPath.new.to_s).to eq('/bin,/usr/bin')

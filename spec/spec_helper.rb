@@ -1,4 +1,4 @@
-#encoding: utf-8
+# encoding: utf-8
 $LOAD_PATH << File.expand_path('../lib', File.dirname(__FILE__))
 
 require_relative 'support/code_quality'

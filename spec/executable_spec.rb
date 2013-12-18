@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Executable do
 
-  context '#absolute_path' do
+  context '# absolute_path' do
     it 'triggers path resolver' do
       cmd  = 'file'
       file = create_file(cmd, '', 0755)

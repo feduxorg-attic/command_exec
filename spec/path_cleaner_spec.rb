@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe PathCleaner do
-  context '#cleanup' do
+  context '# cleanup' do
 
     it 'happens nothing if none was chosen' do
       path = './which'

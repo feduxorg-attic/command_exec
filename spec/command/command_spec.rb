@@ -1,4 +1,4 @@
-#encoding: utf-8
+# encoding: utf-8
 
 require 'spec_helper'
 
@@ -18,11 +18,11 @@ describe Command do
     Command.new(:echo, lib_logger: lib_logger, parameter: 'hello world', error_keywords: %q[abc def], working_directory: '/tmp')
   end
 
-  #before(:all)do
-  #  #CommandExec.search_paths = [File.join(examples_directory, 'command'), '/bin', '/usr/bin']
-  #end
+  # before(:all)do
+  #  # CommandExec.search_paths = [File.join(examples_directory, 'command'), '/bin', '/usr/bin']
+  # end
 
-  context '#run' do
+  context '# run' do
     it 'supports relative paths' do
       content = <<-EOS.strip_heredoc
       #!/usr/bin/which bash
@@ -107,20 +107,20 @@ describe Command do
     end
   end
 
-  context '#parameter' do
+  context '# parameter' do
     it 'has parameter' do
       command = Command.new(:true, parameter: 'parameter')
       expect(command.parameter).to eq('parameter')
     end
   end
 
-  context '#options' do
+  context '# options' do
     it 'has options' do
       expect(command.options).to eq('')
     end
   end
 
-  context '#to_s' do
+  context '# to_s' do
     it 'can be used to construct a command string, which can be executed' do
       environment('PATH' => '/bin') {
         command = Command.new(:true, parameter: 'index.tex blub.tex', options: '-a -b')
@@ -129,7 +129,7 @@ describe Command do
     end
   end
 
-  context '#execute' do
+  context '# execute' do
     it 'execute existing programs' do
       silence(:stdout)do
         command = Command.execute(:echo, parameter: 'output', options: '-- -a -b')
@@ -138,11 +138,11 @@ describe Command do
     end
   end
 
-  context '#run' do
+  context '# run' do
     it 'offers the possibility to change the working directory of the process without any side effects' do
       expect(command.working_directory).to eq('/tmp')
 
-      #no side effects: the working directory of rspec is the same as before
+      # no side effects: the working directory of rspec is the same as before
       lambda { command.run }
 
       expect(Dir.pwd).to eq(File.expand_path('../..', File.dirname(__FILE__)))
@@ -268,7 +268,7 @@ describe Command do
 
 
     it 'removes newlines from stdout' do
-      #same for stderr
+      # same for stderr
       command = Command.new(:stdout_multiple_lines_test, 
                             error_detection_on: :stdout, 
                             error_indicators: {forbidden_words_in_stdout: %w{error}})
@@ -342,14 +342,14 @@ describe Command do
     end
 
     it 'support open3 as runner' do
-      #implicit via default value (open3)
+      # implicit via default value (open3)
       command = Command.new(:runner_open3_test,
                             error_detection_on: :return_code, 
                             error_indicators: {allowed_return_code: [0]})
       command.run
       expect(command.result.status).to eq(:success)
 
-      #or explicit
+      # or explicit
       command = Command.new(:runner_open3_test,
                             run_via: :open3,
                             error_detection_on: :return_code, 

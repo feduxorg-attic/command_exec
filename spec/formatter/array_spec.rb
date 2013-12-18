@@ -1,4 +1,4 @@
-#encoding: utf-8
+# encoding: utf-8
 
 require 'spec_helper'
 
@@ -43,7 +43,7 @@ describe Formatter::Array do
       expect(@formatter.send(:halign, '0123', 11, :center)).to        eq('   0123    ')
       expect(@formatter.send(:halign, '01234567891', 11, :center)).to eq('01234567891')
 
-      #default = center
+      # default = center
       expect(@formatter.send(:halign, '01234567891', 11, :unknown)).to eq('01234567891')
     end
 
