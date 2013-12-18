@@ -1,3 +1,4 @@
+# encoding: utf-8
 unless ENV['CI'] == 'true'
   require 'pry'
   require 'debugger'

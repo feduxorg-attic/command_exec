@@ -1,10 +1,9 @@
 # encoding: utf-8
-
 require 'spec_helper'
 
 describe CommandExec::Process do
 
-  let(:dev_null) {StringIO.new}
+  let(:dev_null) { StringIO.new } 
 
   context :private_api do; end
 

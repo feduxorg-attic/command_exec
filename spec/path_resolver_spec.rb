@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'spec_helper'
 
 describe PathResolver do
@@ -55,33 +56,33 @@ describe PathResolver do
     it 'raises an exception if no suitable file can be found in path' do
       cmd      = 'asdf'
       resolver = PathResolver.new(search_paths: [working_directory])
-      expect{ resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandNotFound
+      expect { resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandNotFound
     end
 
     it 'raises an exception if file is found in PATH-environment var but is not executable' do
       cmd      = 'asdf'
       create_file(cmd, '', 0644)
       resolver = PathResolver.new(search_paths: [working_directory])
-      expect{ resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotExecutable
+      expect { resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotExecutable
     end
 
     it 'raises an exception if file is found in PATH-environment var but is not a file' do
       cmd      = 'asdf'
       create_directory(cmd)
       resolver = PathResolver.new(search_paths: [working_directory])
-      expect{ resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotAFile
+      expect { resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotAFile
     end
 
     it 'raises an exception if fully qualified path does not exist' do
       cmd      = '/tmp/asdf'
       resolver = PathResolver.new(search_paths: [working_directory])
-      expect{ resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandNotFound
+      expect { resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandNotFound
     end
 
     it 'raises an exception if fully qualified path is not executable' do
       cmd = create_file('file', '', 0644)
       resolver = PathResolver.new(search_paths: [working_directory])
-      expect{ resolver.absolute_path(cmd) }.to raise_error Exceptions::CommandIsNotExecutable
+      expect { resolver.absolute_path(cmd)  }.to raise_error Exceptions::CommandIsNotExecutable
     end
 
     it 'raises an exception if fully qualified path is not a file' do

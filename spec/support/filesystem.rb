@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'fedux_org/stdlib/filesystem'
 include FeduxOrg::Stdlib::Filesystem
 
@@ -11,4 +12,4 @@ def in_directory(directory, &block)
   end
 end
 
-alias :in_working_directory :switch_to_working_directory
+alias :in_working_directory:switch_to_working_directory

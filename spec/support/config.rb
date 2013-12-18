@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'command_exec/spec_helper'
 
 RSpec.configure do |c|
