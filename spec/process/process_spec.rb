@@ -68,63 +68,63 @@ describe CommandExec::Process do
     end
 
     it 'takes stdout' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.stdout = 'content'
       expect(process.stdout).to eq(['content'])
 
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.stdout = ['content']
       expect(process.stdout).to eq(['content'])
     end
 
     it 'takes stderr' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.stderr = 'content'
       expect(process.stderr).to eq(['content'])
 
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.stderr = ['content']
       expect(process.stderr).to eq(['content'])
     end
 
     it 'takes a pid' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.pid = 4711
       expect(process.pid).to eq('4711')
 
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.pid = '4711'
       expect(process.pid).to eq('4711')
     end
 
     it 'takes a status' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.status = :failed
       expect(process.status).to eq(:failed)
 
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.status = :success
       expect(process.status).to eq(:success)
 
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.status = :unknown
       expect(process.status).to eq(:failed)
     end
 
     it 'takes a reason for a failure' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.reason_for_failure = 'this is an error msg'
       expect(process.reason_for_failure).to eq(['this is an error msg'])
     end
 
     it 'takes a return code' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
       process.return_code = 1
       expect(process.return_code).to eq(1)
     end
 
     it 'returns an array' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
 
       process.stderr = 'output of stderr'
       process.stdout = 'output of stdout'
@@ -171,7 +171,7 @@ describe CommandExec::Process do
     end
 
     it 'returns a hash' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
 
       process.stderr = 'output of stderr'
       process.stdout = 'output of stdout'
@@ -187,7 +187,7 @@ describe CommandExec::Process do
       process.start_time = start_time
       process.end_time = end_time
 
-      expect(process.to_h).to eq({ 
+      expect(process.to_h).to eq({
         stderr: ['output of stderr'],
         stdout: ['output of stdout'],
         log_file: ['output of log file'],
@@ -202,7 +202,7 @@ describe CommandExec::Process do
     end
 
     it 'returns a string version of process' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
 
       process.stderr = 'output of stderr'
       process.stdout = 'output of stdout'
@@ -244,7 +244,7 @@ describe CommandExec::Process do
     end
 
     it 'returns a json encoded string' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
 
       process.stderr = 'output of stderr'
       process.stdout = 'output of stdout'
@@ -264,7 +264,7 @@ describe CommandExec::Process do
     end
 
     it 'returns a json encoded string and supports unicode as well' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
 
       process.stderr = 'this is an \'ä\''
       process.stdout = 'output of stdout'
@@ -284,7 +284,7 @@ describe CommandExec::Process do
     end
 
     it 'returns a yaml encoded string' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
 
       process.stderr = 'output of stderr'
       process.stdout = 'output of stdout'
@@ -306,7 +306,7 @@ describe CommandExec::Process do
     end
 
     it 'returns a xml encoded string' do
-      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null)) 
+      process = CommandExec::Process.new(lib_logger: Logger.new(dev_null))
 
       process.stderr = 'output of stderr'
       process.stdout = 'output of stdout'
