@@ -5,6 +5,7 @@ RSpec.configure do |c|
   c.treat_symbols_as_metadata_keys_with_true_values = true
   c.filter_run_including :focus => true
   c.run_all_when_everything_filtered = true
+
   c.before(:each){
     cleanup_working_directory
   }
