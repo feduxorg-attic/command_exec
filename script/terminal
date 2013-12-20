@@ -2,11 +2,13 @@
 # encoding: utf-8
 require 'tmrb'
 
-tmux = TmRb::Multiplexer.new
-# creates an empty window
-tmux.new_session(session_name: 'command_exec')
+Dir.chdir(File.expand_path('../..', __FILE__)) do
+  tmux = TmRb::Multiplexer.new
+  # creates an empty window
+  tmux.new_session(session_name: 'command_exec')
 
-tmux.new_window(name: 'code',     command: "zsh -c 'vim -p lib/**/*.rb'")
-tmux.new_window(name: 'spec',     command: "zsh -c 'vim -p spec/**/*.rb'")
-tmux.new_window(name: 'features', command: "zsh -c 'vim -p features/**/*.{rb,feature}'")
-tmux.start
+  tmux.new_window(name: 'code',     command: "zsh -c 'vim -p -c \\\":NERDTree lib/\\\"'")
+  tmux.new_window(name: 'spec',     command: "zsh -c 'vim -p -c \\\":NERDTree spec\\\"'")
+  tmux.new_window(name: 'features', command: "zsh -c 'vim -p -c \\\":NERDTree features\\\"'")
+  tmux.start
+end
