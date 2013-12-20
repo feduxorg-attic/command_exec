@@ -105,60 +105,106 @@ describe Command do
       result = command.run
       expect(result.stdout).to eq(['-q hello world'])
     end
-  end
 
-  context '# parameter' do
     it 'has parameter' do
-      command = Command.new(:true, parameter: 'parameter')
-      expect(command.parameter).to eq('parameter')
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      echo $*
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd, parameter: 'hello world', search_paths: [working_directory])
+      result = command.run
+      expect(result.stdout).to eq(['hello world'])
     end
   end
 
-  context '# options' do
-    it 'has options' do
-      expect(command.options).to eq('')
-    end
-  end
-
-  context '# to_s' do
+  context '#to_s' do
     it 'can be used to construct a command string, which can be executed' do
-      environment('PATH' => '/bin') do
-        command = Command.new(:true, parameter: 'index.tex blub.tex', options: '-a -b')
-        expect(command.to_s).to eq('/bin/true -a -b index.tex blub.tex')
-      end
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd, parameter: 'hello world', search_paths: [working_directory])
+      expect(command.to_s).to eq(File.join(working_directory, 'cmd') + ' hello world')
+    end
+
+    it 'fails if command cannot be found' do
+      expect do
+        Command.new(:cmd, parameter: 'hello world', search_paths: [working_directory])
+      end.to raise_error CommandExec::Exceptions::CommandNotFound
     end
   end
 
-  context '# execute' do
+  context '#execute' do
     it 'execute existing programs' do
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
       silence(:stdout)do
-        command = Command.execute(:echo, parameter: 'output', options: '-- -a -b')
+        command = Command.execute(:cmd, search_paths: [working_directory])
         expect(command.result.status).to eq(:success)
       end
     end
   end
 
-  context '# run' do
+  context '#run' do
     it 'offers the possibility to change the working directory of the process without any side effects' do
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+      command = Command.new(:cmd, search_paths: [working_directory], working_directory: '/tmp')
+
       expect(command.working_directory).to eq('/tmp')
 
       # no side effects: the working directory of rspec is the same as before
       ->{ command.run }
 
-      expect(Dir.pwd).to eq(File.expand_path('../..', File.dirname(__FILE__)))
+      expect(Dir.pwd).to eq(File.expand_path('..', File.dirname(__FILE__)))
     end
 
     it 'runs programms' do
       silence(:stdout)do
-        command = Command.new(:echo, parameter: 'output')
-        command.run
+        content = <<-EOS.strip_heredoc
+        #!/usr/bin/bash
+        exit 0
+        EOS
 
-        expect(command.result.status).to eq(:success)
+        create_file('cmd', content, 0755)
+        command = Command.new(:cmd, search_paths: [working_directory])
+        expect(command.run.status).to eq(:success)
       end
     end
 
-    it 'is very verbose and returns a lot of output' do
-      command = Command.new(:echo, parameter: 'output', lib_logger: lib_logger)
+    it 'produces output on debug, info, warn, error-loglevel' do
+      # if you choose the system runner output of commands will be not suppressed'
+      logger = double('LocalLogger')
+      allow(logger).to receive(:debug)
+      allow(logger).to receive(:info)
+      allow(logger).to receive(:warn)
+      allow(logger).to receive(:error)
+      allow(logger).to receive(:mode=)
+
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd, search_paths: [working_directory], lib_logger: logger)
       command.run
     end
 
@@ -171,208 +217,359 @@ describe Command do
       allow(logger).to receive(:error)
       expect(logger).to receive(:mode=).with(:silent)
 
-      command = Command.new(:echo, parameter: 'output', lib_logger: logger, lib_log_level: :silent)
-      command.run
-    end
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
 
-    it 'use a log file if given' do
-      application_log_file = create_temp_file_with('command_exec_test', 'TEXT IN LOG')
+      create_file('cmd', content, 0755)
 
-      command = Command.new(:logger_test,
-                            lib_logger: lib_logger,
-                            log_file: application_log_file
-                           )
+      command = Command.new(:cmd, search_paths: [working_directory], lib_logger: logger, lib_log_level: :silent)
       command.run
     end
 
     it 'outputs only warnings when told to output those' do
-      bucket = StringIO.new
-      lib_logger = FeduxOrg::Stdlib::Logging::Logger.new(Logger.new(bucket))
+      logger = double('LocalLogger')
+      allow(logger).to receive(:debug)
+      allow(logger).to receive(:info)
+      allow(logger).to receive(:warn)
+      expect(logger).to receive(:warn).with('Logfile does_not_exist not found!')
+      allow(logger).to receive(:error)
+      allow(logger).to receive(:mode=)
 
-      command = Command.new(:logger_test,
-                            lib_logger: lib_logger,
-                            lib_log_level: :warn,
-                            log_file: '/tmp/i_do_not_exist.log'
-                           )
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd, search_paths: [working_directory], lib_logger: logger, log_file: 'does_not_exist')
       command.run
-
-      expect(bucket.string['WARN']).to_not eq(nil)
     end
 
     it 'considers status for error handling (default 0)' do
-      command = Command.new(:exit_status_test,
-                            parameter: '1',
-                            error_detection_on: [:return_code],
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
+                            error_detection_on: [:return_code]
                            )
-      command.run
-      expect(command.result.status).to eq(:failed)
+      expect(command.run.status).to eq(:failed)
     end
 
     it 'considers status for error handling (single value as array)' do
-      command = Command.new(:exit_status_test,
-                            parameter: '1',
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             error_detection_on: [:return_code],
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.status).to eq(:failed)
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+      expect(command.run.status).to eq(:failed)
     end
 
     it 'considers status for error handling (single value as symbol)' do
-      command = Command.new(:exit_status_test,
-                            parameter: '1',
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.status).to eq(:failed)
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+      expect(command.run.status).to eq(:failed)
     end
 
     it 'considers status for error handling (single value)' do
-      command = Command.new(:exit_status_test,
-                            parameter: '0',
-                            error_detection_on: [:return_code],
-                            error_indicators: { allowed_return_code: [0, 2] })
-      command.run
-      expect(command.result.status).to eq(:success)
+      content_0 = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
 
-      command = Command.new(:exit_status_test,
-                            parameter: '2',
-                            error_detection_on: [:return_code],
-                            error_indicators: { allowed_return_code: [0, 2] })
-      command.run
-      expect(command.result.status).to eq(:success)
+      content_2 = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 2
+      EOS
+
+      create_file('cmd_0', content_0, 0755)
+      create_file('cmd_2', content_2, 0755)
+
+      command = Command.new(:cmd_0,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
+                            error_detection_on: :return_code,
+                            error_indicators: { allowed_return_code: [0, 2] }
+                           )
+      expect(command.run.status).to eq(:success)
+
+      command = Command.new(:cmd_2,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
+                            error_detection_on: :return_code,
+                            error_indicators: { allowed_return_code: [0, 2] }
+                           )
+
+      expect(command.run.status).to eq(:success)
     end
 
     it 'considers stderr for error handling' do
-      command = Command.new(:stderr_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      echo error >&2
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             error_detection_on: :stderr,
-                            error_indicators: { forbidden_words_in_stderr: %w{error} })
-      command.run
-      expect(command.result.status).to eq(:failed)
+                            error_indicators: { forbidden_words_in_stderr: %w{error} }
+                           )
+      expect(command.run.status).to eq(:failed)
     end
 
     it 'considers stderr for error handling but can make exceptions' do
-      command = Command.new(:stderr_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      echo error. execution failed >&2
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             error_detection_on: :stderr,
-                            error_indicators: { forbidden_words_in_stderr: %w{error}, allowed_words_in_stderr: ['error. execution failed'] })
-      command.run
-      expect(command.result.status).to eq(:success)
+                            error_indicators: { forbidden_words_in_stderr: %w{error}, allowed_words_in_stderr: ['error. execution failed'] }
+                           )
+      expect(command.run.status).to eq(:success)
     end
 
     it 'considers stdout for error handling' do
-      command = Command.new(:stdout_test,
-                            error_detection_on: :stdout,
-                            error_indicators: { forbidden_words_in_stdout: %w{error} })
-      command.run
-      expect(command.result.status).to eq(:failed)
-    end
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      echo error
+      exit 0
+      EOS
 
-    it 'removes newlines from stdout' do
-      # same for stderr
-      command = Command.new(:stdout_multiple_lines_test,
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             error_detection_on: :stdout,
-                            error_indicators: { forbidden_words_in_stdout: %w{error} })
-      command.run
-      expect(command.result.stdout).to eq(['error. execution failed', 'error. execution failed'])
+                            error_indicators: { forbidden_words_in_stdout: %w{error} }
+                           )
+      expect(command.run.status).to eq(:failed)
     end
 
     it 'considers log file for error handling' do
-      temp_file = create_temp_file_with('log_file_test', 'error, huh, what goes on')
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+      create_file('cmd', content, 0755)
 
-      command = Command.new(:log_file_test,
-                            log_file: temp_file,
+      content = <<-EOS.strip_heredoc
+      error
+      error
+      EOS
+      logfile = create_file('logfile', content, 0644)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
+                            log_file: logfile,
                             error_detection_on: :log_file,
-                            error_indicators: { forbidden_words_in_log_file: %w{error} })
-      command.run
-      expect(command.result.status).to eq(:failed)
+                            error_indicators: { forbidden_words_in_log_file: %w{error} }
+                           )
+      expect(command.run.status).to eq(:failed)
     end
 
     it 'returns the result of command execution as process object (defaults to :return_process_information)' do
-      command = Command.new(:output_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.class).to eq(CommandExec::Process)
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+      expect(command.run).to respond_to(:status)
     end
 
     it 'returns the result of command execution as process object' do
-      command = Command.new(:output_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             on_error_do: :return_process_information,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.class).to eq(CommandExec::Process)
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+      expect(command.run).to respond_to(:status)
     end
 
     it 'does nothing on error if told so' do
-      command = Command.new(:raise_error_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             on_error_do: :nothing,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
+                            error_indicators: { allowed_return_code: [0] }
+                           )
       expect { command.run }.to_not raise_error
       expect { command.run }.to_not throw_symbol
     end
 
     it 'raises an exception' do
-      command = Command.new(:raise_error_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             on_error_do: :raise_error,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+
       expect { command.run }.to raise_error(CommandExec::Exceptions::CommandExecutionFailed)
 
-      command = Command.new(:not_raise_error_test,
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             on_error_do: :raise_error,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
+                            error_indicators: { allowed_return_code: [1] }
+                           )
       expect { command.run }.to_not raise_error
     end
 
     it 'throws an error' do
-      command = Command.new(:throw_error_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             on_error_do: :throw_error,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
+                            error_indicators: { allowed_return_code: [0] }
+                           )
       expect { command.run }.to throw_symbol(:command_execution_failed)
 
-      command = Command.new(:not_throw_error_test,
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             on_error_do: :throw_error,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
+                            error_indicators: { allowed_return_code: [1] }
+                           )
       expect { command.run }.to_not throw_symbol
     end
 
-    it 'support open3 as runner' do
-      # implicit via default value (open3)
-      command = Command.new(:runner_open3_test,
-                            error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.status).to eq(:success)
+    it 'support open3 as runner (default)' do
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
 
-      # or explicit
-      command = Command.new(:runner_open3_test,
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             run_via: :open3,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.status).to eq(:success)
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+
+      expect(command.run.status).to eq(:success)
     end
 
     it 'support system as runner' do
-      command = Command.new(:runner_system_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             run_via: :system,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.status).to eq(:success)
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+
+      expect(command.run.status).to eq(:success)
     end
 
     it 'has a default runner: open3' do
-      command = Command.new(:runner_system_test,
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      exit 0
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd,
+                            search_paths: [working_directory],
+                            lib_logger: lib_logger,
                             run_via: :unknown_runner,
                             error_detection_on: :return_code,
-                            error_indicators: { allowed_return_code: [0] })
-      command.run
-      expect(command.result.status).to eq(:success)
+                            error_indicators: { allowed_return_code: [0] }
+                           )
+      expect(command.run.status).to eq(:success)
     end
 
     it 'find errors beyond newlines in the string' do

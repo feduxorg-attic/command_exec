@@ -195,8 +195,8 @@ module CommandExec
           system(to_s)
           process.stdout = []
           process.stderr = []
-          process.pid = $CHILD_STATUS.pid
-          process.return_code = $CHILD_STATUS.exitstatus
+          process.pid = $?.pid
+          process.return_code = $?.exitstatus
         end
       else
         Open3::popen3(to_s, chdir: @working_directory) do |stdin, stdout, stderr, wait_thr|
