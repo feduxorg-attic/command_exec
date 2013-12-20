@@ -191,13 +191,12 @@ module CommandExec
         process.pid         = result.pid
         process.return_code = result.return_code
       when :system
-        Dir.chdir(@working_directory) do
-          system(to_s)
-          process.stdout = []
-          process.stderr = []
-          process.pid = $?.pid
-          process.return_code = $?.exitstatus
-        end
+        runner = Runner::System.new(@logger)
+        result = runner.run(self)
+        process.stdout      = result.stdout
+        process.stderr      = result.stderr
+        process.pid         = result.pid
+        process.return_code = result.return_code
       else
         Open3::popen3(to_s, chdir: @working_directory) do |stdin, stdout, stderr, wait_thr|
           process.stdout = stdout.readlines.map(&:chomp)
