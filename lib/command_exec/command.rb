@@ -184,12 +184,12 @@ module CommandExec
 
       case @run_via
       when :open3
-        Open3::popen3(to_s, chdir: @working_directory) do |stdin, stdout, stderr, wait_thr|
-          process.stdout = stdout.readlines.map(&:chomp)
-          process.stderr = stderr.readlines.map(&:chomp)
-          process.pid = wait_thr.pid
-          process.return_code = wait_thr.value.exitstatus
-        end
+        runner = Runner::Open3.new(@logger)
+        result = runner.run(self)
+        process.stdout      = result.stdout
+        process.stderr      = result.stderr
+        process.pid         = result.pid
+        process.return_code = result.return_code
       when :system
         Dir.chdir(@working_directory) do
           system(to_s)
