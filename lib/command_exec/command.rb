@@ -182,29 +182,20 @@ module CommandExec
 
       process.start_time = Time.now
 
-      case @run_via
+      runner = case @run_via
       when :open3
-        runner = Runner::Open3.new(@logger)
-        result = runner.run(self)
-        process.stdout      = result.stdout
-        process.stderr      = result.stderr
-        process.pid         = result.pid
-        process.return_code = result.return_code
+        Runner::Open3.new(@logger)
       when :system
-        runner = Runner::System.new(@logger)
-        result = runner.run(self)
-        process.stdout      = result.stdout
-        process.stderr      = result.stderr
-        process.pid         = result.pid
-        process.return_code = result.return_code
+        Runner::System.new(@logger)
       else
-        Open3::popen3(to_s, chdir: @working_directory) do |stdin, stdout, stderr, wait_thr|
-          process.stdout = stdout.readlines.map(&:chomp)
-          process.stderr = stderr.readlines.map(&:chomp)
-          process.pid = wait_thr.pid
-          process.return_code = wait_thr.value.exitstatus
-        end
+        Runner::Open3.new(@logger)
       end
+
+      result = runner.run(self)
+      process.stdout      = result.stdout
+      process.stderr      = result.stderr
+      process.pid         = result.pid
+      process.return_code = result.return_code
 
       process.end_time = Time.now
       error_detector = ErrorDetector.new
