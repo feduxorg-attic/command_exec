@@ -30,9 +30,6 @@ module CommandExec
     # @!attribute [r] reason_for_failure
     #   Get the reason why `command_exec` thinks a command failed
     #
-    # @!attribute [r] return_code
-    #   Get the exit code of the command
-    #
     # @!attribute [r] pid
     #   Get the pid of the command
     attr_reader :status, :log_file, :stdout, :stderr, :reason_for_failure, :pid
