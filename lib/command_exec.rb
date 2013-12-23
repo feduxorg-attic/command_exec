@@ -20,6 +20,7 @@ require 'command_exec/path_cleaner'
 require 'command_exec/executable'
 require 'command_exec/secured_executable'
 require 'command_exec/simple_executable'
+require 'command_exec/runner/base'
 require 'command_exec/runner/open3'
 require 'command_exec/runner/system'
 
