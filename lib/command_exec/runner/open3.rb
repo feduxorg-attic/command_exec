@@ -2,7 +2,6 @@
 module CommandExec
   module Runner
     class Open3 < Base
-
       # Create new runner
       #
       # @param [#to_s,#working_directory] command

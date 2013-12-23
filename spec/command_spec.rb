@@ -119,6 +119,20 @@ describe Command do
       result = command.run
       expect(result.stdout).to eq(['hello world'])
     end
+
+    it 'meassures runtime', :focus do
+      content = <<-EOS.strip_heredoc
+      #!/usr/bin/bash
+      sleep 1
+      exit 1
+      EOS
+
+      create_file('cmd', content, 0755)
+
+      command = Command.new(:cmd, search_paths: [working_directory])
+      result = command.run
+      expect(result.runtime.to_i).to eq(1)
+    end
   end
 
   context '#to_s' do

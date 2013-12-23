@@ -23,6 +23,7 @@ require 'command_exec/simple_executable'
 require 'command_exec/runner/base'
 require 'command_exec/runner/open3'
 require 'command_exec/runner/system'
+require 'command_exec/runtime_logger'
 
 require 'the_array_comparator'
 

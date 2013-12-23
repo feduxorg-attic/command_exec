@@ -9,7 +9,7 @@ module CommandExec
 
       # @!attribute [r] logger
       #   the logger
-      attr_reader   :logger
+      attr_reader   :logger, :runtime_logger
 
       public
 
@@ -19,11 +19,19 @@ module CommandExec
       #   the logger
       def initialize(logger)
         @logger = logger
+        @runtime_logger = RuntimeLogger.new
       end
 
       # Run command
       def run(*args)
-        _run(*args)
+        runtime_logger.start
+
+        process = _run(*args)
+
+        runtime_logger.stop
+        process.runtime = runtime_logger.duration
+
+        process
       end
     end
   end

@@ -16,7 +16,7 @@ module CommandExec
     #
     # @!attribute [rw] end_time
     #   Set/Get the end time of the command execution
-    attr_accessor :executable, :return_code, :start_time, :end_time
+    attr_accessor :executable, :return_code, :start_time, :end_time, :runtime
 
     # @!attribute [r] status
     #   Get the status of the command
@@ -90,6 +90,7 @@ module CommandExec
 
       @start_time = nil
       @end_time = nil
+      @runtime = nil
     end
 
     # Set the name of the log file

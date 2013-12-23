@@ -176,22 +176,18 @@ module CommandExec
     #   occured and `command_exec` should throw an error (which you can catch)
     #   in the case of an error
     def run
-
-
       runner = case @run_via
-      when :open3
-        Runner::Open3.new(@logger)
-      when :system
-        Runner::System.new(@logger)
-      else
-        Runner::Open3.new(@logger)
-      end
+               when :open3
+                 Runner::Open3.new(@logger)
+               when :system
+                 Runner::System.new(@logger)
+               else
+                 Runner::Open3.new(@logger)
+               end
 
       process = runner.run(self)
-      process.start_time = Time.now
       process.log_file = @log_file if @log_file
 
-      process.end_time = Time.now
       error_detector = ErrorDetector.new
 
       if @error_detection_on.include?(:return_code)
