@@ -120,7 +120,7 @@ describe Command do
       expect(result.stdout).to eq(['hello world'])
     end
 
-    it 'meassures runtime', :focus do
+    it 'meassures runtime' do
       content = <<-EOS.strip_heredoc
       #!/usr/bin/bash
       sleep 1
